@@ -22,16 +22,27 @@ plt.plot(Q, P5, label='demanda (P = 50 - 2Q)', color='green', linewidth=2)
 
 plt.legend(loc='upper left', fontsize=12)
 
+
+# equilibrium monopolistico without respect to the demand:
+
+Q_eq_m = 9
+P_eq_m = 14
+
+plt.plot([Q_eq_m, Q_eq_m], [0, P_eq_m], 'gray', linestyle='--', linewidth=1)
+plt.hlines(y=P_eq_m,xmin=0,xmax=Q_eq_m,colors='gray',linestyles='--',linewidth=1)
+
+plt.scatter([Q_eq_m],[P_eq_m], color='black', zorder=5) #equilibrium without demand
+plt.text(Q_eq_m + 1, P_eq_m + 1,'E1 monopolio (9, 14) (sin respetar la demanda)', fontsize=14)
+
 # let's find an equilibrium monopolistico
 Q_eq = 9    # =15
 P_eq = 32
-
 
 plt.plot([Q_eq, Q_eq], [0, P_eq], 'gray', linestyle='--', linewidth=1)
 plt.hlines(y=P_eq,xmin=0,xmax=Q_eq,colors='gray',linestyles='--',linewidth=1)
 
 plt.scatter([Q_eq],[P_eq], color='black', zorder=5) #equilibrium
-plt.text(Q_eq + 1, P_eq + 1,'E monopolio (9, 32)', fontsize=14)
+plt.text(Q_eq + 1, P_eq + 1,'E2 monopolio (9, 32)', fontsize=14)
 
 
 plt.xlim(0, 50)

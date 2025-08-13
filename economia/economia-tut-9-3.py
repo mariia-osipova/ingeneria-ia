@@ -7,42 +7,39 @@ import sympy as sp
 Q = np.linspace(0, 500, 400)
 
 #P = 10
-P1 = 2 + 0.25 * Q #Cmg
-P2 = 2 + 0.40 * Q #Cmg2
-P3 = 2 * Q + 0.5 * Q ** 2
-P4 = 10 * Q #Img = const porq' es cp
+P1 = 2 + 0.25 * Q #Cmg privado
+P2 = 2 + 0.40 * Q #Cmg social
+P3 = 2 * Q + 0.5 * Q ** 2 #CVT
+P4 = 10 + Q * 0 #Img = const porq' es cp
 
 plt.figure(figsize=(7, 7))
 
 plt.plot(Q, P1, label='Cmg1', linewidth=2)
 plt.plot(Q, P2, label='Cmg2', color='red', linewidth=2)
-plt.plot(Q, P3, label='costos variables totales (CVT = 5 * Q + Q^2 / 2)', color='orange', linewidth=2)
-#plt.plot(Q, P4, label='CVM = 5 + Q/2', color='violet', linewidth=2)
+plt.plot(Q, P3, label='costos variables totales (CVT = 2 * Q + 0.5 * Q ** 2)', color='orange', linewidth=2)
+plt.plot(Q, P4, label='Img', color='violet', linewidth=2)
 #plt.plot(Q, P5, label='demanda (P = 50 - 2Q)', color='green', linewidth=2)
 
 
-#lest find the fucking Q1
+#lest find the fucking Q1 from a)
 
-Q_sym = sp.symbols('Q')
-sol = sp.solve(2 + 0.25*Q_sym - 10*Q_sym, Q_sym)
-print(sol)
+
+# 10 = 2 + 0.25 * Q
+# Q = 32
+
+Q_priv = 32
+P_priv = 10
+
+plt.plot([Q_priv, Q_priv], [0, P_priv], 'gray', linestyle='--', linewidth=1)
+plt.hlines(y=P_priv,xmin=0,xmax=Q_priv,colors='gray',linestyles='--',linewidth=1)
 
 plt.legend(loc='upper left', fontsize=12)
 
-#plt.plot([Q_eq_cp, Q_eq_cp], [0, P_eq_cp], 'gray', linestyle='--', linewidth=1)
-#plt.hlines(y=P_eq_cp,xmin=0,xmax=Q_eq_cp,colors='gray',linestyles='--',linewidth=1)
-
-#plt.scatter([Q_eq_cp],[P_eq_cp], color='black', zorder=5) #equilibrium
-#plt.text(Q_eq_cp + 1, P_eq_cp + 1,'E1', fontsize=14)
+plt.scatter([Q_priv],[P_priv], color='black', zorder=5) #equilibrium
+plt.text(Q_priv + 1, P_priv + 1,'E1', fontsize=14)
 
 
 #tengo fiaca de calcular a mano los excedentes:
-
-exc_cons = 0.5 * 180 * (48 - 12)
-exc_prod = 0.5 * 180 * 12
-
-print('excedente de consumidor: ', exc_cons, 'excedente de productor: ', exc_prod)
-
 #mask = Q <= 180
 
 #plt.fill_between(Q[mask], P1[mask], P_eq_cp, color='blue', alpha=0.2)
@@ -96,7 +93,7 @@ plt.xlabel('Q', fontsize=14)
 plt.grid(True)
 
 plt.xlim(0, 30)
-plt.ylim(0,15)
+plt.ylim(0, 15)
 
 
 #save

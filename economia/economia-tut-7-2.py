@@ -43,8 +43,6 @@ plt.hlines(y=P_eq,xmin=0,xmax=Q_eq,colors='gray',linestyles='--',linewidth=1)
 
 plt.scatter([Q_eq],[P_eq], color='black', zorder=5) #equilibrium
 plt.text(Q_eq + 1, P_eq + 1,'E2 monopolio (9, 32)', fontsize=14)
-
-
 plt.xlim(0, 50)
 plt.ylim(0,50)
 

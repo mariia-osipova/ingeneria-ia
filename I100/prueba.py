@@ -40,3 +40,5 @@ b = int(b / d)
 c = int(c / d)
 
 print(a,"x+",b,"y=", c, sep="")
+
+#prueba de connecting the new acc

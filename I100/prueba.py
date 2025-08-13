@@ -41,4 +41,4 @@ c = int(c / d)
 
 print(a,"x+",b,"y=", c, sep="")
 
-#prueba de connecting the new acc
+#prueba de connecting the new acc 2

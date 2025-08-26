@@ -1,4 +1,3 @@
-clave_ing= str(input("ingress the key: "))
 clave = str("Python1234")
 
 intents = 0

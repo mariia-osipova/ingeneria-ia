@@ -12,7 +12,7 @@ for ronda in range(m):
         ret[n] += opcionX
     else:
         ret[n] += Y
-        optionX = X//(c1 +1)
+        opcionX = X//(c1 +1)
     for i in range(n):
         if c[i] == 2:
             ret[i] += Y

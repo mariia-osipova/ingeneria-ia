@@ -77,19 +77,14 @@ def predict(status, dias):
     max_racha_nevado = max(racha_nevado)
 
     lista_max_racha = [max_racha_soleado, max_racha_nubloso, max_racha_lluvioso, max_racha_tormenta, max_racha_nevado]
-
     max_racha = max(lista_max_racha)
-
     max_racha_index = lista_max_racha.index(max_racha)
-
     clima_racha = lista_status[max_racha_index]
 
-    print(f"racha de {max_racha} deias: {clima_racha}")
+    print(f"racha de {max_racha} dias: {clima_racha}")
 
     frequency = [dias_soleado, dias_nubloso, dias_lluvioso, dias_tormenta, dias_nevado]
-
     max_freq = max(frequency)
-
     max_freq_index = frequency.index(max_freq)
 
     s = "dias soleados:"

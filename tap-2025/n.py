@@ -1,9 +1,11 @@
-n = int(input())
-minX = 0
-minY = 0
+from math import inf
 
-maxX = 10**20
-maxY = 10**20
+n = int(input())
+minX = inf
+minY = inf
+
+maxX = - inf
+maxY = - inf
 
 for i in range(n):
     x, y = map(int, input().split())

@@ -21,3 +21,5 @@ for ronda in range(m):
             ret[i] += opcionX
 
 print(" ".join(map(str, ret)))
+
+#print(*ret)

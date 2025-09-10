@@ -88,10 +88,10 @@ def predict(status, dias):
     max_freq_index = frequency.index(max_freq)
 
     s = "dias soleados:"
-    n = "dias nubloso:"
-    l = "dias lluvioso:"
-    t = "dias tormenta:"
-    ne = "dias nevado:"
+    n = "dias nublosos:"
+    l = "dias lluviosos:"
+    t = "dias tormentas:"
+    ne = "dias nevados:"
 
     len_s = len(s)
     len_n = len(n)

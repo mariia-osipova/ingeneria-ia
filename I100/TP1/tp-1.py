@@ -99,8 +99,6 @@ def predict(status, dias):
     len_t = len(t)
     len_ne = len(ne)
 
-    print(s, n, l, t, ne)
-
     length_max = max(len_s, len_n, len_l, len_t, len_ne) + 1
 
     dif_s = " " * (length_max - len_s)
@@ -132,5 +130,3 @@ def predict(status, dias):
     print(f"clima mas frequente: {lista_status[max_freq_index]}")
 
 predict(status, dias)
-
-

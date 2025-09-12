@@ -1,7 +1,6 @@
 import random
 
 def predict(status, dias, matrix_probability, lista_status, dicc_status):
-
     for i in range(1, dias + 1):
         print(f"dia {i}: {dicc_status[status]} {status}")
         row_index = lista_status.index(status)
@@ -49,7 +48,6 @@ def count_rachas(status, dias, matrix_probability, lista_status, dicc_status):
     racha = 0
 
     for i in range(1, dias + 1):
-
         if previous_status is None:
             previous_status = status
             racha = 1
@@ -127,7 +125,7 @@ def print_clima_estable(dias_soleado, dias_nublado, dias_lluvioso, dias_tormenta
     dif_d_t = " " * (length_max_dias - len(str(dias_tormenta)))
     dif_d_ne = " " * (length_max_dias - len(str(dias_nevado)))
 
-    print(f"{s} {dif_s}{dias_soleado}{dif_d_s}({round(dias_soleado / dias * 100, 2)}%)")
+    print(f"\n{s} {dif_s}{dias_soleado}{dif_d_s}({round(dias_soleado / dias * 100, 2)}%)")
     print(f"{n} {dif_n}{dias_nublado}{dif_d_n}({round(dias_nublado / dias * 100, 2)}%)")
     print(f"{l} {dif_l}{dias_lluvioso}{dif_d_l}({round(dias_lluvioso / dias * 100, 2)}%)")
     print(f"{t} {dif_t}{dias_tormenta}{dif_d_t}({round(dias_tormenta / dias * 100, 2)}%)")

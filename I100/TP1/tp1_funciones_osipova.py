@@ -45,43 +45,43 @@ def count_rachas(status, dias, matrix_probability, lista_status, dicc_status):
     racha_tormenta = []
     racha_nevado = []
 
-    current_status = None
+    previous_status = None
     racha = 0
 
     for i in range(1, dias + 1):
 
-        if current_status is None:
-            current_status = status
+        if previous_status is None:
+            previous_status = status
             racha = 1
-        elif status == current_status:
+        elif status == previous_status:
             racha += 1
         else:
-            if current_status == "soleado":
+            if previous_status == "soleado":
                 racha_soleado.append(racha)
-            elif current_status == "nublado":
+            elif previous_status == "nublado":
                 racha_nublado.append(racha)
-            elif current_status == "lluvioso":
+            elif previous_status == "lluvioso":
                 racha_lluvioso.append(racha)
-            elif current_status == "tormenta":
+            elif previous_status == "tormenta":
                 racha_tormenta.append(racha)
-            elif current_status == "nevado":
+            elif previous_status == "nevado":
                 racha_nevado.append(racha)
 
-            current_status = status
+            previous_status = status
             racha = 1
 
         row_index = lista_status.index(status)
         status = random.choices(lista_status, weights=matrix_probability[row_index])[0]
 
-    if current_status == "soleado":
+    if previous_status == "soleado":
         racha_soleado.append(racha)
-    elif current_status == "nublado":
+    elif previous_status == "nublado":
         racha_nublado.append(racha)
-    elif current_status == "lluvioso":
+    elif previous_status == "lluvioso":
         racha_lluvioso.append(racha)
-    elif current_status == "tormenta":
+    elif previous_status == "tormenta":
         racha_tormenta.append(racha)
-    elif current_status == "nevado":
+    elif previous_status == "nevado":
         racha_nevado.append(racha)
 
     k = (sum(x > 3 for x in racha_soleado) +

@@ -32,6 +32,7 @@ if dias <= 0:
         dias = int(input("la cantidad de días debe ser un entero positivo. ingrese los dias: "))
     pass
 
-predict(status, dias, matrix_probability, lista_status, dicc_status)
-clima_estable(status, dias, matrix_probability, lista_status, dicc_status)
-count_rachas(status, dias, matrix_probability, lista_status, dicc_status)
+if __name__ == "__main__":
+    predict(status, dias, matrix_probability, lista_status, dicc_status)
+    clima_estable(status, dias, matrix_probability, lista_status, dicc_status)
+    count_rachas(status, dias, matrix_probability, lista_status, dicc_status)

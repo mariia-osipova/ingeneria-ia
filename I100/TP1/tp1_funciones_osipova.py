@@ -1,13 +1,39 @@
 import random
 
 def predict(status, dias, matrix_probability, lista_status, dicc_status):
+    """
+    predict the next day's state using a Markov transition matrix.
+
+    args:
+        status: el clima del dia actual que se va actualizando
+        dias: la cantidad de dias que quiero describir
+        matrix_probability: a Markov matrix
+        lista_status: todas mis climas que se pueden ocurrir
+        dicc_status: emojis para mis climas
+
+    returns:
+        none. prints the result for each day.
+    """
+
     for i in range(1, dias + 1):
         print(f"dia {i}: {dicc_status[status]} {status}")
         row_index = lista_status.index(status)
         status = random.choices(lista_status, weights=matrix_probability[row_index])[0]
 
 def clima_estable(status, dias, matrix_probability, lista_status, dicc_status):
+    """
+    computes the longest streak of consecutive identical weather states
 
+    args:
+        status: el clima del dia actual que se va actualizando
+        dias: la cantidad de dias que quiero describir
+        matrix_probability: a Markov matrix
+        lista_status: todas mis climas que se pueden ocurrir
+        dicc_status: emojis para mis climas
+
+    returns:
+        none. prints the longest streak
+    """
     dias_soleado = 0
     dias_nublado = 0
     dias_lluvioso = 0
@@ -37,6 +63,21 @@ def clima_estable(status, dias, matrix_probability, lista_status, dicc_status):
     print_clima_estable(dias_soleado, dias_nublado, dias_lluvioso, dias_tormenta, dias_nevado, max_freq_index, lista_status, dicc_status, dias)
 
 def count_rachas(status, dias, matrix_probability, lista_status, dicc_status):
+
+    """
+    computes the quantity of streaks lasting more that 3 days
+
+    args:
+        status: el clima del dia actual que se va actualizando
+        dias: la cantidad de dias que quiero describir
+        matrix_probability: a Markov matrix
+        lista_status: todas mis climas que se pueden ocurrir
+        dicc_status: emojis para mis climas
+
+    returns:
+        none. prints the quantity of streaks lasting more that 3 days
+
+    """
 
     racha_soleado = []
     racha_nublado =  []
@@ -101,6 +142,9 @@ def count_rachas(status, dias, matrix_probability, lista_status, dicc_status):
     print_racha(max_racha, dicc_status, clima_racha, k)
 
 def print_clima_estable(dias_soleado, dias_nublado, dias_lluvioso, dias_tormenta, dias_nevado, max_freq_index, lista_status, dicc_status, dias):
+    """
+    prints the result of the function clima_estable()
+    """
 
     s = "dias soleados:"
     n = "dias nublados:"
@@ -134,5 +178,9 @@ def print_clima_estable(dias_soleado, dias_nublado, dias_lluvioso, dias_tormenta
     print(f"\nel clima mas frequente: {dicc_status[lista_status[max_freq_index]]} {lista_status[max_freq_index]}")
 
 def print_racha(max_racha, dicc_status, clima_racha, k):
+    """
+    prints the result of the function count_rachas()
+    """
+
     print(f"racha de {max_racha} dias: {dicc_status[clima_racha]} {clima_racha} ")
     print(f"rachas de mas de 3 dias: {k}")

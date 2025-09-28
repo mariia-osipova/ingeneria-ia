@@ -4,43 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2786b67a-341e-42c9-8b75-ddbfa165c24d" name="Changes" comment="refactor: reorganize project structure by courses and semester">
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/TP1/tp1_1_osipova.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/TP1/tp1_1_osipova.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/TP1/tp1_funciones_osipova.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/TP1/tp1_funciones_osipova.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/diego/diego-0.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/diego/diego-0.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/1-11.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/1-11.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-1-11.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-1-11.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-2-10.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-2-10.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-3-1.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-3-1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-3-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-3-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-3-3.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-3-3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/guias/3-3-4.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/guias/3-3-4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/notebooks/whoisthewinner.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/whoisthewinner.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/teorica/27-09-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/teorica/27-09-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/teorica/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/teorica/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/teorica/clase2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/teorica/clase2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-06-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-06-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-12-25-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-12-25-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-12-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-12-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-19-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-19-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-20-25-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-20-25-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-20-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-20-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-26-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-26-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-27-25-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-27-25-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-27-25-3.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-27-25-3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-27-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-27-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/08-31-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/08-31-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-03-25-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-03-25-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-03-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-03-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-10-25-2.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-10-25-2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-10-25-3.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-10-25-3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-10-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-10-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/09-17-25.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/09-17-25.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100-PC/tutorial/prueba.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/tutorial/prueba.py" afterDir="false" />
+    <list default="true" id="2786b67a-341e-42c9-8b75-ddbfa165c24d" name="Changes" comment="psychexperiment.ipynb + tests">
+      <change afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/preblemsetparcial1.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/psychexperiment.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/whoisthewinner.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/script/script.py" beforeDir="false" afterPath="$PROJECT_DIR$/script/script.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,14 +22,15 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Jupyter Notebook" />
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/I100/guia-1-11.py" root0="SKIP_HIGHLIGHTING" />
@@ -182,7 +152,7 @@
       <workItem from="1757536234512" duration="25058000" />
       <workItem from="1757731038358" duration="35061000" />
       <workItem from="1759018781199" duration="11581000" />
-      <workItem from="1759071003832" duration="928000" />
+      <workItem from="1759071003832" duration="5429000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -528,7 +498,39 @@
       <option name="project" value="LOCAL" />
       <updated>1759071507203</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="fixed README.md">
+      <option name="closed" value="true" />
+      <created>1759071951491</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1759071951491</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Merge remote-tracking branch 'origin/main'">
+      <option name="closed" value="true" />
+      <created>1759071969400</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1759071969400</updated>
+    </task>
+    <task id="LOCAL-00046" summary="fixed link to Google Colab">
+      <option name="closed" value="true" />
+      <created>1759072202241</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1759072202241</updated>
+    </task>
+    <task id="LOCAL-00047" summary="psychexperiment.ipynb + tests">
+      <option name="closed" value="true" />
+      <created>1759076168297</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1759076168297</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -546,10 +548,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="working version" />
-    <MESSAGE value="ej 1" />
-    <MESSAGE value="ej 2" />
-    <MESSAGE value="ej 3" />
     <MESSAGE value="script order" />
     <MESSAGE value="script order files" />
     <MESSAGE value="tp1" />
@@ -571,7 +569,11 @@
     <MESSAGE value="modified README.md" />
     <MESSAGE value="gitignore" />
     <MESSAGE value="refactor: reorganize project structure by courses and semester" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: reorganize project structure by courses and semester" />
+    <MESSAGE value="fixed README.md" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/main'" />
+    <MESSAGE value="fixed link to Google Colab" />
+    <MESSAGE value="psychexperiment.ipynb + tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="psychexperiment.ipynb + tests" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/udesa$prueba.coverage" NAME="prueba Coverage Results" MODIFIED="1755096912720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/I100" />

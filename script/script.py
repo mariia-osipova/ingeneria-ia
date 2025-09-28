@@ -1,7 +1,7 @@
 import os
 import re
 
-folder_path = "/2025S2/I100-PC/tutorial"
+folder_path = "/2025S2/I100/tutorial"
 pattern = re.compile(r"(\d{1,2})-(\d{1,2})-(\d{2})(.*)\.py")
 
 for filename in os.listdir(folder_path):

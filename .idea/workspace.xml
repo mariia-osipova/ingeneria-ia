@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2786b67a-341e-42c9-8b75-ddbfa165c24d" name="Changes" comment="psychexperiment.ipynb + tests">
-      <change afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/preblemsetparcial1.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/psychexperiment.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/whoisthewinner.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="2786b67a-341e-42c9-8b75-ddbfa165c24d" name="Changes" comment="fixed typo in README.md">
+      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/preblemsetparcial1.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/problemsetparcial1.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +148,7 @@
       <workItem from="1757536234512" duration="25058000" />
       <workItem from="1757731038358" duration="35061000" />
       <workItem from="1759018781199" duration="11581000" />
-      <workItem from="1759071003832" duration="5429000" />
+      <workItem from="1759071003832" duration="5762000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -530,7 +526,23 @@
       <option name="project" value="LOCAL" />
       <updated>1759076168297</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="combine all files into a single Jupyter notebook">
+      <option name="closed" value="true" />
+      <created>1759076706933</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1759076706933</updated>
+    </task>
+    <task id="LOCAL-00049" summary="fixed typo in README.md">
+      <option name="closed" value="true" />
+      <created>1759076900237</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1759076900237</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -548,8 +560,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="script order" />
-    <MESSAGE value="script order files" />
     <MESSAGE value="tp1" />
     <MESSAGE value="espacios, part 3" />
     <MESSAGE value="typo" />
@@ -573,7 +583,9 @@
     <MESSAGE value="Merge remote-tracking branch 'origin/main'" />
     <MESSAGE value="fixed link to Google Colab" />
     <MESSAGE value="psychexperiment.ipynb + tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="psychexperiment.ipynb + tests" />
+    <MESSAGE value="combine all files into a single Jupyter notebook" />
+    <MESSAGE value="fixed typo in README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed typo in README.md" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/udesa$prueba.coverage" NAME="prueba Coverage Results" MODIFIED="1755096912720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/I100" />

@@ -130,6 +130,8 @@ def count_rachas(status, dias, matrix_probability, lista_status, dicc_status):
          sum(x > 3 for x in racha_nevado)
     )
 
+
+
     lista_max_racha = [
         max(racha_soleado or [0]), max(racha_nublado or [0]), max(racha_lluvioso or [0]), max(racha_tormenta or [0]), max(racha_nevado or [0])
     ]

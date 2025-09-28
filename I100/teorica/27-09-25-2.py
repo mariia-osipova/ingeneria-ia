@@ -4,10 +4,7 @@ def whoisthewinner():
     print(*score)
 
     while True:
-        try:
-            s = input().strip()
-        except EOFError:
-            break
+        s = input().strip()
         if s == "":
             break
         if s not in ("1", "2"):

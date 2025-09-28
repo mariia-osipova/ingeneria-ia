@@ -1,7 +1,5 @@
 def whoisthewinner():
     score = [0, 0]
-    s = input().strip()
-    print(*score)
 
     while True:
         s = input().strip()
@@ -20,22 +18,24 @@ def whoisthewinner():
         j = 1 - i
 
         if score[i] in (0, 15):
+            print(*score)
             score[i] += 15
-            print(*score)
         elif score[i] == 30:
-            score[i] = 40
             print(*score)
+            score[i] = 40
         elif score[i] == 40 and score[j] in (0, 15, 30):
+            print(*score)
             print(f"Gana el jugador {i+1}")
             return
         elif score[i] == 40 and score[j] == 40:
-            score[i] = "Adv"
             print(*score)
+            score[i] = "Adv"
         elif score[i] == "Adv" and score[j] == 40:
+            print(*score)
             print(f"Gana el jugador {i+1}")
             return
         elif score[i] == 40 and score[j] == "Adv":
-            score[j] = 40
             print(*score)
+            score[j] = 40
 
 whoisthewinner()

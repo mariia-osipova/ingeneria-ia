@@ -1,3 +1,3 @@
 hi
 
-![img.png](img.png)
+<img src="img.png" width="300" />

@@ -1,0 +1,57 @@
+//code for apps script for google sheets
+
+function evaluatePapers() {
+
+  const sheet = SpreadsheetApp.getActiveSheet();          // активный лист
+  const lastRow = sheet.getLastRow();                     // насколько заполнили
+  const dataRange = sheet.getRange(2, 1, lastRow - 1, 4); // A2:D
+  const data = dataRange.getValues().filter(r => r[0]);   // только непустые
+
+  // вытащим отдельные столбцы
+  const years      = data.map(r => r[2]); // C
+  const citations  = data.map(r => r[3]); // D
+
+  // вычислим min/max
+  const minCit = Math.min(...citations);
+  const maxCit = Math.max(...citations);
+  const ages   = years.map(y => new Date().getFullYear() - y);
+  const minAge = Math.min(...ages);
+  const maxAge = Math.max(...ages);
+
+  // подготовим новые колонки age (E) и score (F)
+  const extraCols = data.map((row, i) => {
+    const age   = ages[i];
+    const citN  = (citations[i] - minCit) / (maxCit - minCit);   // 0-1
+    const recN  = (maxAge - age) / (maxAge - minAge);            // 0-1, свежее = больше
+    const score = 0.5 * citN + 0.5 * recN;
+    return [age, score];
+  });
+
+  // запишем обратно
+  sheet.getRange(2, 5, extraCols.length, 2).setValues(extraCols); // в E:F
+
+  // удалим старые чарт(ы), чтобы не плодить
+  sheet.getCharts().forEach(ch => sheet.removeChart(ch));
+
+  // --- scatter: citations vs year ---
+  const scatter = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange(1, 3, lastRow, 2)) // C (год) + D (цитаты)
+    .setPosition(2, 7, 0, 0)                   // разместим в G2
+    .setOption('title', 'citations vs publication year')
+    .setOption('hAxis', { title: 'year' })
+    .setOption('vAxis', { title: 'citations' })
+    .build();
+  sheet.insertChart(scatter);
+
+  // --- column: composite score ---
+  const column = sheet.newChart()
+    .setChartType(Charts.ChartType.COLUMN)
+    .addRange(sheet.getRange(1, 1, lastRow, 6)) // A (name) + … + F (score)
+    .setPosition(20, 7, 0, 0)                  // ниже первого
+    .setOption('title', 'overall suitability score')
+    .setOption('legend', { position: 'none' })
+    .setOption('hAxis', { slantedText: true })
+    .build();
+  sheet.insertChart(column);
+}

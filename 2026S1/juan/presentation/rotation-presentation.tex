@@ -1,0 +1,218 @@
+\documentclass[11pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[default]{opensans}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  linkcolor=blue,
+  citecolor=blue
+}
+
+\usetheme{default}
+\usecolortheme{dolphin}
+\useinnertheme{circles}
+
+\title{Rotaciones y ángulos de Euler en \(\mathbb{R}^3\)}
+\subtitle{Álgebra lineal · Introducción a sistemas dinámicos y a la orientación y navegación}
+\author[M. Osipova]{Mariia Osipova\\[3pt]\textit{mosipova@udesa.edu.ar}}
+\institute{\\[12pt]Bajo la supervisión de Juan Felipe Perdomo}
+\date[12 dic 2025]{12 de diciembre 2025}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SLIDE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+	\titlepage % Output the title slide, automatically created using the text entered in the PRESENTATION INFORMATION block above
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS SLIDE
+%----------------------------------------------------------------------------------------
+
+% The table of contents outputs the sections and subsections that appear in your presentation, specified with the standard \section and \subsection commands. You may either display all sections and subsections on one slide with \tableofcontents, or display each section at a time on subsequent slides with \tableofcontents[pausesections]. The latter is useful if you want to step through each section and mention what you will discuss.
+
+\begin{frame}{Resumen de la presentación}
+  \tableofcontents
+\end{frame}
+
+%------------------------------------------------
+
+\section{Introducción}
+
+%------------------------------------------------
+
+\begin{frame}
+    \frametitle{Introducción}
+
+    \begin{columns}[T]
+        \begin{column}{0.35\textwidth}
+            Nuestro trabajo práctico está dividido en dos partes: la primera es sobre el desarrollo de un videojuego manual inspirado en Flappy Bird, llamado Flappy Fish, implementado en Python con la librería Pygame.
+        \end{column}
+
+        \begin{column}{0.65\textwidth}
+            \begin{tikzpicture}[scale=2.3, line cap=round, line join=round]
+              % axes
+              \draw[->,thick] (-0.1,0) -- (1.4,0) node[right] {$x$};
+              \draw[->,thick] (0,-0.1) -- (0,1.2) node[above] {$y$};
+
+              % angle
+              \def\th{35}
+
+              % original vector (along x)
+              \draw[thick] (0,0) -- (1,0) node[midway,below] {$v$};
+
+              % rotated vector
+              \draw[thick] (0,0) -- ({cos(\th)},{sin(\th)}) node[above right] {$R(\theta)v$};
+
+              % arc for theta
+              \draw[thick] (0.35,0) arc (0:\th:0.35);
+              \node at ({0.45*cos(\th/2)},{0.45*sin(\th/2)}) {$\theta$};
+
+              % optional: point markers
+              \fill (1,0) circle (0.5pt);
+              \fill ({cos(\th)},{sin(\th)}) circle (0.5pt);
+            \end{tikzpicture}
+%            \includegraphics[width=\textwidth]{img.png}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introducción}
+
+    Definimos un sistema tridimensional con tres ejes ortogonales \((x,y,z)\) y los planos coordenados asociados.\\[8pt]
+
+    \begin{columns}[T]
+        \begin{column}{0.33\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=1.6, line cap=round, line join=round]
+              \draw[->,thick, red] (-0.1,0) -- (1.4,0) node[right] {$x$};
+              \draw[->,thick, green!70!black] (0,-0.1) -- (0,1.2) node[above] {$y$};
+            \end{tikzpicture}
+        \end{column}
+
+        \begin{column}{0.33\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=1.6, line cap=round, line join=round]
+              \draw[->,thick, red] (-0.1,0) -- (1.4,0) node[right] {$x$};
+              \draw[->,thick, blue] (0,-0.1) -- (0,1.2) node[above] {$z$};
+            \end{tikzpicture}
+        \end{column}
+        \begin{column}{0.33\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=1.6, line cap=round, line join=round]
+              \draw[->,thick, green!70!black] (-0.1,0) -- (1.4,0) node[right] {$y$};
+              \draw[->,thick, blue] (0,-0.1) -- (0,1.2) node[above] {$z$};
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+
+    \vfill
+    {\footnotesize\textcolor{gray}{%
+    Note: Podríamos partir de \((x_1,x_2,x_3)\), pero en muchos artículos y apuntes se usa \((x,y,z)\); por eso adopté esta notación.}}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introducción}
+
+    \begin{columns}[T]
+        \begin{column}{0.55\textwidth}
+            A este sistema lo llamamos ``Body-Fixed Axes``: la orientación (\emph{attitude}) del objeto queda determinada por la orientación de estos ejes en el espacio.
+            En otras palabras, se trata de un sistema de coordenadas, digamos, ligado al objeto (por ejemplo, un avión o un dron) que gira conjuntamente con él.
+        \end{column}
+
+        \begin{column}{0.45\textwidth}
+            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+              \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
+              \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
+              \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introducción}
+
+    \begin{columns}[T]
+        \begin{column}{0.55\textwidth}
+            Ahora nos gustaría introducir una rotación alrededor de un eje.
+        \end{column}
+
+        \begin{column}{0.45\textwidth}
+            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+
+% axes
+\draw[->,thick] (0,0) -- (1.2,0) node[right] {$x_2$};
+\draw[->,thick] (0,0) -- (-0.7,-0.7) node[below left] {$x_1$};
+\draw[->,thick] (0,0) -- (0,1.2) node[above] {$x_3$};
+
+% parameters
+\def\h{1.0}   % height on x3
+\def\r{0.28}  % radius of rotation circle
+
+% back (hidden) part
+\draw[red!70, thick, dashed]
+  (0,\h) ++(\r,0)
+  arc[start angle=140, end angle=220, radius=\r];
+
+% front (visible) part
+\draw[red, thick, ->]
+  (0,\h) ++(\r,0)
+  arc[start angle=220, end angle=500, radius=\r];
+
+% label
+\node[red] at (0.55,1.15) {$\theta_3$};
+
+\end{tikzpicture}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+%------------------------------------------------
+
+\section{Bibliografía}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Bibliografía}
+
+\small
+\begin{itemize}
+  \item T. D. Barfoot, \emph{State Estimation for Robotics}, Cambridge University Press, 2017.
+  \item M. D. Shuster, ``A Survey of Attitude Representations'', \emph{Journal of the Astronautical Sciences}, 1993.
+  \item J. Solà, ``Quaternion Kinematics for the Error-State Kalman Filter'', 2017.
+  \item F. L. Markley, J. L. Crassidis, \emph{Fundamentals of Spacecraft Attitude Determination and Control}, Springer, 2014.
+\end{itemize}
+\end{frame}
+
+%https://www.youtube.com/watch?v=D1lnrQg5NAM&t=1283s
+
+%------------------------------------------------
+
+%----------------------------------------------------------------------------------------
+
+
+\end{document}

@@ -6,7 +6,7 @@
 int main(void)
 {
 //    printf("hello, world\n");
-//    comment
+//    comment2
     string answer = get_string("What is your name? ");
     printf("hello, %s\n", answer);
 }

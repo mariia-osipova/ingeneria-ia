@@ -3,16 +3,34 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexRemoved" />
+  </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="2786b67a-341e-42c9-8b75-ddbfa165c24d" name="Changes" comment="clear all outputs">
-      <change afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/practicacolabparcial1.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/tests/test-2.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2025S2/I100/notebooks/problemsetparcial1.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/2025S2/I100/notebooks/problemsetparcial1.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/2026S1/CS50/hello.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/2026S1/CS50/notebooks/lecture-1.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExportToHTMLSettings">
     <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/exportToHTML" />
@@ -30,6 +48,18 @@
     <option name="RESET_MODE" value="HARD" />
     <option name="UPDATE_TYPE" value="REBASE" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "mariia-osipova"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/mariia-osipova/ingeneria-ia.git",
+    "accountId": "a7e7a1d6-5804-40d5-b6ac-b2e9d8cfd0df"
+  }
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/I100/guia-1-11.py" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -44,75 +74,81 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.10-09-25-2.executor": "Run",
-    "Python.10-09-25-3.executor": "Run",
-    "Python.10-09-25.executor": "Run",
-    "Python.12-8-25-2.executor": "Run",
-    "Python.12-8-25.executor": "Run",
-    "Python.19-08-25.executor": "Run",
-    "Python.20-08-25.executor": "Run",
-    "Python.26-08-25.executor": "Run",
-    "Python.27-08-25-2.executor": "Run",
-    "Python.27-08-25-3.executor": "Run",
-    "Python.27-08-25.executor": "Run",
-    "Python.27-09-25-2.executor": "Run",
-    "Python.27-09-25.executor": "Run",
-    "Python.3-09-25-2.executor": "Run",
-    "Python.3-09-25.executor": "Run",
-    "Python.3-1-11.executor": "Run",
-    "Python.3-1.executor": "Run",
-    "Python.3-2-10.executor": "Run",
-    "Python.3-2.executor": "Run",
-    "Python.3-3.executor": "Run",
-    "Python.3-4.executor": "Run",
-    "Python.31-08-25.executor": "Run",
-    "Python.6-8-25.executor": "Run",
-    "Python.awi.executor": "Run",
-    "Python.diego-0.executor": "Run",
-    "Python.ec-t-2-2.executor": "Run",
-    "Python.economia-tut-1-1.executor": "Run",
-    "Python.economia-tut-1.executor": "Run",
-    "Python.economia-tut-2-2.executor": "Run",
-    "Python.economia-tut-6.executor": "Run",
-    "Python.economia-tut-7-2.executor": "Run",
-    "Python.economia-tut-7.executor": "Run",
-    "Python.economia-tut-8.executor": "Run",
-    "Python.economia-tut-9.executor": "Run",
-    "Python.guia-1-11.executor": "Run",
-    "Python.mat-practica-4.executor": "Run",
-    "Python.nastya-statistic-graph-2.executor": "Run",
-    "Python.nastya-statistic-graph.executor": "Run",
-    "Python.nastyamatematica.executor": "Run",
-    "Python.prueba.executor": "Run",
-    "Python.script.executor": "Run",
-    "Python.statistic-graph-2.executor": "Run",
-    "Python.statistic-graph-3.executor": "Run",
-    "Python.statistic-graph.executor": "Run",
-    "Python.tp-1.executor": "Run",
-    "Python.tp1_1_osipova.executor": "Run",
-    "Python.tp1_funciones_osipova.executor": "Run",
-    "Python.усщтщьшф-еге-1-1.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.General",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.10-09-25-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.10-09-25-3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.10-09-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.12-8-25-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.12-8-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.19-08-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.20-08-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.26-08-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.27-08-25-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.27-08-25-3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.27-08-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.27-09-25-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.27-09-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-09-25-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-09-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-1-11.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-2-10.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.3-4.executor&quot;: &quot;Run&quot;,
+    &quot;Python.31-08-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.6-8-25.executor&quot;: &quot;Run&quot;,
+    &quot;Python.awi.executor&quot;: &quot;Run&quot;,
+    &quot;Python.diego-0.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ec-t-2-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-1-1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-2-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-6.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-7-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-7.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-8.executor&quot;: &quot;Run&quot;,
+    &quot;Python.economia-tut-9.executor&quot;: &quot;Run&quot;,
+    &quot;Python.guia-1-11.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mat-practica-4.executor&quot;: &quot;Run&quot;,
+    &quot;Python.nastya-statistic-graph-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.nastya-statistic-graph.executor&quot;: &quot;Run&quot;,
+    &quot;Python.nastyamatematica.executor&quot;: &quot;Run&quot;,
+    &quot;Python.prueba.executor&quot;: &quot;Run&quot;,
+    &quot;Python.script.executor&quot;: &quot;Run&quot;,
+    &quot;Python.statistic-graph-2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.statistic-graph-3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.statistic-graph.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tp-1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tp1_1_osipova.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tp1_funciones_osipova.executor&quot;: &quot;Run&quot;,
+    &quot;Python.усщтщьшф-еге-1-1.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/2026S1/CS50/notebooks" />
       <recent name="$PROJECT_DIR$/2025S2/I100" />
       <recent name="$PROJECT_DIR$/2025S2" />
       <recent name="$PROJECT_DIR$/2025S1" />
       <recent name="$PROJECT_DIR$/I100/jupy" />
-      <recent name="$PROJECT_DIR$/I100/guias" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -151,6 +187,8 @@
       <workItem from="1757731038358" duration="35061000" />
       <workItem from="1759018781199" duration="11581000" />
       <workItem from="1759071003832" duration="20027000" />
+      <workItem from="1772461497067" duration="3327000" />
+      <workItem from="1772548901953" duration="3329000" />
     </task>
     <task id="LOCAL-00005" summary="tutorial 7 final corrections">
       <option name="closed" value="true" />

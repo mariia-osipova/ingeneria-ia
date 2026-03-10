@@ -6,6 +6,8 @@
 \usepackage{tikz}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx}
+\usetikzlibrary{calc}
+\usepackage{bm}
 
 \hypersetup{
   colorlinks=true,
@@ -99,8 +101,22 @@
 %        \end{column}
 %    \end{columns}
 
-    En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}):
-    matrices de rotación, ángulos de Euler y un poco de cuaterniones. \vspace{6pt}
+%    En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}):
+%    matrices de rotación, ángulos de Euler y un poco de cuaterniones. \vspace{6pt}
+%    En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}).
+%    El foco será la representación mediante ángulos de Euler (yaw--pitch--roll): cómo parametrizan una matriz \(R\in SO(3)\), cómo se calculan y cuáles son sus limitaciones.
+
+En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}).
+
+
+El foco central será la representación mediante ángulos de Euler (yaw--pitch--roll):
+\begin{itemize}
+  \item cómo parametrizan una matriz de orientación,
+  \item cómo se calculan en una convención fija,
+  \item cuáles son sus limitaciones en implementación.
+\end{itemize}
+
+La idea general será: primero definir marcos y matrices de cambio de base; después, mostrar cómo Euler parametriza esas matrices.
 
 \end{frame}
 
@@ -109,7 +125,8 @@
 \begin{frame}
     \frametitle{Introducción}
 
-    Los vehículos (por ejemplo, robots, satélites, aeronaves) suelen tener libertad para trasladarse y rotar. Matemáticamente, tienen seis grados de libertad: tres en traslación y tres en rotación. Esta configuración geométrica de seis grados de libertad se conoce como the pose (posición y orientación) del vehículo.
+    Los vehículos (por ejemplo, robots, satélites, aeronaves) suelen tener libertad para trasladarse y rotar. \\
+    Matemáticamente, tienen seis grados de libertad: tres en traslación y tres en rotación. Esta configuración geométrica se conoce como la \emph{pose} del vehículo: posición + orientación.
 
     \begin{figure}[htbp]
       \centering
@@ -165,8 +182,15 @@
 
     \begin{columns}[T]
         \begin{column}{0.55\textwidth}
-            A este sistema lo llamamos ``Body-Fixed Axes``: la orientación (\emph{attitude}) del objeto queda determinada por la orientación de estos ejes en el espacio.
-            En otras palabras, se trata de un sistema de coordenadas, digamos, ligado al objeto (por ejemplo, un avión o un dron) que gira conjuntamente con él.
+            A este sistema lo llamamos \emph{body-fixed axes}: un marco ligado al cuerpo que gira con el objeto.
+
+            \medskip
+            La orientación (\emph{attitude}) del vehículo queda determinada por la orientación de estos ejes respecto de un marco inercial o de referencia.
+
+            \medskip
+            Denotaremos este sistema inicial por \(S_i\).
+%            A este sistema lo llamamos ``Body-Fixed Axes``: la orientación (\emph{attitude}) del objeto queda determinada por la orientación de estos ejes en el espacio.
+%            En otras palabras, se trata de un sistema de coordenadas, digamos, ligado al objeto (por ejemplo, un avión o un dron) que gira conjuntamente con él. Nombramosla \(S_i\) (Initial Sistem).
         \end{column}
 
         \begin{column}{0.45\textwidth}
@@ -174,6 +198,9 @@
               \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
               \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
               \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+
+              \node[right] at (0.8,0.3) {${S}_i$};
+
             \end{tikzpicture}
         \end{column}
     \end{columns}
@@ -187,18 +214,15 @@
 
     \begin{columns}[T]
         \begin{column}{0.55\textwidth}
-            La posición de un punto en un vehículo se puede describir con un vector \(\vec{r}_{vi}\), que consiste de tres componentes.
-
-            \[
-            \vec{r}_{vi} =
+            La posición de un punto del vehículo se describe con un vector \(\mathbf{r}\) y sus tres componentes en el sistema \(S_i\):
+              \[
+            \mathbf{r} =
             \begin{bmatrix}
-            x \\
-            y \\
-            z
-            \end{bmatrix}
-            \] \vfill
+            r_1\\ r_2\\ r_3
+            \end{bmatrix}.
+            \]
 
-            Consideraremos un vector como una cantidad \(\vec{r}_{vi}\) con longitud y dirección.
+            Consideraremos un vector como una cantidad con longitud y dirección, cuyas componentes dependen del marco elegido.
 
         \end{column}
 
@@ -208,34 +232,79 @@
               \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
               \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
 
-              \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}_{vi}$};
+              \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}$};
 
+
+%              \coordinate (O) at (0,0);
+%              \coordinate (Y) at (1.3,0);
+%              \coordinate (Z) at (0,1.2);
+%              \coordinate (X) at (-0.7,-0.7);
+%              \coordinate (P) at (0.9,0.8);
+%              \coordinate (Px) at ($(O)!(P)!(X)$);
+%              \coordinate (Py) at ($(O)!(P)!(Y)$);
+%              \coordinate (Pz) at ($(O)!(P)!(Z)$);
+%
+%              \draw[densely dashed,gray] (P) -- (Px);
+%              \draw[densely dashed,gray] (P) -- (Py);
+%              \draw[densely dashed,gray] (P) -- (Pz);
+%
+
+              \node[right] at (0.8,0.3) {${S}_i$};
             \end{tikzpicture}
         \end{column}
+
     \end{columns}
 
-    \vfill
-    {\footnotesize\textcolor{gray}{%
-    Note: \(v\) -- vehicle; \(i\) -- punto \(i\) en ese objeto.
-    Entonces \(\vec{r}_{vi}\) es el vector desde el origen del sistema de coordenadas
-    del vehículo hasta el punto \(i\).}}
-
+%    \vfill
+%    {\footnotesize\textcolor{gray}{%
+%    Note: \(v\) -- vehicle; \(i\) -- punto \(i\) en ese objeto.
+%    Entonces \(\vec{r}_{vi}\) es el vector desde el origen del sistema de coordenadas
+%    del vehículo hasta el punto \(i\).}}
+\vfill
 \SourceLine{\srcBarfoot, p. 174.}
 
 \end{frame}
 
+
+%------------------------------------------------
+\section{Matrices de rotación y cambio de marco}
 %------------------------------------------------
 
+    \begin{frame}{Del vector geométrico a sus componentes en un marco}
+    Si reunimos los versores de \(S_i\) como columnas de una matriz,
+        \[
+        S_i = \begin{bmatrix} \bm x_i & \bm y_i & \bm z_i \end{bmatrix},
+        \]
+        las componentes \(\bm r_1\) del vector \(\bm r\) en ese marco satisfacen
+        \[
+        \bm r = S_i\,\bm r_1
+        \qquad\text{y, equivalentemente,}\qquad
+        \bm r_1 = S_i^{\top}\bm r.
+        \]
+
+\medskip
+    La idea importante es que el \emph{mismo vector geométrico} puede escribirse con coordenadas distintas según el marco de referencia.
+
+\SourceLine{\srcBarfoot, p. 174.}
+\end{frame}
+
+%------------------------------------------------
+
+
 \begin{frame}
-\frametitle{Introducción}
+\frametitle{Introducimos un segundo marco \(S_{i'}\)}
 
     \begin{columns}[T]
         \begin{column}{0.55\textwidth}
-            Ahora nos gustaría introducir una rotación alrededor de un eje.
+            Ahora vamos a introducir un nuevo sistema $S_{i'}$, con el mismo origen que la $S_i$, pero de distinta orientación.
 
-            El movimiento de rotación se describe expresando la orientación de un sistema
-            de referencia en el vehículo, \(F_v\), con respecto a otro sistema, \(F_i\).
-            La Figura 6.1 muestra la configuración típica de un vehículo monocasco.
+%            El movimiento de rotación se describe expresando la orientación de un sistema
+%            de referencia en el vehículo, \(F_v\), con respecto a otro sistema, \(F_i\).
+%            La Figura 6.1 muestra la configuración típica de un vehículo monocasco.
+
+              \medskip
+              La idea clave es que \textbf{el vector no cambió}; lo que cambió fue el marco con el que lo estamos midiendo. \\
+              El objetivo es relacionar las componentes de un mismo vector en ambos sistemas.
 
         \end{column}
 
@@ -246,6 +315,9 @@
              \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
              \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
              \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+
+             \draw[->,thick,Mahogany] (0,0) -- ([rotate around={30:(0,0)}]-0.7,-0.7) node[below left] {$x$};
+             \draw[->,thick,OliveGreen!70!black] (0,0) -- ([rotate around={30:(0,0)}]1.3,0) node[right] {$y$};
 
 %             \def\h{0.8}   % высота по x3
 %             \def\a{0.20}  % большой радиус эллипса (ширина)
@@ -257,59 +329,211 @@
 %              (0,\h) ++({\a*cos(\st)},{\b*sin(\st)})
 %              arc[start angle=\st, end angle=\en, x radius={\a}, y radius={\b}];
 %
-%            \node[CadetBlue] at (0.20,\h+0.25) {$\psi$};
+%            \node[CadetBlue] at (0.39,\h+0.25) {$\psi$};
 
-             \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}_{vi}$};
+             \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}$};
 
-            \node[right] at (0.8,0.3) {$\vec{F}_1$};
+            \node[right] at (0.8,0.3) {$S_i$};
+            \node[right] at (1.3,0.6) {$S_{i'}$};
             \end{tikzpicture}
         \end{column}
     \end{columns}
+     {\footnotesize\textcolor{gray}{%
+        Note: Barfoot define el sistema del vehículo como un frame $F_v$ y el sistema de comparación como el frame $F_i$. No entendí muy bien su aclaración, así que comienzo definiendo el sistema del vehículo como $S_i$ y luego el sistema rotado como $S_{i'}$.}}
+    \SourceLine{\srcBarfoot, p. 174.}
+%    \vfill
+%    {\footnotesize\textcolor{gray}{%
+%        Note: Barfoot define el sistema del vehículo como un frame $F_v$ y el sistema de comparación como el frame $F_i$. No entendí muy bien su aclaración, así que comienzo definiendo el sistema del vehículo como $S_i$ y luego el sistema rotado como $S_{i'}$.}}
 
+\end{frame}
+
+%%------------------------------------------------
+
+%
+%\begin{frame}
+%\frametitle{Introducción}
+%
+%   Expresemos $\vec r$ en cada sistema:
+%        $$
+%        \vec r \;=\; S_i^{T}\, r_1 \;=\; (S_{i'})^{T}\, r_2 .
+%        $$
+%
+%        Buscamos descubrir una relación entre las componentes en $S_i,\; r_1$, y las de $S_{i'},\; r_2$.
+%        $$
+%        (S_{i'})^{T} r_2 \;=\; S_i^{T} r_1,
+%        $$
+%        $$
+%        S_{i'}\,(S_{i'})^{T} r_2 \;=\; S_{i'}\,S_i^{T} r_1,
+%        $$
+%        $$
+%        r_2 \;=\; C_{21}\, r_1 .
+%        $$
+%
+%        Hemos definido
+%        $$
+%        C_{21} \;=\; S_{i'}\,S_i^{T}
+%        \;=\;
+%        \begin{bmatrix}
+%        x_i'\\[2pt]
+%        y_i'\\[2pt]
+%        z_i'
+%        \end{bmatrix}
+%        \begin{bmatrix}
+%        x_i & y_i & z_i
+%        \end{bmatrix}
+%        \;=\;
+%        \begin{bmatrix}
+%        x_i'\!\cdot\! x_i & x_i'\!\cdot\! y_i & x_i'\!\cdot\! z_i\\
+%        y_i'\!\cdot\! x_i & y_i'\!\cdot\! y_i & y_i'\!\cdot\! z_i\\
+%        z_i'\!\cdot\! x_i & z_i'\!\cdot\! y_i & z_i'\!\cdot\! z_i
+%        \end{bmatrix}.
+%        $$
+%
+%\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Cambio de componentes entre $S_i$ y $S_{i'}$}
+
+Las componentes del mismo vector \(\bm r\) en ambos marcos satisfacen
+\[
+\bm r = S_i\,\bm r_1 = S_{i'}\,\bm r_2.
+\]
+Multiplicando por \((S_{i'})^{\top}\), obtenemos
+\[
+\bm r_2 = (S_{i'})^{\top} S_i\,\bm r_1.
+\]
+
+Definimos entonces la matriz de orientación (o de cambio de base)
+\[
+C_{21} := (S_{i'})^{\top} S_i,
+\qquad\text{de modo que}\qquad
+\bm r_2 = C_{21}\,\bm r_1.
+\]
+
+\medskip
+Esta es la matriz que más adelante parametrizaremos con ángulos de Euler.
+
+\SourceLine{\srcBarfoot, p. 174.}
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}{Interpretación de \(C_{21}\)}
+La matriz \(C_{21}\) puede escribirse en términos de productos escalares entre ejes de ambos marcos:
+\[
+C_{21}=
+\begin{bmatrix}
+\bm x_i'\!\cdot\!\bm x_i & \bm x_i'\!\cdot\!\bm y_i & \bm x_i'\!\cdot\!\bm z_i\\
+\bm y_i'\!\cdot\!\bm x_i & \bm y_i'\!\cdot\!\bm y_i & \bm y_i'\!\cdot\!\bm z_i\\
+\bm z_i'\!\cdot\!\bm x_i & \bm z_i'\!\cdot\!\bm y_i & \bm z_i'\!\cdot\!\bm z_i
+\end{bmatrix}.
+\]
+
+\medskip
+Cada entrada mide ``cuánto'' de un eje del sistema original ve un eje del sistema rotado.
+
+\medskip
+Por construcción, \(C_{21}\) es una matriz ortogonal con determinante \(+1\), es decir, un elemento de \(SO(3)\).
+
+\vfill
+{\footnotesize\textcolor{gray}{
+    Note: SO(3): grupo ortogonal
+    \[
+    R^{\top}R = I,
+    \qquad
+    \det(R)=1.
+    \]
+    especial (\(\det(R)=1\)) en 3 dimensiones
+}}
+
+\SourceLine{\srcBarfoot, p. 174.}
 \end{frame}
 
 %------------------------------------------------
 
-\begin{frame}
-\frametitle{Introducción}
+\begin{frame}{Matrices de rotación y \(SO(3)\)}
+Una matriz de orientación o rotación en \(\mathbb{R}^3\) satisface
+\[
+R^{\top}R = I,
+\qquad
+\det(R)=1.
+\]
+El conjunto de todas estas matrices forma el grupo especial ortogonal:
+\[
+SO(3)=\{R\in\mathbb{R}^{3\times 3}: R^{\top}R=I,\; \det(R)=1\}.
+\]
 
-    \begin{columns}[T]
-        \begin{column}{0.55\textwidth}
-            Ahora nos gustaría introducir una rotación alrededor de un eje.
+\medskip
+En esta presentación, la matriz \(C_{21}\) que relaciona marcos se tratará precisamente como un elemento de \(SO(3)\).
 
-            El movimiento de rotación se describe expresando la orientación de un sistema
-            de referencia en el vehículo, \(F_v\), con respecto a otro sistema, \(F_i\).
-            La Figura 6.1 muestra la configuración típica de un vehículo monocasco.
+\end{frame}
 
-        \end{column}
+%%------------------------------------------------
+%
+%
+%\section{Rotación}
+%
+%%------------------------------------------------
+%
+%\begin{frame}{¿Qué es una rotación?}
+%
+%Una rotación (activa) es una transformación lineal que:
+%\begin{itemize}
+%  \item preserva longitudes y ángulos (\(\|Rv\|=\|v\|\)),
+%  \item preserva la orientación (no ``refleja'').
+%\end{itemize}
+%
+%\smallskip
+%En coordenadas, se representa por una matriz \(R\in\mathbb{R}^{3\times 3}\) tal que
+%\[
+%R^\top R = I,\qquad \det(R)=1.
+%\]
+%El conjunto de todas estas matrices forma el grupo especial ortogonal:
+%\[
+%SO(3)=\{R\in\mathbb{R}^{3\times 3}\,:\,R^\top R=I,\ \det(R)=1\}.
+%\]
+%
+%\SourceLine{\srcShuster, \srcMarkley.}
+%\end{frame}
+%
+%%------------------------------------------------
 
-        \begin{column}{0.45\textwidth}
-            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+%------------------------------------------------
 
 
-             \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
-             \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
-             \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
 
-             \def\h{0.8}   % высота по x3
-             \def\a{0.20}  % большой радиус эллипса (ширина)
-             \def\b{0.08}  % малый радиус (перспектива)
-             \def\st{125}
-             \def\en{425}
+%------------------------------------------------
 
-            \draw[CadetBlue, thick, ->]
-              (0,\h) ++({\a*cos(\st)},{\b*sin(\st)})
-              arc[start angle=\st, end angle=\en, x radius={\a}, y radius={\b}];
+\section{Ángulos de Euler}
 
-            \node[CadetBlue] at (0.20,\h+0.25) {$\psi$};
+%------------------------------------------------
 
-             \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}_{vi}$};
+\begin{frame}{¿Qué son los ángulos de Euler?}
 
-            \node[right] at (0.8,0.3) {$\vec{F}_1$};
-            \end{tikzpicture}
-        \end{column}
-    \end{columns}
+Desde la perspectiva adoptada aquí, los ángulos de Euler no cambian el problema geométrico: siguen describiendo la misma matriz de orientación $C_{21}$.
 
+\medskip
+La diferencia es que ahora la codificamos mediante una \textbf{secuencia ordenada de tres rotaciones elementales}.
+
+%Los ángulos de Euler describen una orientación como una \textbf{secuencia de tres rotaciones}.
+
+\medskip
+Puntos clave:
+\begin{itemize}
+  \item el orden importa: distintas secuencias (p.ej. ZYX, ZXZ, XYZ) producen resultados distintos;
+  \item existen dos lecturas frecuentes:
+  \begin{itemize}
+    \item \emph{extrínseca}: rotaciones sobre ejes fijos del marco de referencia;
+    \item \emph{intrínseca}: rotaciones sobre ejes que van girando con el cuerpo.
+  \end{itemize}
+\end{itemize}
+
+\medskip
+En navegación/aeronáutica suele usarse la convención \textbf{yaw--pitch--roll} (ZYX) оуоу.
+%
+%\SourceLine{\srcShuster, \srcMarkley.}
 \end{frame}
 
 %------------------------------------------------

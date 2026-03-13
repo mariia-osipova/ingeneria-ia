@@ -1,4 +1,4 @@
-# Clase 2 – Memoria dinámica y punteros
+# Clase 2 – Memoria dinámica y punteros - 12/03/2026
 
 ## Contenidos
 

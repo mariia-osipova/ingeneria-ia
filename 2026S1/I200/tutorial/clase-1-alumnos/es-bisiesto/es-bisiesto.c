@@ -2,7 +2,9 @@
 #include <stdbool.h>
 
 bool esBisiesto(int anio) {
-    return false;
+    if (anio % 4 != 0) return false;
+    else if (anio % 100 == 0 && anio % 400 != 0) return false;
+    else return true;
 }
 
 void realizarPrueba(int anio, bool esperado) {

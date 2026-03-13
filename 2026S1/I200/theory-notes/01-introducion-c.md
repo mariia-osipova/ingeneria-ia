@@ -1,4 +1,4 @@
-# Clase 1 – Introducción al lenguaje C
+# Clase 1 – Introducción al lenguaje C - 05/03/2026
 
 ## Contenidos
 

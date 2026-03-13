@@ -3,7 +3,11 @@
 // Escribir la función que dado n P N devuelve la suma de todos los números
 // impares menores que n.
 int sumaImparesMenoresQueN(int n) {
-    return 0;
+  	int suma = 0;
+   	for (int i = 0; i < n; i ++){
+       if (i % 2 != 0) suma = suma+i;
+    }
+    return suma;
 }
 
 

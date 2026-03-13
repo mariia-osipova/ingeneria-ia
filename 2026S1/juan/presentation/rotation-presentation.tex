@@ -4,8 +4,10 @@
 \usepackage[default]{opensans}
 \usepackage{hyperref}
 \usepackage{tikz}
-
-
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usetikzlibrary{calc,patterns}
+\usepackage{bm}
 
 \hypersetup{
   colorlinks=true,
@@ -22,7 +24,19 @@
 \subtitle{Álgebra lineal · Introducción a sistemas dinámicos y a la orientación y navegación}
 \author[M. Osipova]{Mariia Osipova\\[3pt]\textit{mosipova@udesa.edu.ar}}
 \institute{\\[12pt]Bajo la supervisión de Juan Felipe Perdomo}
-\date[12 dic 2025]{12 de diciembre 2025}
+\date[12 dic 2025]{10 de marzo 2026}
+
+%----------------------------------------------------------------------------------------
+%fuentes
+%----------------------------------------------------------------------------------------
+\newcommand{\srcBarfoot}{\href{https://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf}{Barfoot (2017)}}
+\newcommand{\srcShuster}{\href{https://ru.scribd.com/doc/155830038/A-Survey-of-Attitude-Representations}{Shuster (1993)}}
+\newcommand{\srcSola}{\href{https://www.iri.upc.edu/people/jsola/JoanSola/objectes/notes/kinematics.pdf}{Sol\`a (2017)}}
+\newcommand{\srcMarkley}{\href{https://notes.jaydickson.net/assets/resources/Textbooks/Markley\%20and\%20Crassidis\%20-\%202014\%20-\%20Fundamentals\%20of\%20Spacecraft\%20Attitude\%20Determination\%20.pdf}{Markley \& Crassidis (2014)}{Markley \& Crassidis (2014)}}
+
+\newcommand{\SourceLine}[1]{\vfill{\tiny\textcolor{gray}{Fuentes: #1}}}
+
+%----------------------------------------------------------------------------------------
 
 %----------------------------------------------------------------------------------------
 
@@ -55,38 +69,72 @@
 \begin{frame}
     \frametitle{Introducción}
 
-    \begin{columns}[T]
-        \begin{column}{0.35\textwidth}
-            Nuestro trabajo práctico está dividido en dos partes: la primera es sobre el desarrollo de un videojuego manual inspirado en Flappy Bird, llamado Flappy Fish, implementado en Python con la librería Pygame.
-        \end{column}
+%    \begin{columns}[T]
+%        \begin{column}{0.5\textwidth}
+%            En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}):
+%            matrices de rotación, ángulos de Euler y cuaterniones.
+%        \end{column}
+%
+%        \begin{column}{0.5\textwidth}
+%            \begin{tikzpicture}[scale=2.3, line cap=round, line join=round]
+%              % axes
+%              \draw[->,thick] (-0.1,0) -- (1.4,0) node[right] {$x$};
+%              \draw[->,thick] (0,-0.1) -- (0,1.2) node[above] {$y$};
+%
+%              % angle
+%              \def\th{35}
+%
+%              % original vector (along x)
+%              \draw[thick] (0,0) -- (1,0) node[midway,below] {$v$};
+%
+%              % rotated vector
+%              \draw[thick] (0,0) -- ({cos(\th)},{sin(\th)}) node[above right] {$R(\theta)v$};
+%
+%              % arc for theta
+%              \draw[thick] (0.35,0) arc (0:\th:0.35);
+%              \node at ({0.45*cos(\th/2)},{0.45*sin(\th/2)}) {$\theta$};
+%
+%              % optional: point markers
+%              \fill (1,0) circle (0.5pt);
+%              \fill ({cos(\th)},{sin(\th)}) circle (0.5pt);
+%            \end{tikzpicture}
+%        \end{column}
+%    \end{columns}
 
-        \begin{column}{0.65\textwidth}
-            \begin{tikzpicture}[scale=2.3, line cap=round, line join=round]
-              % axes
-              \draw[->,thick] (-0.1,0) -- (1.4,0) node[right] {$x$};
-              \draw[->,thick] (0,-0.1) -- (0,1.2) node[above] {$y$};
+%    En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}):
+%    matrices de rotación, ángulos de Euler y un poco de cuaterniones. \vspace{6pt}
+%    En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}).
+%    El foco será la representación mediante ángulos de Euler (yaw--pitch--roll): cómo parametrizan una matriz \(R\in SO(3)\), cómo se calculan y cuáles son sus limitaciones.
 
-              % angle
-              \def\th{35}
+En esta presentación estudiamos rotaciones en \(\mathbb{R}^3\) y distintas representaciones de la orientación (\emph{attitude}).
 
-              % original vector (along x)
-              \draw[thick] (0,0) -- (1,0) node[midway,below] {$v$};
 
-              % rotated vector
-              \draw[thick] (0,0) -- ({cos(\th)},{sin(\th)}) node[above right] {$R(\theta)v$};
+El foco central será la representación mediante ángulos de Euler (yaw--pitch--roll):
+\begin{itemize}
+  \item cómo parametrizan una matriz de orientación,
+  \item cómo se calculan en una convención fija,
+  \item cuáles son sus limitaciones en implementación.
+\end{itemize}
 
-              % arc for theta
-              \draw[thick] (0.35,0) arc (0:\th:0.35);
-              \node at ({0.45*cos(\th/2)},{0.45*sin(\th/2)}) {$\theta$};
+La idea general será: primero definir marcos y matrices de cambio de base; después, mostrar cómo Euler parametriza esas matrices.
 
-              % optional: point markers
-              \fill (1,0) circle (0.5pt);
-              \fill ({cos(\th)},{sin(\th)}) circle (0.5pt);
-            \end{tikzpicture}
-%            \includegraphics[width=\textwidth]{img.png}
-        \end{column}
-    \end{columns}
+\end{frame}
 
+%------------------------------------------------
+
+\begin{frame}
+    \frametitle{Introducción}
+
+    Los vehículos (por ejemplo, robots, satélites, aeronaves) suelen tener libertad para trasladarse y rotar. \\
+    Matemáticamente, tienen seis grados de libertad: tres en traslación y tres en rotación. Esta configuración geométrica se conoce como la \emph{pose} del vehículo: posición + orientación.
+
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.7\textwidth]{imagenes/img}
+      \label{fig:plot}
+    \end{figure}
+
+    \SourceLine{\srcBarfoot, p. 173.}
 \end{frame}
 
 %------------------------------------------------
@@ -128,67 +176,1222 @@
 \end{frame}
 
 %------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Introducción}
+%
+%    \begin{columns}[T]
+%        \begin{column}{0.55\textwidth}
+%            A este sistema lo llamamos \emph{body-fixed axes}: un marco ligado al cuerpo que gira con el objeto.
+%
+%            \medskip
+%            La orientación (\emph{attitude}) del vehículo queda determinada por la orientación de estos ejes respecto de un marco inercial o de referencia.
+%
+%            \medskip
+%            Denotaremos este sistema inicial por \(S_i\).
+%%            A este sistema lo llamamos ``Body-Fixed Axes``: la orientación (\emph{attitude}) del objeto queda determinada por la orientación de estos ejes en el espacio.
+%%            En otras palabras, se trata de un sistema de coordenadas, digamos, ligado al objeto (por ejemplo, un avión o un dron) que gira conjuntamente con él. Nombramosla \(S_i\) (Initial Sistem).
+%        \end{column}
+%
+%        \begin{column}{0.45\textwidth}
+%            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+%              \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
+%              \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
+%              \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+%
+%              \node[right] at (0.8,0.3) {${S}_i$};
+%
+%            \end{tikzpicture}
+%        \end{column}
+%    \end{columns}
+%
+%\end{frame}
 
-\begin{frame}
-\frametitle{Introducción}
+%------------------------------------------------
+
+\begin{frame}{Introducción}
 
     \begin{columns}[T]
         \begin{column}{0.55\textwidth}
-            A este sistema lo llamamos ``Body-Fixed Axes``: la orientación (\emph{attitude}) del objeto queda determinada por la orientación de estos ejes en el espacio.
-            En otras palabras, se trata de un sistema de coordenadas, digamos, ligado al objeto (por ejemplo, un avión o un dron) que gira conjuntamente con él.
+            Fijamos un marco inercial \(S\) con ejes \((x,y,z)\).
+
+            \medskip
+            Un vector \(\bm{v}\) describe la posición de un punto del vehículo \textbf{en ese marco fijo}:
+            \[
+            \bm{v} =
+            \begin{bmatrix} v_1\\ v_2\\ v_3 \end{bmatrix}.
+            \]
+
+            \medskip
+            Cuando el vehículo rota, el vector \(\bm{v}\) se mueve; el marco \(S\) permanece fijo.
         \end{column}
 
         \begin{column}{0.45\textwidth}
             \begin{tikzpicture}[scale=2, line cap=round, line join=round]
-              \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
-              \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
-              \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+              \draw[->,thick,green!70!black] (0,0) -- (1.3,0) node[right] {$y$};
+              \draw[->,thick,blue]           (0,0) -- (0,1.2)  node[above] {$z$};
+              \draw[->,thick,red]            (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+              \draw[->,thick,black]          (0,0) -- (0.9,0.8) node[above right] {$\bm{v}$};
+              \node[right] at (0.8,0.3) {$S$};
             \end{tikzpicture}
         \end{column}
     \end{columns}
+
+    \SourceLine{\srcBarfoot, p. 174.}
+\end{frame}
+
+%------------------------------------------------
+
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Introducción}
+%
+%    \begin{columns}[T]
+%        \begin{column}{0.55\textwidth}
+%            La posición de un punto del vehículo se describe con un vector \(\mathbf{r}\) y sus tres componentes en el sistema \(S_i\):
+%              \[
+%            \mathbf{r} =
+%            \begin{bmatrix}
+%            r_1\\ r_2\\ r_3
+%            \end{bmatrix}.
+%            \]
+%
+%            Consideraremos un vector como una cantidad con longitud y dirección, cuyas componentes dependen del marco elegido.
+%
+%        \end{column}
+%
+%        \begin{column}{0.45\textwidth}
+%            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+%              \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
+%              \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
+%              \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+%
+%              \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}$};
+%
+%
+%%              \coordinate (O) at (0,0);
+%%              \coordinate (Y) at (1.3,0);
+%%              \coordinate (Z) at (0,1.2);
+%%              \coordinate (X) at (-0.7,-0.7);
+%%              \coordinate (P) at (0.9,0.8);
+%%              \coordinate (Px) at ($(O)!(P)!(X)$);
+%%              \coordinate (Py) at ($(O)!(P)!(Y)$);
+%%              \coordinate (Pz) at ($(O)!(P)!(Z)$);
+%%
+%%              \draw[densely dashed,gray] (P) -- (Px);
+%%              \draw[densely dashed,gray] (P) -- (Py);
+%%              \draw[densely dashed,gray] (P) -- (Pz);
+%%
+%
+%              \node[right] at (0.8,0.3) {${S}_i$};
+%            \end{tikzpicture}
+%        \end{column}
+%
+%    \end{columns}
+%
+%%    \vfill
+%%    {\footnotesize\textcolor{gray}{%
+%%    Note: \(v\) -- vehicle; \(i\) -- punto \(i\) en ese objeto.
+%%    Entonces \(\vec{r}_{vi}\) es el vector desde el origen del sistema de coordenadas
+%%    del vehículo hasta el punto \(i\).}}
+%\vfill
+%\SourceLine{\srcBarfoot, p. 174.}
+%
+%\end{frame}
+%
+%
+%%------------------------------------------------
+%\section{Matrices de rotación y cambio de marco}
+%%------------------------------------------------
+%
+%    \begin{frame}{Del vector geométrico a sus componentes en un marco}
+%    Si reunimos los versores de \(S_i\) como columnas de una matriz,
+%        \[
+%        S_i = \begin{bmatrix} \bm x_i & \bm y_i & \bm z_i \end{bmatrix},
+%        \]
+%        las componentes \(\bm r_1\) del vector \(\bm r\) en ese marco satisfacen
+%        \[
+%        \bm r = S_i\,\bm r_1
+%        \qquad\text{y, equivalentemente,}\qquad
+%        \bm r_1 = S_i^{\top}\bm r.
+%        \]
+%
+%\medskip
+%    La idea importante es que el \emph{mismo vector geométrico} puede escribirse con coordenadas distintas según el marco de referencia.
+%
+%\SourceLine{\srcBarfoot, p. 174.}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%
+%\begin{frame}
+%\frametitle{Introducimos un segundo marco \(S_{i'}\)}
+%
+%    \begin{columns}[T]
+%        \begin{column}{0.55\textwidth}
+%            Ahora vamos a introducir un nuevo sistema $S_{i'}$, con el mismo origen que la $S_i$, pero de distinta orientación.
+%
+%%            El movimiento de rotación se describe expresando la orientación de un sistema
+%%            de referencia en el vehículo, \(F_v\), con respecto a otro sistema, \(F_i\).
+%%            La Figura 6.1 muestra la configuración típica de un vehículo monocasco.
+%
+%              \medskip
+%              La idea clave es que \textbf{el vector no cambió}; lo que cambió fue el marco con el que lo estamos midiendo. \\
+%              El objetivo es relacionar las componentes de un mismo vector en ambos sistemas.
+%
+%        \end{column}
+%
+%        \begin{column}{0.45\textwidth}
+%            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+%
+%
+%             \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
+%             \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
+%             \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+%
+%             \draw[->,thick,Mahogany] (0,0) -- ([rotate around={30:(0,0)}]-0.7,-0.7) node[below left] {$x$};
+%             \draw[->,thick,OliveGreen!70!black] (0,0) -- ([rotate around={30:(0,0)}]1.3,0) node[right] {$y$};
+%
+%%             \def\h{0.8}   % высота по x3
+%%             \def\a{0.20}  % большой радиус эллипса (ширина)
+%%             \def\b{0.08}  % малый радиус (перспектива)
+%%             \def\st{125}
+%%             \def\en{425}
+%%
+%%            \draw[CadetBlue, thick, ->]
+%%              (0,\h) ++({\a*cos(\st)},{\b*sin(\st)})
+%%              arc[start angle=\st, end angle=\en, x radius={\a}, y radius={\b}];
+%%
+%%            \node[CadetBlue] at (0.39,\h+0.25) {$\psi$};
+%
+%             \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$\vec{r}$};
+%
+%            \node[right] at (0.8,0.3) {$S_i$};
+%            \node[right] at (1.3,0.6) {$S_{i'}$};
+%            \end{tikzpicture}
+%        \end{column}
+%    \end{columns}
+%     {\footnotesize\textcolor{gray}{%
+%        Note: Barfoot define el sistema del vehículo como un frame $F_v$ y el sistema de comparación como el frame $F_i$. No entendí muy bien su aclaración, así que comienzo definiendo el sistema del vehículo como $S_i$ y luego el sistema rotado como $S_{i'}$.}}
+%    \SourceLine{\srcBarfoot, p. 174.}
+%%    \vfill
+%%    {\footnotesize\textcolor{gray}{%
+%%        Note: Barfoot define el sistema del vehículo como un frame $F_v$ y el sistema de comparación como el frame $F_i$. No entendí muy bien su aclaración, así que comienzo definiendo el sistema del vehículo como $S_i$ y luego el sistema rotado como $S_{i'}$.}}
+%
+%\end{frame}
+%
+%%%------------------------------------------------
+
+%
+%\begin{frame}
+%\frametitle{Introducción}
+%
+%   Expresemos $\vec r$ en cada sistema:
+%        $$
+%        \vec r \;=\; S_i^{T}\, r_1 \;=\; (S_{i'})^{T}\, r_2 .
+%        $$
+%
+%        Buscamos descubrir una relación entre las componentes en $S_i,\; r_1$, y las de $S_{i'},\; r_2$.
+%        $$
+%        (S_{i'})^{T} r_2 \;=\; S_i^{T} r_1,
+%        $$
+%        $$
+%        S_{i'}\,(S_{i'})^{T} r_2 \;=\; S_{i'}\,S_i^{T} r_1,
+%        $$
+%        $$
+%        r_2 \;=\; C_{21}\, r_1 .
+%        $$
+%
+%        Hemos definido
+%        $$
+%        C_{21} \;=\; S_{i'}\,S_i^{T}
+%        \;=\;
+%        \begin{bmatrix}
+%        x_i'\\[2pt]
+%        y_i'\\[2pt]
+%        z_i'
+%        \end{bmatrix}
+%        \begin{bmatrix}
+%        x_i & y_i & z_i
+%        \end{bmatrix}
+%        \;=\;
+%        \begin{bmatrix}
+%        x_i'\!\cdot\! x_i & x_i'\!\cdot\! y_i & x_i'\!\cdot\! z_i\\
+%        y_i'\!\cdot\! x_i & y_i'\!\cdot\! y_i & y_i'\!\cdot\! z_i\\
+%        z_i'\!\cdot\! x_i & z_i'\!\cdot\! y_i & z_i'\!\cdot\! z_i
+%        \end{bmatrix}.
+%        $$
+%
+%\end{frame}
+
+%%------------------------------------------------
+%
+%\begin{frame}{Cambio de componentes entre $S_i$ y $S_{i'}$}
+%
+%Las componentes del mismo vector \(\bm r\) en ambos marcos satisfacen
+%\[
+%\bm r = S_i\,\bm r_1 = S_{i'}\,\bm r_2.
+%\]
+%Multiplicando por \((S_{i'})^{\top}\), obtenemos
+%\[
+%\bm r_2 = (S_{i'})^{\top} S_i\,\bm r_1.
+%\]
+%
+%Definimos entonces la matriz de orientación (o de cambio de base)
+%\[
+%C_{21} := (S_{i'})^{\top} S_i,
+%\qquad\text{de modo que}\qquad
+%\bm r_2 = C_{21}\,\bm r_1.
+%\]
+%
+%\medskip
+%Esta es la matriz que más adelante parametrizaremos con ángulos de Euler.
+%
+%\SourceLine{\srcBarfoot, p. 174.}
+%\end{frame}
+%
+%%------------------------------------------------
+%%------------------------------------------------
+%
+%\begin{frame}{Interpretación de \(C_{21}\)}
+%La matriz \(C_{21}\) puede escribirse en términos de productos escalares entre ejes de ambos marcos:
+%\[
+%C_{21}=
+%\begin{bmatrix}
+%\bm x_i'\!\cdot\!\bm x_i & \bm x_i'\!\cdot\!\bm y_i & \bm x_i'\!\cdot\!\bm z_i\\
+%\bm y_i'\!\cdot\!\bm x_i & \bm y_i'\!\cdot\!\bm y_i & \bm y_i'\!\cdot\!\bm z_i\\
+%\bm z_i'\!\cdot\!\bm x_i & \bm z_i'\!\cdot\!\bm y_i & \bm z_i'\!\cdot\!\bm z_i
+%\end{bmatrix}.
+%\]
+%
+%\medskip
+%Cada entrada mide ``cuánto'' de un eje del sistema original ve un eje del sistema rotado.
+%
+%\medskip
+%Por construcción, \(C_{21}\) es una matriz ortogonal con determinante \(+1\), es decir, un elemento de \(SO(3)\).
+%
+%\vfill
+%{\footnotesize\textcolor{gray}{
+%    Note: SO(3): grupo ortogonal
+%    \[
+%    R^{\top}R = I,
+%    \qquad
+%    \det(R)=1.
+%    \]
+%    especial (\(\det(R)=1\)) en 3 dimensiones
+%}}
+%
+%\SourceLine{\srcBarfoot, p. 174}
+%\end{frame}
+%
+%%------------------------------------------------
+
+%------------------------------------------------
+\section{Matrices de rotación y \(SO(3)\)}
+%------------------------------------------------
+
+\begin{frame}{¿Qué es una rotación activa?}
+
+Una \textbf{rotación activa} es una transformación lineal
+\[
+R : \mathbb{R}^3 \to \mathbb{R}^3, \qquad \bm{v} \mapsto R\bm{v},
+\]
+que mueve el vector \(\bm{v}\) a una nueva posición \(R\bm{v}\) \textbf{dentro del mismo marco fijo}.
+
+\medskip
+\begin{itemize}
+  \item preserva longitudes: \(\|R\bm{v}\| = \|\bm{v}\|\),
+  \item preserva ángulos entre vectores,
+  \item preserva la orientación (no ``refleja''; \(\det R = +1\)).
+\end{itemize}
+
+\medskip
+\begin{columns}[T]
+%  \begin{column}{0.3\textwidth}
+%    \centering
+%    \begin{tikzpicture}[scale=1.25, line cap=round, line join=round]
+%             \draw[->,thick,green!70!black]   (0,0) -- (1.3,0) node[right] {$y$};
+%             \draw[->,thick,blue] (0,0) -- (0,1.2) node[above] {$z$};
+%             \draw[->,thick,red]  (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+%
+%%             \draw[->,thick,Mahogany] (0,0) -- ([rotate around={30:(0,0)}]-0.7,-0.7) node[below left] {$Rv$};
+%%             \draw[->,thick,OliveGreen!70!black] (0,0) -- ([rotate around={30:(0,0)}]1.3,0) node[right] {$y$};
+%
+%             \def\h{0.8}   % высота по x3
+%             \def\a{0.20}  % большой радиус эллипса (ширина)
+%             \def\b{0.08}  % малый радиус (перспектива)
+%             \def\st{125}
+%             \def\en{425}
+%
+%            \draw[CadetBlue, thick, ->]
+%              (0,\h) ++({\a*cos(\st)},{\b*sin(\st)})
+%              arc[start angle=\st, end angle=\en, x radius={\a}, y radius={\b}];
+%
+%            \node[CadetBlue] at (0.39,\h+0.25) {$\psi$};
+%
+%%             \draw[->,thick,black] (0,0) -- (0.9,0.8) node[above right] {$v$};
+%
+%%            \node[right] at (0.8,0.3) {$S_i$};
+%            \end{tikzpicture}
+%  \end{column}
+
+
+    \begin{column}{0.5\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=1.7, line cap=round, line join=round]
+      \draw[->,thick,red] (-0.1,0) -- (1.4,0) node[right,red] {$x$};
+      \draw[->,thick,green!70!black] (0,-0.1) -- (0,1.2) node[above,green!70!black] {$y$};
+
+      \def\th{40}
+
+      \draw[->,thick,black] (0,0) -- ({cos(0.5*\th)},{sin(0.5*\th)})
+        node[below right] {$\bm{v}$};
+
+      \draw[->,thick,Mahogany] (0,0) -- ({cos(\th)},{sin(\th)})
+        node[above right] {$R\bm{v}$};
+
+      \draw[->,CadetBlue,thick]
+    ({0.35*cos(0.5*\th)},{0.35*sin(0.5*\th)})
+    arc[start angle={0.5*\th}, end angle=\th, radius=0.35];
+  \node[CadetBlue] at ({0.48*cos(0.75*\th)},{0.48*sin(0.75*\th)}) {\small$\psi$};
+    \end{tikzpicture}
+  \end{column}
+
+    \begin{column}{0.5\textwidth}
+    El marco \((x,y,z)\) no se mueve.\\[4pt]
+    El vector \(\bm{v}\) rota un ángulo \(\psi\) alrededor del eje \(z\).
+  \end{column}
+\end{columns}
+
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Matrices de rotación y \(SO(3)\)}
+
+En coordenadas, una rotación activa se representa por una matriz
+\(R \in \mathbb{R}^{3\times 3}\) tal que
+\[
+R^{\top}R = I, \qquad \det(R) = 1.
+\]
+El conjunto de todas estas matrices forma el \textbf{grupo especial ortogonal}:
+\[
+SO(3) = \{R \in \mathbb{R}^{3\times 3} : R^{\top}R = I,\ \det(R) = 1\}.
+\]
+
+\medskip
+Propiedades importantes de \(SO(3)\):
+\begin{itemize}
+  \item \(R^{-1} = R^{\top}\) (la inversa es la transpuesta),
+  \item composición de rotaciones: \(R_2 R_1\) es otra rotación,
+  \item el orden importa: en general, \(R_1 R_2 \neq R_2 R_1\).
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+%%------------------------------------------------
+%
+%\begin{frame}{La matriz de rotación como orientación del cuerpo}
+%
+%    \begin{columns}[T]
+%        \begin{column}{0.55\textwidth}
+%            Pensamos en el vehículo como un triedro \((x_v, y_v, z_v)\) que inicialmente coincide con el marco fijo \(S\).
+%
+%            \medskip
+%            Una rotación \(R \in SO(3)\) lleva cada eje del cuerpo a una nueva dirección:
+%            \[
+%            x_v \mapsto R\,\bm{e}_1,\quad
+%            y_v \mapsto R\,\bm{e}_2,\quad
+%            z_v \mapsto R\,\bm{e}_3.
+%            \]
+%
+%            \medskip
+%            Las columnas de \(R\) son exactamente los ejes del cuerpo expresados en el marco fijo.
+%        \end{column}
+%
+%        \begin{column}{0.45\textwidth}
+%            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+%              % marco fijo (gris)
+%              \draw[->,thick,gray!50]   (0,0) -- (1.2,0)    node[right,gray!60]      {$y$};
+%              \draw[->,thick,gray!50]   (0,0) -- (0,1.1)    node[above,gray!60]      {$z$};
+%              \draw[->,thick,gray!50]   (0,0) -- (-0.6,-0.6) node[below left,gray!60] {$x$};
+%              \node[gray!60,right] at (0.7,0.2) {\small$S$};
+%
+%              % ejes del cuerpo rotados
+%              \def\psi{25}
+%              \draw[->,thick,Mahogany]
+%                (0,0) -- ({-0.6*cos(\psi)+0.6*sin(\psi)},{-0.6*sin(\psi)-0.6*cos(\psi)})
+%                node[below left] {\small$x_v$};
+%              \draw[->,thick,OliveGreen!80!black]
+%                (0,0) -- ({1.2*cos(\psi)},{1.2*sin(\psi)})
+%                node[right] {\small$y_v$};
+%              \draw[->,thick,NavyBlue]
+%                (0,0) -- ({-0.15},{1.05})
+%                node[above] {\small$z_v$};
+%              \node[right] at (0.5,0.9) {\small cuerpo};
+%            \end{tikzpicture}
+%        \end{column}
+%    \end{columns}
+%
+%\end{frame}
+%
+%%
+%
+%
+%\section{Rotación}
+%
+%%------------------------------------------------
+%
+%\begin{frame}{¿Qué es una rotación?}
+%
+%Una rotación (activa) es una transformación lineal que:
+%\begin{itemize}
+%  \item preserva longitudes y ángulos (\(\|Rv\|=\|v\|\)),
+%  \item preserva la orientación (no ``refleja'').
+%\end{itemize}
+%
+%\smallskip
+%En coordenadas, se representa por una matriz \(R\in\mathbb{R}^{3\times 3}\) tal que
+%\[
+%R^\top R = I,\qquad \det(R)=1.
+%\]
+%El conjunto de todas estas matrices forma el grupo especial ortogonal:
+%\[
+%SO(3)=\{R\in\mathbb{R}^{3\times 3}\,:\,R^\top R=I,\ \det(R)=1\}.
+%\]
+%
+%\SourceLine{\srcShuster, \srcMarkley.}
+%\end{frame}
+%
+%%------------------------------------------------
+
+%------------------------------------------------
+
+
+
+%------------------------------------------------
+
+\section{Ángulos de Euler}
+
+%------------------------------------------------
+
+\begin{frame}{¿Qué son los ángulos de Euler?}
+
+Los ángulos de Euler describen una rotación \(R \in SO(3)\) como una \textbf{secuencia de tres rotaciones activas elementales}.
+
+\medskip
+Cada rotación elemental gira el cuerpo alrededor de \textbf{un solo eje cartesiano}.
+
+\medskip
+Puntos clave:
+\begin{itemize}
+  \item el orden importa: distintas secuencias (ZYX, ZXZ, XYZ\ldots) producen distintas orientaciones;
+  \item existen dos lecturas frecuentes:
+  \begin{itemize}
+    \item \emph{extrínseca}: cada rotación es sobre un eje del marco fijo \(S\);
+    \item \emph{intrínseca}: cada rotación es sobre un eje que ya fue rotado por las anteriores.
+  \end{itemize}
+  \item ambas lecturas producen la misma matriz \(R\), con el orden de factores invertido.
+\end{itemize}
+
+\medskip
+En navegación/aeronáutica suele usarse la convención \textbf{yaw--pitch--roll} (ZYX).
+
+%\SourceLine{\srcShuster; \srcMarkley.}
+\end{frame}
+
+%------------------------------------------------
+
+%%------------------------------------------------
+
+\begin{frame}{Readings extrínseca e intrínseca}
+
+Ambas describen la \textbf{misma} matriz \(R = R_z(\psi)\,R_y(\theta)\,R_x(\phi)\),
+pero con interpretaciones distintas.
+
+\medskip
+\begin{columns}[T]
+
+  %--- columna izquierda: extrínseca ---
+  \begin{column}{0.48\textwidth}
+    \textbf{Extrínseca} (ejes del mundo)
+
+    \smallskip
+    Cada rotación es sobre un eje del marco fijo \(S\), que \emph{nunca se mueve}:
+    \begin{enumerate}\small
+      \item yaw \(\psi\) alrededor del \(z\) del mundo,
+      \item pitch \(\theta\) alrededor del \(y\) del mundo,
+      \item roll \(\phi\) alrededor del \(x\) del mundo.
+    \end{enumerate}
+
+    \smallskip
+%    \begin{tikzpicture}[scale=1.3, line cap=round, line join=round]
+%      % ejes fijos
+%      \draw[->,thick,red]            (0,0) -- (1.1,0)   node[right,font=\tiny]      {$x$};
+%      \draw[->,thick,green!60!black] (0,0) -- (0,1.0)   node[above,font=\tiny]      {$y$};
+%      % vector original
+%      \draw[->,thick,black!40] (0,0) -- (0.9,0.2) node[right,font=\tiny,black!40] {$\bm{v}$};
+%      % vector tras Rz
+%      \draw[->,thick,CadetBlue] (0,0) -- (0.5,0.78) node[above,font=\tiny] {$R_z\bm{v}$};
+%      % vector tras Ry Rz
+%      \draw[->,thick,Mahogany]  (0,0) -- (0.2,0.92) node[left,font=\tiny] {$R_y R_z\bm{v}$};
+%      % ejes siempre iguales (no se mueven)
+%      \node[font=\tiny,gray] at (0.55,-0.18) {ejes fijos};
+%    \end{tikzpicture}
+
+    \smallskip
+    {\footnotesize Orden de escritura = orden de aplicación:\\
+    \(R = R_z \cdot R_y \cdot R_x\).}
+  \end{column}
+
+  \vrule\hspace{4pt}
+
+  %--- columna derecha: intrínseca ---
+  \begin{column}{0.48\textwidth}
+    \textbf{Intrínseca} (ejes del cuerpo)
+
+    \smallskip
+    Cada rotación es sobre un eje \emph{que ya giró} con el cuerpo:
+    \begin{enumerate}\small
+      \item yaw \(\psi\) alrededor del \(z\) del cuerpo,
+      \item pitch \(\theta\) alrededor del \textbf{nuevo} \(y'\),
+      \item roll \(\phi\) alrededor del \textbf{nuevo} \(x''\).
+    \end{enumerate}
+
+    \smallskip
+%    \begin{tikzpicture}[scale=1.3, line cap=round, line join=round]
+%      % ejes originales (gris)
+%      \draw[->,thick,gray!40] (0,0) -- (1.1,0) node[right,font=\tiny,gray!40] {$x$};
+%      \draw[->,thick,gray!40] (0,0) -- (0,1.0) node[above,font=\tiny,gray!40] {$y$};
+%      % ejes rotados paso 1
+%      \def\a{20}
+%      \draw[->,thick,red!70]
+%        (0,0) -- ({1.1*cos(\a)},{1.1*sin(\a)}) node[right,font=\tiny] {$x'$};
+%      \draw[->,thick,green!50!black]
+%        (0,0) -- ({-1.0*sin(\a)},{1.0*cos(\a)}) node[above,font=\tiny] {$y'$};
+%      % vector resultado
+%      \draw[->,thick,Mahogany] (0,0) -- (0.2,0.92) node[left,font=\tiny] {$R\bm{v}$};
+%      \node[font=\tiny,gray] at (0.65,-0.18) {ejes se mueven};
+%    \end{tikzpicture}
+
+    \smallskip
+    {\footnotesize Orden de aplicación es inverso al de escritura:\\
+    intrínseco ZYX \(=\) extrínseco XYZ.}
+  \end{column}
+
+\end{columns}
+
+\vfill
+%{\footnotesize\textcolor{gray}{%
+%    Conclusión: la matriz \(R\) es la misma; solo cambia cómo pensamos en los ejes de rotación.}}
+
+\end{frame}
+
+
+%%------------------------------------------------
+
+\begin{frame}{Rotaciones elementales}
+
+Las tres rotaciones básicas alrededor de cada eje son:
+
+\[
+R_x(\phi) =
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & \cos\phi & -\sin\phi \\
+0 & \sin\phi &  \cos\phi
+\end{bmatrix},
+\]
+\[
+R_y(\theta) =
+\begin{bmatrix}
+ \cos\theta & 0 & \sin\theta \\
+ 0          & 1 & 0          \\
+-\sin\theta & 0 & \cos\theta
+\end{bmatrix},
+\quad
+R_z(\psi) =
+\begin{bmatrix}
+\cos\psi & -\sin\psi & 0 \\
+\sin\psi &  \cos\psi & 0 \\
+0        & 0         & 1
+\end{bmatrix}.
+\]
+
+\medskip
+Cada una rota \textbf{activamente} un vector alrededor del eje indicado, con el marco fijo.
+
+%\SourceLine{\srcShuster; \srcMarkley.}
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}{Convención ZYX: yaw--pitch--roll}
+
+\begin{columns}[T]
+  \begin{column}{0.52\textwidth}
+    La orientación final del cuerpo se obtiene aplicando tres rotaciones activas en secuencia \textbf{sobre ejes del marco fijo} (convención extrínseca ZYX):
+    \[
+      R = R_z(\psi)\,R_y(\theta)\,R_x(\phi).
+    \]
+    \begin{itemize}
+      \item \(\psi\) — \textbf{yaw}: giro alrededor de \(z\),
+      \item \(\theta\) — \textbf{pitch}: giro alrededor de \(y\),
+      \item \(\phi\) — \textbf{roll}: giro alrededor de \(x\).
+    \end{itemize}
+    \medskip
+    \small El vector rotado queda \(\bm{v}' = R\,\bm{v}\).
+  \end{column}
+
+  \begin{column}{0.48\textwidth}
+    \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+
+  % оси
+  \draw[->,thick,green!70!black] (0,0) -- (1.3,0)    node[right]      {$y$};
+  \draw[->,thick,blue]           (0,0) -- (0,1.2)    node[above]      {$z$};
+  \draw[->,thick,red]            (0,0) -- (-0.7,-0.7) node[below left] {$x$};
+
+ % psi: вокруг z
+  \draw[gray, thick, ->]
+    (0,0.8) ++({0.20*cos(125)},{0.08*sin(125)})
+    arc[start angle=125, end angle=425, x radius=0.20, y radius=0.08];
+  \node[gray] at (0.35,0.88) {$\psi$};
+
+  % theta: вокруг y
+  \draw[gray, thick, ->]
+    (0.9,0) ++({0.08*cos(125)},{0.20*sin(125)})
+    arc[start angle=125, end angle=-105, x radius=0.08, y radius=0.20];
+  \node[gray] at (1.1,0.2) {$\theta$};
+
+  % phi: вокруг x
+    \draw[gray, thick, <-]
+      (-0.4,-0.4) ++({0.17*cos(125)},{0.17*sin(125)})
+      arc[start angle=125, end angle=-105, radius=0.17];
+    \node[gray] at (-0.13,-0.4) {$\phi$};
+
+\end{tikzpicture}
+  \end{column}
+\end{columns}
+
+\end{frame}
+
+
+%------------------------------------------------
+
+\begin{frame}{Matriz explícita para ZYX}
+\small
+Si escribimos \(c(\cdot)=\cos(\cdot)\) y \(s(\cdot)=\sin(\cdot)\), entonces
+\[
+R = C_{21}(\phi,\theta,\psi)=
+\begin{bmatrix}
+ c\psi\,c\theta & c\psi\,s\theta\,s\phi - s\psi\,c\phi & c\psi\,s\theta\,c\phi + s\psi\,s\phi\\[4pt]
+ s\psi\,c\theta & s\psi\,s\theta\,s\phi + c\psi\,c\phi & s\psi\,s\theta\,c\phi - c\psi\,s\phi\\[4pt]
+ -s\theta & c\theta\,s\phi & c\theta\,c\phi
+\end{bmatrix}.
+\]
+
+\medskip
+Esta fórmula es el puente concreto entre la terna \((\phi,\theta,\psi)\) y la matriz de orientación \(R = C_{21}\in SO(3)\).
+    x
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Limitación: gimbal lock}
+
+\small
+Cuando el ángulo de pitch \(\theta = \pm 90°\), ocurre una singularidad
+llamada \textbf{gimbal lock}: se pierde un grado de libertad.
+
+\medskip
+\textbf{¿Por qué?} La matriz de rotación ZYX es:
+\[
+R = R_z(\psi)\,R_y(\theta)\,R_x(\phi)
+\]
+Cuando \(\theta = 90°\), la matriz \(R_y(90°)\) alinea el eje \(x\) del
+cuerpo con el eje \(z\) del mundo. En ese momento yaw \(\psi\) y
+roll \(\phi\) rotan \textbf{alrededor del mismo eje físico} — son
+indistinguibles.
+
+\medskip
+\textbf{Consecuencia:} en vez de controlar 3 ángulos independientes,
+solo quedan 2. El sistema no puede representar ciertas orientaciones.
+
+\medskip
+Matemáticamente: los ángulos de Euler \textbf{no son una parametrización
+global} de \(SO(3)\) — fallan en ciertos puntos.
+
+\medskip
+\textbf{Solución habitual:} usar cuaterniones unitarios, que no tienen
+esta singularidad y parametrizan \(SO(3)\) de forma continua.
 
 \end{frame}
 
 %------------------------------------------------
 
-\begin{frame}
-\frametitle{Introducción}
+%------------------------------------------------
 
-    \begin{columns}[T]
-        \begin{column}{0.55\textwidth}
-            Ahora nos gustaría introducir una rotación alrededor de un eje.
-        \end{column}
+\begin{frame}{Solución: cuaterniones}
 
-        \begin{column}{0.45\textwidth}
-            \begin{tikzpicture}[scale=2, line cap=round, line join=round]
+\small
+Un cuaternión unitario es un vector de 4 componentes:
+\[
+  \bm{q} = \begin{bmatrix} q_0 \\ q_1 \\ q_2 \\ q_3 \end{bmatrix},
+  \qquad \|\bm{q}\| = 1.
+\]
+donde \(q_0 = \cos(\alpha/2)\) y \((q_1, q_2, q_3) = \sin(\alpha/2)\,\hat{\bm{n}}\),
+siendo \(\hat{\bm{n}}\) el eje de rotación y \(\alpha\) el ángulo.
 
-% axes
-\draw[->,thick] (0,0) -- (1.2,0) node[right] {$x_2$};
-\draw[->,thick] (0,0) -- (-0.7,-0.7) node[below left] {$x_1$};
-\draw[->,thick] (0,0) -- (0,1.2) node[above] {$x_3$};
+\medskip
+¿Por qué no tiene gimbal lock?
+\begin{itemize}
+  \item No usa una secuencia de tres rotaciones — describe la orientación
+  como una sola rotación alrededor de un eje arbitrario.
+  \item No hay ángulo ``medio'' que pueda colapsar los otros dos.
+  \item Parametriza \(SO(3)\) de forma continua y global.
+\end{itemize}
 
-% parameters
-\def\h{1.0}   % height on x3
-\def\r{0.28}  % radius of rotation circle
-
-% back (hidden) part
-\draw[red!70, thick, dashed]
-  (0,\h) ++(\r,0)
-  arc[start angle=140, end angle=220, radius=\r];
-
-% front (visible) part
-\draw[red, thick, ->]
-  (0,\h) ++(\r,0)
-  arc[start angle=220, end angle=500, radius=\r];
-
-% label
-\node[red] at (0.55,1.15) {$\theta_3$};
-
-\end{tikzpicture}
-        \end{column}
-    \end{columns}
+\medskip
+\textbf{Desventaja:} un cuaternión tiene 4 componentes para describir
+3 grados de libertad — hay una redundancia, y existen dos cuaterniones
+\(\bm{q}\) y \(-\bm{q}\) que representan la misma rotación.
 
 \end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Cómo recuperar Euler a partir de una matriz}
+\small
+Fuera de la singularidad, una extracción usual para ZYX es
+\[
+\theta = \arcsin(-R_{31}),
+\qquad
+\psi = \operatorname{atan2}(R_{21},R_{11}),
+\qquad
+\phi = \operatorname{atan2}(R_{32},R_{33}).
+\]
+
+\medskip
+Esto muestra dos cosas importantes:
+\begin{itemize}
+  \item para \emph{construir} la matriz, multiplicamos matrices elementales;
+  \item para \emph{recuperar} Euler desde una matriz, usamos \(\arcsin\) y \(\operatorname{atan2}\), y debemos tratar con cuidado los casos singulares.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+\section{Aplicación: satélite con cámara}
+%------------------------------------------------
+
+%------------------------------------------------
+\begin{frame}{Aplicación: satélite con cámara}
+
+\begin{columns}[T]
+  \begin{column}{0.55\textwidth}
+    \textbf{Problema:} un satélite orbita la Tierra en órbita circular.
+    Lleva una sola cámara.
+%    cuyo eje óptico en el marco del cuerpo es
+%    \(\bm{c}_b = \bm{e}_3 = (0,0,1)^\top\).
+
+    En todo momento el eje de la cámara
+    debe apuntar al centro de la Tierra. Es decir, que cumple:
+
+%    Introducimos
+%
+%    \begin{itemize}
+%        \item $\vec{s(t)}$ -- el vector de apuntamiento del satélite;
+%        \item $\vec{r(t)}$ -- el radio de la Tierra;
+%        \item ${c}$ -- el centro de la Tierra;
+%        \item ${P}_s$ -- la posición del satélite.
+%    \end{itemize}
+
+  \end{column}
+
+  \begin{column}{0.45\textwidth}
+
+      \centering
+      \begin{tikzpicture}[scale=0.5, line cap=round, line join=round]
+
+        % square
+        \draw[fill=gray!80, draw=none] (0,0) rectangle (2,2);
+
+        % semicircle under the square
+        \draw[fill=BrickRed, draw=none]
+        (0.5,0) arc[start angle=180,end angle=360, x radius=0.5, y radius=0.25] -- cycle;
+
+        % vertical double arrow
+        \draw[->, thick, NavyBlue, dashed] (1,1) -- (1,-2);
+        \node[font=\tiny, color=NavyBlue] at (1.6,-0.7) {$\vec{s(t)}$};
+        \node[font=\tiny, color=Black] at (1.5,1) {$\bm{P_s}$};
+
+      \end{tikzpicture}
+
+  \end{column}
+\end{columns}
+
+\vspace{4pt}
+
+\begin{columns}[T]
+  \begin{column}{0.55\textwidth}
+
+    \vspace{4pt}
+
+    \[
+      \vec{s} = \alpha\,(c - P_s), \quad \alpha > 0
+    \]
+%    donde \(\bm{r}(t)\) es la posición del satélite en el marco inercial.
+
+    \medskip
+    \textbf{Pregunta:} ¿qué matriz de rotación \(R(t) \in SO(3)\)
+    cumple esto en cada instante?
+  \end{column}
+
+  \begin{column}{0.45\textwidth}
+
+      \centering
+          \begin{tikzpicture}[scale=1.9, line cap=round, line join=round]
+
+
+            % Tierra
+            \fill[blue!20] (0,0) circle (0.45);
+            \draw[blue!60, thick] (0,0) circle (0.45);
+            \node[font=\tiny] at (-0.19,0) {Tierra};
+            \node[font=\tiny, color=NavyBlue] at (0.04,-0.04) {$\bm{c}$};
+
+            % órbita
+            \draw[gray!50, dashed] (0,0) circle (1.2);
+
+            % posición del satélite
+            \def\th{50}
+            \coordinate (SAT) at ({1.2*cos(\th)},{1.2*sin(\th)});
+
+            % satélite (центр на орбите и повернут)
+            \node[
+                fill=gray!80,
+                minimum size=0.2cm,   % больше
+                rotate=\th+90          % сторона ⟂ радиусу
+            ] at (SAT) {};
+
+            \node[font=\tiny, above right] at (SAT) {satélite};
+            \node[font=\tiny, color=NavyBlue] at (0.7,0.65) {$\vec{s(t)}$};
+
+            % vector r
+            \draw[->, thick, Mahogany]
+              (0,0) -- ({0.45*cos(\th)},{0.45*sin(\th)})
+              node[midway, left, font=\tiny] {$\bm{r}(t)$};
+
+            % eje cámara apuntando al centro
+            \draw[->, thick, NavyBlue, dashed]
+            (SAT) -- ++({-0.55*cos(\th)},{-0.55*sin(\th)});
+
+            %% ángulo orbital
+            %\draw[->] (0.35,0) arc (0:\th:0.35);
+            %\node[font=\tiny] at (0.42,0.18) {$\omega t$};
+
+          \end{tikzpicture}
+
+  \end{column}
+
+
+\end{columns}
+
+\end{frame}
+
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Construcción de \(R(t)\): idea general}
+
+\textbf{¿Qué es \(R(t)\)?}
+
+\medskip
+\(R(t)\) es una matriz \(3\times 3\) cuyos tres columnas son
+las tres ejes del cuerpo del satélite expresados en el marco inercial:
+\[
+  R(t) = \begin{bmatrix} \bm{x}_b & \bm{y}_b & \bm{z}_b \end{bmatrix}.
+\]
+
+Esto significa: en cada momento \(t\), las columnas de \(R(t)\) nos
+dicen \textbf{hacia dónde apuntan los ejes del satélite en el espacio}.
+
+\medskip
+\textbf{¿Qué sabemos?}
+
+Sabemos una sola cosa: hacia dónde debe apuntar la cámara.
+La cámara es el eje \(\bm{z}_b\) del cuerpo, y debe apuntar
+hacia la Tierra:
+\[
+  \bm{z}_b(t) = -\hat{\bm{r}}(t) =
+  \begin{pmatrix}-\cos\omega t \\ -\sin\omega t \\ 0\end{pmatrix}.
+\]
+Esto nos da el \textbf{tercer columna} de \(R(t)\).
+
+\end{frame}
+
+
+%------------------------------------------------
+\begin{frame}{Construcción de \(R(t)\): idea general}
+
+\medskip
+\textbf{¿Qué nos falta?}
+
+Nos faltan \(\bm{x}_b\) y \(\bm{y}_b\) — los otros dos ejes del
+satélite. Para que \(R(t) \in SO(3)\), estos tres vectores deben ser:
+\begin{itemize}
+  \item \textbf{ortogonales} entre sí: \(\bm{x}_b \perp \bm{y}_b \perp \bm{z}_b\),
+  \item \textbf{unitarios}: \(\|\bm{x}_b\| = \|\bm{y}_b\| = \|\bm{z}_b\| = 1\).
+\end{itemize}
+
+\end{frame}
+
+
+%------------------------------------------------
+
+\begin{frame}{Construcción de \(R(t)\): paso a paso}
+
+\textbf{Paso 1: \(\bm{z}_b\) ya lo conocemos}
+\[
+  \bm{z}_b(t) = -\hat{\bm{r}}(t) =
+  \begin{pmatrix}-\cos\omega t \\ -\sin\omega t \\ 0\end{pmatrix}.
+\]
+Es unitario porque \(\hat{\bm{r}}\) está normalizado.
+
+\medskip
+\textbf{Paso 2: elegimos \(\bm{x}_b\) libremente}
+
+Necesitamos un vector perpendicular a \(\bm{z}_b\). Tenemos libertad
+de elección — esto corresponde a fijar el roll \(\phi = 0\).
+Elegimos:
+\[
+  \bm{x}_b = \begin{pmatrix}0\\0\\1\end{pmatrix}.
+\]
+Verificamos perpendicularidad:
+\(\bm{x}_b \cdot \bm{z}_b = 0\cdot(-\cos\omega t) + 0\cdot(-\sin\omega t)
++ 1\cdot 0 = 0\). \checkmark
+
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}{Construcción de \(R(t)\): paso a paso}
+
+\medskip
+\textbf{Paso 3: calculamos \(\bm{y}_b\) por producto cruzado}
+
+El único vector perpendicular a \(\bm{x}_b\) y \(\bm{z}_b\)
+simultáneamente es su producto cruzado:
+\[
+  \bm{y}_b = \bm{z}_b \times \bm{x}_b =
+  \begin{pmatrix}-\cos\omega t \\ -\sin\omega t \\ 0\end{pmatrix}
+  \times
+  \begin{pmatrix}0\\0\\1\end{pmatrix}
+  =
+  \begin{pmatrix}-\sin\omega t \\ \cos\omega t \\ 0\end{pmatrix}.
+\]
+
+\medskip
+\textbf{Paso 4: ensamblamos \(R(t)\)}
+\[
+  R(t) =
+  \begin{bmatrix}
+    0 & -\sin\omega t & -\cos\omega t \\
+    0 &  \cos\omega t & -\sin\omega t \\
+    1 &  0            &  0
+  \end{bmatrix}.
+\]
+Esta es exactamente \(R_z(\omega t + \pi)\) — solo el yaw varía.
+
+\end{frame}
+
+%------------------------------------------------
+
+%%------------------------------------------------
+%\begin{frame}{Cálculo de \(R(t)\) con ángulos de Euler}
+%
+%\small
+%El satélite está en órbita circular de radio \(\rho\) con velocidad angular \(\omega\).
+%Su posición en el plano \((x,y)\) del marco inercial es
+%\[
+%\bm{P_s}(t) = \rho\begin{pmatrix}\cos\omega t \\ \sin\omega t \\ 0\end{pmatrix}.
+%\]
+%
+%\medskip
+%\textbf{Requisito:} el eje de la cámara \(\bm{c}_b = (0,0-1)^\top\) debe apuntar
+%hacia la Tierra, es decir \(R(t)\,\bm{c}_b = -\hat{\bm{r}}(t)\), donde
+%\(\hat{\bm{r}} = \bm{r}/\|\bm{r}\|\).
+%
+%\medskip
+%\textbf{Construcción de \(R(t)\) columna a columna:}
+%\[
+%  \bm{z}_b(t) = -\hat{\bm{r}}(t) =
+%  \begin{pmatrix}-\cos\omega t \\ -\sin\omega t \\ 0\end{pmatrix}, \qquad
+%  \bm{x}_b = \begin{pmatrix}0\\0\\1\end{pmatrix}, \qquad
+%  \bm{y}_b = \bm{z}_b \times \bm{x}_b.
+%\]
+%\[
+%  R(t) = \begin{bmatrix} \bm{x}_b & \bm{y}_b & \bm{z}_b \end{bmatrix}.
+%\]
+%
+%\medskip
+%En términos de ángulos de Euler ZYX: solo el yaw varía con el tiempo,
+%\[
+%  \phi = 0, \qquad \theta = 0, \qquad \psi = \omega t + \pi,
+%\]
+%\[
+%  R(t) = R_z(\omega t + \pi).
+%\]
+%
+%\end{frame}
+%
+%\begin{frame}{Caso general: órbita en 3D con coordenadas esféricas}
+%
+%\small
+%Usamos coordenadas esféricas para describir la posición del satélite
+%sobre la esfera de radio \(\rho\):
+%\[
+%  P_s(t) = \rho
+%  \begin{pmatrix}
+%    \cos\theta(t)\,\sin\varphi(t) \\
+%    \sin\theta(t)\,\sin\varphi(t) \\
+%    \cos\varphi(t)
+%  \end{pmatrix},
+%\]
+%donde:
+%\begin{itemize}
+%  \item \(\rho\) — radio orbital (constante),
+%  \item \(\theta(t)\) — ángulo azimutal en el plano \((x,y)\),
+%  \item \(\varphi(t)\) — ángulo polar desde el eje \(z\).
+%\end{itemize}
+%
+%\medskip
+%\textbf{Ventaja:} \(\|P_s(t)\| = \rho\) siempre, sin necesidad de
+%normalizar. Por lo tanto:
+%\[
+%  \hat{\bm{r}}(t) = \frac{P_s(t)}{\rho} =
+%  \begin{pmatrix}
+%    \cos\theta(t)\,\sin\varphi(t) \\
+%    \sin\theta(t)\,\sin\varphi(t) \\
+%    \cos\varphi(t)
+%  \end{pmatrix}.
+%\]
+%
+%\end{frame}
+
+%%------------------------------------------------
+%
+%\begin{frame}{Caso general: construcción de \(R(t)\)}
+%
+%\small
+%\textbf{Paso 1: eje de la cámara en marco inercial}
+%\[
+%  \bm{z}_b(t) = -\hat{\bm{r}}(t) =
+%  \begin{pmatrix}
+%    -\cos\theta\,\sin\varphi \\
+%    -\sin\theta\,\sin\varphi \\
+%    -\cos\varphi
+%  \end{pmatrix}.
+%\]
+%Este vector apunta del satélite hacia el centro de la Tierra.
+%
+%\medskip
+%\textbf{Paso 2: elegir \(\bm{x}_b\) perpendicular a \(\bm{z}_b\)}
+%
+%Tomamos \(\bm{e} = (0,1,0)^\top\) y calculamos:
+%\[
+%  \bm{x}_b(t) = \frac{\bm{e} \times \bm{z}_b(t)}
+%                     {\|\bm{e} \times \bm{z}_b(t)\|}.
+%\]
+%El producto cruzado garantiza \(\bm{x}_b \perp \bm{z}_b\);
+%la normalización garantiza \(\|\bm{x}_b\| = 1\).
+%
+%\medskip
+%\textbf{Paso 3: completar la base}
+%\[
+%  \bm{y}_b(t) = \bm{z}_b(t) \times \bm{x}_b(t).
+%\]
+%
+%\medskip
+%\textbf{Paso 4: ensamblar \(R(t) \in SO(3)\)}
+%\[
+%  R(t) = \begin{bmatrix} \bm{x}_b(t) & \bm{y}_b(t) & \bm{z}_b(t) \end{bmatrix}.
+%\]
+%
+%\medskip
+%\textbf{Paso 5: extraer ángulos de Euler ZYX}
+%\[
+%  \psi = \mathrm{atan2}(R_{21},\,R_{11}), \quad
+%  \theta_E = -\arcsin(R_{31}), \quad
+%  \phi = \mathrm{atan2}(R_{32},\,R_{33}).
+%\]
+%Los tres ángulos varían con el tiempo porque el satélite se mueve
+%en las tres dimensiones.
+%
+%\SourceLine{\srcMarkley, Section 1.3; \srcShuster, eq.~(45).}
+%\end{frame}
+%
+%%------------------------------------------------
+
+
+%% СЛАЙД 3: иллюстрация TikZ + упоминание кода
+%\begin{frame}{Simulación: orientación a lo largo de la órbita}
+%
+%\begin{columns}[T]
+%  \begin{column}{0.55\textwidth}
+%    \small
+%    La figura muestra cuatro instantes de la órbita.
+%    En cada posición, los ejes del cuerpo \((x_b, y_b, z_b)\) se reorientan
+%    para que \(z_b\) apunte siempre al centro de la Tierra.
+%
+%    \medskip
+%    El ángulo de pitch \(\theta = \omega t\) crece uniformemente;
+%    yaw y roll se mantienen constantes (\(\psi = \pi\), \(\phi = 0\)).
+%
+%    \medskip
+%    \textbf{Ver código adjunto} (\texttt{satellite\_nadir.py}):
+%    simula la órbita y grafica \(R(t)\), los ángulos de Euler
+%    y la dirección de la cámara en 3D.
+%  \end{column}
+%
+%  \begin{column}{0.45\textwidth}
+%    \begin{tikzpicture}[scale=1.75, line cap=round, line join=round]
+%      \fill[blue!20] (0,0) circle (0.42);
+%      \draw[blue!60, thick] (0,0) circle (0.42);
+%      \node[font=\tiny] at (0,0) {Tierra};
+%      \draw[gray!40, dashed] (0,0) circle (1.15);
+%
+%      % 4 posiciones
+%      \foreach \th/\col in {0/Mahogany, 90/OliveGreen!80!black, 180/NavyBlue, 270/Plum}{
+%        \coordinate (S) at ({1.15*cos(\th)},{1.15*sin(\th)});
+%        \fill[\col!80] (S) circle (0.045);
+%
+%        % eje cámara (z_b) apunta al centro
+%        \draw[->,thick,\col]
+%          (S) -- ++({-0.38*cos(\th)},{-0.38*sin(\th)});
+%
+%        % eje x_b perpendicular
+%        \draw[->,thick,\col!60]
+%          (S) -- ++({-0.22*cos(\th+90)},{-0.22*sin(\th+90)});
+%      }
+%
+%      \node[font=\tiny, Mahogany, right] at ({1.15+0.07}, 0) {$t_1$};
+%      \node[font=\tiny, OliveGreen!80!black, above] at (0, {1.15+0.07}) {$t_2$};
+%      \node[font=\tiny, NavyBlue, left] at ({-1.15-0.07}, 0) {$t_3$};
+%      \node[font=\tiny, Plum, below] at (0, {-1.15-0.07}) {$t_4$};
+%    \end{tikzpicture}
+%  \end{column}
+%\end{columns}
+%
+%\end{frame}
 
 %------------------------------------------------
 

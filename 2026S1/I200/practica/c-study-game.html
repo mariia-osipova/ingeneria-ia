@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Code Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --panel: #141720;
+    --border: #1e2433;
+    --green: #00ff88;
+    --red: #ff3c5a;
+    --yellow: #ffd94a;
+    --blue: #4da6ff;
+    --text: #c8d0e0;
+    --dim: #5a6580;
+    --code-bg: #090b10;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.06) 2px,
+      rgba(0,0,0,0.06) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(77,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 4px;
+    color: var(--blue);
+    text-shadow: 0 0 30px rgba(77,166,255,0.4);
+    line-height: 1;
+  }
+
+  .logo span {
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+
+  .score-val { color: var(--yellow); text-shadow: 0 0 12px rgba(255,217,74,0.4); }
+  .streak-val { color: var(--green); text-shadow: 0 0 12px rgba(0,255,136,0.4); }
+
+  /* PROGRESS */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    transition: width 0.4s ease;
+    box-shadow: 0 0 8px rgba(0,255,136,0.4);
+  }
+
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.15s ease;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--code-bg);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #28ca41; }
+
+  .file-tag {
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  .category-badge {
+    margin-left: auto;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--blue);
+  }
+
+  /* CODE */
+  .code-block {
+    padding: 28px 24px;
+    background: var(--code-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-x: auto;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+  }
+
+  .code-block pre {
+    margin: 0;
+    white-space: pre;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #c792ea; }
+  .type { color: #82aaff; }
+  .fn { color: #82cfff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .op { color: var(--yellow); }
+  .err { color: var(--red); text-decoration: underline wavy var(--red); }
+  .punc { color: #89ddff; }
+
+  /* QUESTION */
+  .question-section {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .question-text {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 16px;
+  }
+
+  /* BUTTONS */
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 16px;
+    border: 1px solid;
+    border-radius: 3px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .btn:hover::before { opacity: 1; }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-correct {
+    color: var(--green);
+    border-color: var(--green);
+  }
+  .btn-correct::before { background: rgba(0,255,136,0.08); }
+  .btn-correct:hover { box-shadow: 0 0 20px rgba(0,255,136,0.2), inset 0 0 20px rgba(0,255,136,0.05); }
+
+  .btn-wrong {
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .btn-wrong::before { background: rgba(255,60,90,0.08); }
+  .btn-wrong:hover { box-shadow: 0 0 20px rgba(255,60,90,0.2), inset 0 0 20px rgba(255,60,90,0.05); }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 3px;
+    border-left: 3px solid;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: slideIn 0.2s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .feedback.correct {
+    background: rgba(0,255,136,0.06);
+    border-color: var(--green);
+    color: var(--green);
+    display: block;
+  }
+
+  .feedback.wrong {
+    background: rgba(255,60,90,0.06);
+    border-color: var(--red);
+    color: var(--red);
+    display: block;
+  }
+
+  .feedback strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+  }
+
+  .feedback .explain {
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  /* NEXT */
+  .next-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    background: transparent;
+    border: 1px solid var(--dim);
+    border-radius: 3px;
+    color: var(--dim);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: none;
+  }
+
+  .next-btn.show {
+    display: block;
+    animation: slideIn 0.2s ease;
+  }
+
+  .next-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    box-shadow: 0 0 15px rgba(77,166,255,0.15);
+  }
+
+  /* RESULT SCREEN */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 48px 32px;
+  }
+
+  .result-screen.show { display: block; }
+
+  .result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 6px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-grade {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--dim);
+    margin-bottom: 32px;
+    letter-spacing: 2px;
+  }
+
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .result-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  .restart-btn {
+    padding: 14px 40px;
+    background: transparent;
+    border: 1px solid var(--blue);
+    border-radius: 3px;
+    color: var(--blue);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .restart-btn:hover {
+    background: rgba(77,166,255,0.08);
+    box-shadow: 0 0 25px rgba(77,166,255,0.25);
+  }
+
+  /* Keyboard hint */
+  .hint {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  .key {
+    display: inline-block;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+
+  /* Shake animation */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  .shake { animation: shake 0.35s ease; }
+
+  /* Flash animation */
+  @keyframes flash-green {
+    0% { border-color: var(--border); }
+    50% { border-color: var(--green); box-shadow: 0 0 30px rgba(0,255,136,0.2); }
+    100% { border-color: var(--border); }
+  }
+  @keyframes flash-red {
+    0% { border-color: var(--border); }
+    50% { border-color: var(--red); box-shadow: 0 0 30px rgba(255,60,90,0.2); }
+    100% { border-color: var(--border); }
+  }
+
+  .flash-correct { animation: flash-green 0.5s ease; }
+  .flash-wrong { animation: flash-red 0.5s ease; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <div class="header">
+      <div class="logo">C<span>.</span>quiz</div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val score-val" id="score">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val streak-val" id="streak">0🔥</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 12</div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="card-header">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="file-tag">snippet.c</div>
+        <div class="category-badge" id="category">Basics</div>
+      </div>
+
+      <div class="code-block">
+        <pre id="code"></pre>
+      </div>
+
+      <div class="question-section">
+        <div class="question-text">Is this code correct or does it have a bug?</div>
+        <div class="btn-row">
+          <button class="btn btn-correct" onclick="answer(true)">✓ Correct</button>
+          <button class="btn btn-wrong" onclick="answer(false)">✗ Has Bug</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <strong id="feedback-title"></strong>
+          <div class="explain" id="feedback-body"></div>
+        </div>
+
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+      </div>
+    </div>
+
+    <div class="hint">Press <span class="key">C</span> for Correct &nbsp;·&nbsp; <span class="key">B</span> for Bug &nbsp;·&nbsp; <span class="key">Space</span> to continue</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="result-screen" id="result">
+    <div class="result-title" id="result-title">GG</div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="result-stats">
+      <div class="stat">
+        <div class="result-stat-val score-val" id="final-score">0</div>
+        <div class="stat-label">Final Score</div>
+      </div>
+      <div class="stat">
+        <div class="result-stat-val streak-val" id="final-correct">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat">
+        <div class="result-stat-val" style="color:var(--dim)" id="final-total">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">Play Again</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    category: "Hello World",
+    isCorrect: true,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">()</span> <span class="punc">{</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"Hello, World!\\n"</span><span class="punc">);</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "This is a perfectly valid Hello World program. <code>#include &lt;stdio.h&gt;</code> gives us printf, and returning 0 signals success."
+  },
+  {
+    category: "Variables",
+    isCorrect: false,
+    code: `<span class="type">int</span> main<span class="punc">() {</span>
+    <span class="type">int</span> x <span class="op">=</span> <span class="num">5</span><span class="punc">;</span>
+    <span class="type">int</span> y<span class="punc">;</span>
+    <span class="type">int</span> z <span class="op">=</span> x <span class="op">+</span> y<span class="punc">;</span>  <span class="cmt">// bug here</span>
+    <span class="kw">return</span> z<span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> <code>y</code> is declared but never initialized. Reading an uninitialized variable is undefined behavior in C — <code>y</code> could contain any garbage value."
+  },
+  {
+    category: "Strings",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">char</span> name<span class="punc">[</span><span class="num">5</span><span class="punc">]</span> <span class="op">=</span> <span class="str">"Alice"</span><span class="punc">;</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"%s\\n"</span><span class="punc">,</span> name<span class="punc">);</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: '<strong>Bug:</strong> "Alice" is 5 characters, but C strings need a null terminator <code>\'\\0\'</code>. The array needs to be at least <code>char name[6]</code>. This causes a buffer overflow.'
+  },
+  {
+    category: "Pointers",
+    isCorrect: true,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">int</span> x <span class="op">=</span> <span class="num">42</span><span class="punc">;</span>
+    <span class="type">int</span> <span class="op">*</span>ptr <span class="op">=</span> <span class="op">&amp;</span>x<span class="punc">;</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"%d\\n"</span><span class="punc">,</span> <span class="op">*</span>ptr<span class="punc">);</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "Correct! <code>ptr</code> stores the address of <code>x</code>, and <code>*ptr</code> dereferences it to get the value 42. This is valid pointer usage."
+  },
+  {
+    category: "Memory",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdlib.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">int</span> <span class="op">*</span>arr <span class="op">=</span> <span class="fn">malloc</span><span class="punc">(</span><span class="num">10</span> <span class="op">*</span> <span class="kw">sizeof</span><span class="punc">(</span><span class="type">int</span><span class="punc">));</span>
+    arr<span class="punc">[</span><span class="num">0</span><span class="punc">]</span> <span class="op">=</span> <span class="num">99</span><span class="punc">;</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> Memory allocated with <code>malloc()</code> must be released with <code>free(arr)</code> before the program ends. This is a memory leak."
+  },
+  {
+    category: "Loops",
+    isCorrect: true,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="kw">for</span> <span class="punc">(</span><span class="type">int</span> i <span class="op">=</span> <span class="num">0</span><span class="punc">;</span> i <span class="op">&lt;</span> <span class="num">5</span><span class="punc">;</span> i<span class="op">++</span><span class="punc">) {</span>
+        <span class="fn">printf</span><span class="punc">(</span><span class="str">"%d "</span><span class="punc">,</span> i<span class="punc">);</span>
+    <span class="punc">}</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "Correct! This prints 0 through 4. The loop starts at 0, runs while i < 5, and increments each iteration. Clean and correct."
+  },
+  {
+    category: "Functions",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">add</span><span class="punc">(</span><span class="type">int</span> a<span class="punc">,</span> <span class="type">int</span> b<span class="punc">) {</span>
+    <span class="type">int</span> result <span class="op">=</span> a <span class="op">+</span> b<span class="punc">;</span>
+<span class="punc">}</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"%d\\n"</span><span class="punc">,</span> <span class="fn">add</span><span class="punc">(</span><span class="num">3</span><span class="punc">,</span> <span class="num">4</span><span class="punc">));</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> The function <code>add()</code> is declared to return <code>int</code> but has no <code>return</code> statement. It should end with <code>return result;</code>."
+  },
+  {
+    category: "Arrays",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">int</span> arr<span class="punc">[</span><span class="num">3</span><span class="punc">]</span> <span class="op">=</span> <span class="punc">{</span><span class="num">10</span><span class="punc">,</span> <span class="num">20</span><span class="punc">,</span> <span class="num">30</span><span class="punc">};</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"%d\\n"</span><span class="punc">,</span> arr<span class="punc">[</span><span class="num">3</span><span class="punc">]);</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> Array indices go from 0 to 2 for a 3-element array. <code>arr[3]</code> is out of bounds — this is undefined behavior and can crash or corrupt memory."
+  },
+  {
+    category: "Structs",
+    isCorrect: true,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="kw">typedef struct</span> <span class="punc">{</span>
+    <span class="type">int</span> x<span class="punc">;</span>
+    <span class="type">int</span> y<span class="punc">;</span>
+<span class="punc">}</span> Point<span class="punc">;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    Point p <span class="op">=</span> <span class="punc">{</span><span class="num">3</span><span class="punc">,</span> <span class="num">7</span><span class="punc">};</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"(%d, %d)\\n"</span><span class="punc">,</span> p.x<span class="punc">,</span> p.y<span class="punc">);</span>
+<span class="punc">}</span>`,
+    explain: "Correct! This defines a <code>Point</code> struct with <code>typedef</code>, initializes it, and accesses its members with dot notation. All valid C."
+  },
+  {
+    category: "Scanf",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">int</span> n<span class="punc">;</span>
+    <span class="fn">scanf</span><span class="punc">(</span><span class="str">"%d"</span><span class="punc">,</span> n<span class="punc">);</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"Got: %d\\n"</span><span class="punc">,</span> n<span class="punc">);</span>
+    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> <code>scanf()</code> needs the <em>address</em> of the variable, not the value. It should be <code>scanf(\"%d\", &amp;n)</code>. Without <code>&amp;</code>, this is undefined behavior."
+  },
+  {
+    category: "Recursion",
+    isCorrect: true,
+    code: `<span class="type">int</span> <span class="fn">factorial</span><span class="punc">(</span><span class="type">int</span> n<span class="punc">) {</span>
+    <span class="kw">if</span> <span class="punc">(</span>n <span class="op">==</span> <span class="num">0</span><span class="punc">)</span> <span class="kw">return</span> <span class="num">1</span><span class="punc">;</span>
+    <span class="kw">return</span> n <span class="op">*</span> <span class="fn">factorial</span><span class="punc">(</span>n <span class="op">-</span> <span class="num">1</span><span class="punc">);</span>
+<span class="punc">}</span>`,
+    explain: "Correct! This recursive factorial has a proper base case (n == 0 returns 1) and correctly reduces the problem each step. No infinite recursion."
+  },
+  {
+    category: "Pointers",
+    isCorrect: false,
+    code: `<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="op">*</span><span class="fn">getNum</span><span class="punc">() {</span>
+    <span class="type">int</span> x <span class="op">=</span> <span class="num">100</span><span class="punc">;</span>
+    <span class="kw">return</span> <span class="op">&amp;</span>x<span class="punc">;</span>
+<span class="punc">}</span>
+
+<span class="type">int</span> <span class="fn">main</span><span class="punc">() {</span>
+    <span class="type">int</span> <span class="op">*</span>p <span class="op">=</span> <span class="fn">getNum</span><span class="punc">();</span>
+    <span class="fn">printf</span><span class="punc">(</span><span class="str">"%d\\n"</span><span class="punc">,</span> <span class="op">*</span>p<span class="punc">);</span>
+<span class="punc">}</span>`,
+    explain: "<strong>Bug:</strong> <code>getNum()</code> returns a pointer to a local variable <code>x</code>. Local variables are destroyed when the function returns, so this is a dangling pointer — classic undefined behavior."
+  },
+];
+
+let current = 0;
+let score = 0;
+let streak = 0;
+let correct = 0;
+let answered = false;
+let shuffled = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function loadQuestion() {
+  const q = shuffled[current];
+  answered = false;
+
+  document.getElementById('code').innerHTML = q.code;
+  document.getElementById('category').textContent = q.category;
+  document.getElementById('progress-text').textContent = `${current + 1} / ${shuffled.length}`;
+  document.getElementById('progress').style.width = `${(current / shuffled.length) * 100}%`;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  document.getElementById('next-btn').className = 'next-btn';
+
+  document.querySelectorAll('.btn').forEach(b => {
+    b.disabled = false;
+    b.style.opacity = '1';
+  });
+}
+
+function answer(userSaysCorrect) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffled[current];
+  const isRight = (userSaysCorrect === q.isCorrect);
+
+  if (isRight) {
+    score += 10 + (streak * 2);
+    streak++;
+    correct++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('streak').textContent = streak + '🔥';
+
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback correct';
+    document.getElementById('feedback-title').textContent = '✓ Correct!';
+    document.getElementById('feedback-body').innerHTML = q.explain;
+
+    document.getElementById('card').classList.add('flash-correct');
+    setTimeout(() => document.getElementById('card').classList.remove('flash-correct'), 500);
+  } else {
+    streak = 0;
+    document.getElementById('streak').textContent = '0🔥';
+
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback wrong';
+    document.getElementById('feedback-title').textContent = '✗ Wrong';
+    document.getElementById('feedback-body').innerHTML = q.explain;
+
+    document.getElementById('card').classList.add('shake');
+    document.getElementById('card').classList.add('flash-wrong');
+    setTimeout(() => {
+      document.getElementById('card').classList.remove('shake');
+      document.getElementById('card').classList.remove('flash-wrong');
+    }, 500);
+  }
+
+  document.querySelectorAll('.btn').forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.4';
+  });
+
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffled.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  const rs = document.getElementById('result');
+  rs.className = 'result-screen show';
+
+  const pct = Math.round((correct / shuffled.length) * 100);
+  let title, grade;
+  if (pct === 100) { title = 'FLAWLESS'; grade = 'Perfect score. You know C cold.'; }
+  else if (pct >= 80) { title = 'SOLID'; grade = 'Strong result. A few gaps to fill.'; }
+  else if (pct >= 60) { title = 'LEARNING'; grade = 'Good start. Keep studying!'; }
+  else { title = 'KEEP AT IT'; grade = 'C is tricky. Practice makes perfect.'; }
+
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-title').style.color = pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('result-grade').textContent = grade;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-correct').textContent = correct;
+  document.getElementById('final-total').textContent = shuffled.length;
+}
+
+function restart() {
+  current = 0; score = 0; streak = 0; correct = 0; answered = false;
+  shuffled = shuffle(questions);
+  document.getElementById('score').textContent = '0';
+  document.getElementById('streak').textContent = '0🔥';
+  document.getElementById('result').className = 'result-screen';
+  document.getElementById('quiz').style.display = 'block';
+  loadQuestion();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (document.getElementById('result').classList.contains('show')) {
+    if (e.key === 'Enter' || e.key === ' ') restart();
+    return;
+  }
+  if (!answered) {
+    if (e.key === 'c' || e.key === 'C') answer(true);
+    if (e.key === 'b' || e.key === 'B') answer(false);
+  } else {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
+  }
+});
+
+// Init
+shuffled = shuffle(questions);
+loadQuestion();
+</script>
+</body>
+</html>

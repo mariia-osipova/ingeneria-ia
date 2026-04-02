@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algo Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --bg2: #141414;
+  --bg3: #1a1a1a;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #e8e4dc;
+  --text2: #888;
+  --text3: #555;
+  --accent: #c8ff00;
+  --accent2: #ff6b35;
+  --accent3: #4ecdc4;
+  --accent4: #a78bfa;
+  --red: #ff4757;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Instrument Serif', serif;
+  --sans: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* LAYOUT */
+.shell { display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 2px;
+}
+
+.logo span { color: var(--accent); }
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sidebar-search {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-search input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  outline: none;
+}
+
+.sidebar-search input::placeholder { color: var(--text3); }
+.sidebar-search input:focus { border-color: var(--accent); }
+
+.task-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.task-list::-webkit-scrollbar { width: 4px; }
+.task-list::-webkit-scrollbar-track { background: transparent; }
+.task-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.phase-label {
+  padding: 12px 16px 4px;
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.task-item:hover { background: var(--bg3); }
+.task-item.active { background: rgba(200,255,0,0.05); border-left-color: var(--accent); }
+
+.task-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 18px;
+}
+
+.task-item.active .task-num { color: var(--accent); }
+
+.task-info { flex: 1; min-width: 0; }
+
+.task-title-sm {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-item.active .task-title-sm { color: var(--accent); }
+
+.task-meta-sm {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+
+.difficulty-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  min-width: 6px;
+}
+
+.d-easy { background: var(--accent3); }
+.d-medium { background: var(--accent); }
+.d-hard { background: var(--accent2); }
+.d-xhard { background: var(--accent4); }
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 0 24px;
+  gap: 0;
+}
+
+.tab {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* TASK VIEW */
+.task-view {
+  display: none;
+  height: 100%;
+  flex-direction: column;
+}
+
+.task-view.visible { display: flex; }
+
+/* PROBLEM PANEL */
+.problem-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 36px;
+}
+
+.problem-panel::-webkit-scrollbar { width: 4px; }
+.problem-panel::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.problem-header { margin-bottom: 28px; }
+
+.problem-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.problem-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.problem-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.badge-complexity { background: rgba(200,255,0,0.1); color: var(--accent); border: 1px solid rgba(200,255,0,0.2); }
+.badge-type { background: rgba(78,205,196,0.1); color: var(--accent3); border: 1px solid rgba(78,205,196,0.2); }
+.badge-struct { background: rgba(167,139,250,0.1); color: var(--accent4); border: 1px solid rgba(167,139,250,0.2); }
+.badge-hard { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+
+.divider-line {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+
+.problem-text {
+  color: #b8b4ac;
+  line-height: 1.8;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.problem-text strong { color: var(--text); font-weight: 500; }
+
+.example-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #9a9690;
+}
+
+.example-block .ex-label {
+  color: var(--text3);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.example-block .ex-in { color: var(--accent3); }
+.example-block .ex-out { color: var(--accent); }
+.example-block .ex-comment { color: var(--text3); }
+
+.hint-block {
+  background: rgba(200,255,0,0.03);
+  border: 1px solid rgba(200,255,0,0.1);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.hint-title {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #9a9690;
+  line-height: 1.7;
+}
+
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.complexity-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text3);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.complexity-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: #9a9690;
+}
+
+.complexity-table td:first-child { color: var(--text); }
+.complexity-table td.good { color: var(--accent3); }
+.complexity-table td.mid { color: var(--accent); }
+.complexity-table td.bad { color: var(--accent2); }
+
+/* SOLUTION PANEL */
+.solution-panel {
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  max-height: 340px;
+}
+
+.solution-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.solution-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: 1px;
+}
+
+.solution-btns { display: flex; gap: 8px; }
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+}
+
+.btn:hover { color: var(--text); border-color: var(--text3); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 500;
+}
+
+.btn-primary:hover { background: #d4ff1a; }
+
+.btn-reveal {
+  background: rgba(167,139,250,0.15);
+  color: var(--accent4);
+  border-color: rgba(167,139,250,0.3);
+}
+
+.btn-reveal:hover { background: rgba(167,139,250,0.25); }
+
+.code-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.code-area textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  background: var(--bg);
+  border: none;
+  outline: none;
+  resize: none;
+  color: #c8c4bc;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 16px 20px;
+  tab-size: 4;
+}
+
+/* SOLUTION OVERLAY */
+.solution-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.solution-overlay.visible { display: flex; }
+
+.solution-code {
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  color: #c8c4bc;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Syntax coloring */
+.kw { color: var(--accent4); }
+.type { color: var(--accent3); }
+.fn { color: var(--accent); }
+.str { color: var(--accent2); }
+.cmt { color: #555; font-style: italic; }
+.num { color: #ff9f43; }
+
+/* WELCOME */
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.welcome-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+.welcome-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--text2);
+}
+
+.welcome-sub {
+  font-size: 13px;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+/* STATS ROW */
+.stats-row {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.stat-item {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+
+.stat-item:last-child { border-right: none; }
+
+.stat-val {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--text);
+  display: block;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.task-view.visible .problem-panel { animation: fadeIn 0.25s ease; }
+
+/* SCROLLBAR */
+* { scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">algo<span>.</span>practice</div>
+      <div class="logo-sub">Estructuras & Algoritmos</div>
+    </div>
+
+    <div class="sidebar-search">
+      <input type="text" placeholder="buscar tarea..." id="searchInput" oninput="filterTasks(this.value)">
+    </div>
+
+    <div class="task-list" id="taskList"></div>
+
+    <div class="progress-bar">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-text" id="progressText">0 / 15</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-val" id="statDone">0</span>
+        <span class="stat-label">completadas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val" id="statStreak">0</span>
+        <span class="stat-label">en fila</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">15</span>
+        <span class="stat-label">total</span>
+      </div>
+    </div>
+
+    <div class="main-tabs">
+      <div class="tab active" onclick="switchTab('problem')">Problema</div>
+      <div class="tab" onclick="switchTab('notes')">Notas</div>
+    </div>
+
+    <div class="main-content">
+      <!-- Welcome -->
+      <div class="welcome" id="welcomeScreen">
+        <div class="welcome-icon">⌨</div>
+        <div class="welcome-title">Seleccioná una tarea</div>
+        <div class="welcome-sub">15 tasks · Estructuras de datos · Algoritmos</div>
+      </div>
+
+      <!-- Task View -->
+      <div class="task-view" id="taskView">
+        <div class="problem-panel" id="problemPanel"></div>
+        <div class="solution-panel">
+          <div class="solution-header">
+            <span class="solution-title">EDITOR C</span>
+            <div class="solution-btns">
+              <button class="btn btn-reveal" onclick="toggleSolution()">Ver solución</button>
+              <button class="btn btn-primary" onclick="markDone()">✓ Listo</button>
+            </div>
+          </div>
+          <div class="code-area">
+            <textarea id="codeEditor" spellcheck="false" placeholder="// Escribí tu solución acá en C...&#10;#include &lt;stdio.h&gt;&#10;#include &lt;stdlib.h&gt;&#10;"></textarea>
+            <div class="solution-overlay" id="solutionOverlay">
+              <div class="solution-code" id="solutionCode"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tasks = [
+  {
+    id: 1,
+    num: "01",
+    title: "Vector dinámico",
+    phase: "Bloque 1 — Estructuras base",
+    difficulty: "easy",
+    complexity: "O(1) amort.",
+    type: "impl",
+    struct: "array",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 01 · BLOQUE 1</div>
+  <div class="problem-title">Vector Dinámico</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(1) amortizado</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-struct">array</span>
+  </div>
+</div>
+
+<div class="divider-line"></div>
+
+<div class="section-label">Descripción</div>
+<div class="problem-text">
+Implementá un vector dinámico en C con las siguientes operaciones. El vector debe crecer automáticamente cuando se llena, duplicando su capacidad con <code>realloc</code>.
+</div>
+
+<div class="section-label">Interfaz requerida</div>
+<div class="example-block">
+<div class="ex-label">funciones</div>
+<span class="ex-in">Vector* VectorBuild(int capacidadInicial);
+void    VectorDestroy(Vector* v);
+int     VectorGetAt(Vector* v, int pos);
+void    VectorSetAt(Vector* v, int pos, int val);
+void    VectorPushBack(Vector* v, int val);
+int     VectorSearch(Vector* v, int buscado);</span>
+</div>
+
+<div class="section-label">Pregunta clave</div>
+<div class="hint-block">
+  <div class="hint-title">¿Por qué PushBack es O(1) amortizado?</div>
+  <div class="hint-text">Aunque a veces hace realloc (costoso), esto pasa cada vez con menos frecuencia. Si doblás la capacidad cada vez, el costo total de N inserciones es O(N), entonces cada una cuesta O(1) en promedio. Pensá: ¿cuántos realloc ocurren en N pushbacks?</div>
+</div>
+
+<table class="complexity-table">
+  <tr><th>Operación</th><th>Complejidad</th><th>Razón</th></tr>
+  <tr><td>GetAt / SetAt</td><td class="good">O(1)</td><td>acceso directo por índice</td></tr>
+  <tr><td>PushBack (normal)</td><td class="good">O(1)</td><td>sólo escribe al final</td></tr>
+  <tr><td>PushBack (con resize)</td><td class="bad">O(n)</td><td>copia todo el arreglo</td></tr>
+  <tr><td>PushBack amortizado</td><td class="good">O(1)</td><td>resize ocurre 1/n veces</td></tr>
+  <tr><td>Search</td><td class="mid">O(n)</td><td>recorrido lineal</td></tr>
+</table>`,
+    solution: `<span class="cmt">// Vector dinámico — implementación completa</span>
+<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;stdlib.h&gt;</span>
+
+<span class="kw">typedef struct</span> {
+    <span class="type">int</span> *datos;
+    <span class="type">int</span> cantidad;
+    <span class="type">int</span> capacidad;
+} <span class="type">Vector</span>;
+
+<span class="type">Vector</span>* <span class="fn">VectorBuild</span>(<span class="type">int</span> cap) {
+    <span class="type">Vector</span> *v = <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="type">Vector</span>));
+    v->datos = <span class="fn">malloc</span>(cap * <span class="kw">sizeof</span>(<span class="type">int</span>));
+    v->cantidad = <span class="num">0</span>;
+    v->capacidad = cap;
+    <span class="kw">return</span> v;
+}
+
+<span class="kw">void</span> <span class="fn">VectorPushBack</span>(<span class="type">Vector</span> *v, <span class="type">int</span> val) {
+    <span class="kw">if</span> (v->cantidad == v->capacidad) {
+        v->capacidad *= <span class="num">2</span>;  <span class="cmt">// duplicar capacidad</span>
+        v->datos = <span class="fn">realloc</span>(v->datos, v->capacidad * <span class="kw">sizeof</span>(<span class="type">int</span>));
+    }
+    v->datos[v->cantidad++] = val;
+}
+
+<span class="type">int</span> <span class="fn">VectorGetAt</span>(<span class="type">Vector</span> *v, <span class="type">int</span> pos) {
+    <span class="kw">return</span> v->datos[pos];
+}
+
+<span class="kw">void</span> <span class="fn">VectorSetAt</span>(<span class="type">Vector</span> *v, <span class="type">int</span> pos, <span class="type">int</span> val) {
+    v->datos[pos] = val;
+}
+
+<span class="type">int</span> <span class="fn">VectorSearch</span>(<span class="type">Vector</span> *v, <span class="type">int</span> buscado) {
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i < v->cantidad; i++)
+        <span class="kw">if</span> (v->datos[i] == buscado) <span class="kw">return</span> i;
+    <span class="kw">return</span> -<span class="num">1</span>;
+}
+
+<span class="kw">void</span> <span class="fn">VectorDestroy</span>(<span class="type">Vector</span> *v) {
+    <span class="fn">free</span>(v->datos);
+    <span class="fn">free</span>(v);
+}`
+  },
+  {
+    id: 2,
+    num: "02",
+    title: "Lista enlazada + reversa",
+    phase: "Bloque 1 — Estructuras base",
+    difficulty: "easy",
+    complexity: "O(n)",
+    type: "impl",
+    struct: "lista",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 02 · BLOQUE 1</div>
+  <div class="problem-title">Lista Enlazada + Reversa</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n)</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-struct">linked list</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá una lista enlazada simple. Después, <strong>invertí la lista sin usar memoria extra</strong> — sólo reorganizando los punteros.</div>
+<div class="section-label">Interfaz requerida</div>
+<div class="example-block">
+<div class="ex-label">funciones</div>
+<span class="ex-in">Lista* ListaBuild();
+void   ListaInsertHead(Lista* l, int val);
+void   ListaInsertTail(Lista* l, int val);
+void   ListaRemove(Lista* l, int val);
+void   ListaReverse(Lista* l);    // sin malloc extra!
+void   ListaDestroy(Lista* l);</span>
+</div>
+<div class="section-label">Ejemplo</div>
+<div class="example-block">
+<div class="ex-label">ejemplo</div>
+<span class="ex-in">Lista: 1 → 2 → 3 → 4 → 5 → NULL</span>
+<br><span class="ex-out">Después de Reverse: 5 → 4 → 3 → 2 → 1 → NULL</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Pista para Reverse</div>
+  <div class="hint-text">Necesitás 3 punteros: <code>prev</code>, <code>curr</code>, <code>next</code>. En cada paso guardás el siguiente, revertís el puntero de curr, y avanzás. Dibujalo en papel primero.</div>
+</div>`,
+    solution: `<span class="kw">typedef struct</span> <span class="type">Nodo</span> {
+    <span class="type">int</span> valor;
+    <span class="kw">struct</span> <span class="type">Nodo</span> *sig;
+} <span class="type">Nodo</span>;
+
+<span class="kw">typedef struct</span> { <span class="type">Nodo</span> *cabeza; } <span class="type">Lista</span>;
+
+<span class="kw">void</span> <span class="fn">ListaInsertHead</span>(<span class="type">Lista</span> *l, <span class="type">int</span> val) {
+    <span class="type">Nodo</span> *n = <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="type">Nodo</span>));
+    n->valor = val;
+    n->sig = l->cabeza;
+    l->cabeza = n;
+}
+
+<span class="cmt">// Reversa sin memoria extra — 3 punteros</span>
+<span class="kw">void</span> <span class="fn">ListaReverse</span>(<span class="type">Lista</span> *l) {
+    <span class="type">Nodo</span> *prev = <span class="kw">NULL</span>;
+    <span class="type">Nodo</span> *curr = l->cabeza;
+    <span class="kw">while</span> (curr != <span class="kw">NULL</span>) {
+        <span class="type">Nodo</span> *next = curr->sig;  <span class="cmt">// guardar siguiente</span>
+        curr->sig = prev;          <span class="cmt">// revertir puntero</span>
+        prev = curr;               <span class="cmt">// avanzar prev</span>
+        curr = next;               <span class="cmt">// avanzar curr</span>
+    }
+    l->cabeza = prev;
+}`
+  },
+  {
+    id: 3,
+    num: "03",
+    title: "Pila — validación de paréntesis",
+    phase: "Bloque 1 — Estructuras base",
+    difficulty: "easy",
+    complexity: "O(n)",
+    type: "olimpiada",
+    struct: "stack",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 03 · BLOQUE 1 · OLÍMPICA</div>
+  <div class="problem-title">Validación de Paréntesis</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n)</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-struct">stack</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Problema</div>
+<div class="problem-text">Dada una cadena de caracteres con paréntesis <code>()</code>, corchetes <code>[]</code> y llaves <code>{}</code>, determiná si la cadena está <strong>correctamente balanceada</strong>.</div>
+<div class="section-label">Ejemplos</div>
+<div class="example-block">
+<div class="ex-label">entrada → salida</div>
+<span class="ex-in">"([]{})"</span>  →  <span class="ex-out">VALIDA</span>
+<br><span class="ex-in">"{[()]}"</span>  →  <span class="ex-out">VALIDA</span>
+<br><span class="ex-in">"([)]"</span>    →  <span class="ex-out">INVALIDA</span>
+<br><span class="ex-in">"((("</span>     →  <span class="ex-out">INVALIDA</span>
+<br><span class="ex-in">""</span>        →  <span class="ex-out">VALIDA</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Estructura a usar</div>
+  <div class="hint-text">Implementá primero una Pila (stack). Luego: cuando encontrás un símbolo de apertura → push. Cuando encontrás cierre → pop y verificá que coincide con el tope. Al final la pila debe estar vacía.</div>
+</div>`,
+    solution: `<span class="kw">#include</span> <span class="str">&lt;string.h&gt;</span>
+
+<span class="cmt">// Pila simple sobre array</span>
+<span class="kw">typedef struct</span> { <span class="type">char</span> datos[<span class="num">1000</span>]; <span class="type">int</span> tope; } <span class="type">Pila</span>;
+
+<span class="kw">void</span>  <span class="fn">push</span>(<span class="type">Pila</span>*p, <span class="type">char</span> c) { p->datos[++p->tope] = c; }
+<span class="type">char</span>  <span class="fn">pop</span>(<span class="type">Pila</span>*p)         { <span class="kw">return</span> p->datos[p->tope--]; }
+<span class="type">int</span>   <span class="fn">isEmpty</span>(<span class="type">Pila</span>*p)     { <span class="kw">return</span> p->tope == -<span class="num">1</span>; }
+<span class="type">char</span>  <span class="fn">peek</span>(<span class="type">Pila</span>*p)        { <span class="kw">return</span> p->datos[p->tope]; }
+
+<span class="type">int</span> <span class="fn">esValida</span>(<span class="type">char</span> *s) {
+    <span class="type">Pila</span> p = {.tope = -<span class="num">1</span>};
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; s[i]; i++) {
+        <span class="type">char</span> c = s[i];
+        <span class="kw">if</span> (c==<span class="str">'('</span>||c==<span class="str">'['</span>||c==<span class="str">'{'</span>) { <span class="fn">push</span>(&p, c); <span class="kw">continue</span>; }
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>(&p)) <span class="kw">return</span> <span class="num">0</span>;
+        <span class="type">char</span> t = <span class="fn">pop</span>(&p);
+        <span class="kw">if</span> (c==<span class="str">')'</span> && t!=<span class="str">'('</span>) <span class="kw">return</span> <span class="num">0</span>;
+        <span class="kw">if</span> (c==<span class="str">']'</span> && t!=<span class="str">'['</span>) <span class="kw">return</span> <span class="num">0</span>;
+        <span class="kw">if</span> (c==<span class="str">'}'</span> && t!=<span class="str">'{'</span>) <span class="kw">return</span> <span class="num">0</span>;
+    }
+    <span class="kw">return</span> <span class="fn">isEmpty</span>(&p);
+}`
+  },
+  {
+    id: 4,
+    num: "04",
+    title: "Bubble / Selection / Insertion sort",
+    phase: "Bloque 2 — Sortings",
+    difficulty: "easy",
+    complexity: "O(n²)",
+    type: "impl",
+    struct: "sort",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 04 · BLOQUE 2</div>
+  <div class="problem-title">Los tres O(n²)</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n²)</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-struct">sorting</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá los tres algoritmos clásicos. Agregá un <strong>contador de comparaciones y swaps</strong> a cada uno. Luego ejecutalos con:</div>
+<div class="example-block">
+<div class="ex-label">casos de prueba</div>
+<span class="ex-comment">// caso 1: ya ordenado</span>
+<br><span class="ex-in">int a[] = {1,2,3,4,5,6,7,8};</span>
+<br><span class="ex-comment">// caso 2: orden inverso</span>
+<br><span class="ex-in">int b[] = {8,7,6,5,4,3,2,1};</span>
+<br><span class="ex-comment">// caso 3: aleatorio</span>
+<br><span class="ex-in">int c[] = {3,7,1,5,8,2,6,4};</span>
+</div>
+<table class="complexity-table">
+  <tr><th>Algoritmo</th><th>Mejor</th><th>Amortizado</th><th>Peor</th><th>Estable</th></tr>
+  <tr><td>Bubble sort</td><td class="mid">O(n²)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="good">Sí</td></tr>
+  <tr><td>Selection sort</td><td class="mid">O(n²)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="bad">No</td></tr>
+  <tr><td>Insertion sort</td><td class="good">O(n)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="good">Sí</td></tr>
+</table>
+<div class="hint-block">
+  <div class="hint-title">Pregunta de análisis</div>
+  <div class="hint-text">¿Por qué Insertion sort tiene mejor caso O(n)? ¿En qué input concreto pasa? ¿Por qué Selection sort NO es estable?</div>
+</div>`,
+    solution: `<span class="kw">void</span> <span class="fn">bubbleSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n) {
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i < n-<span class="num">1</span>; i++)
+        <span class="kw">for</span> (<span class="type">int</span> j = <span class="num">0</span>; j < n-i-<span class="num">1</span>; j++)
+            <span class="kw">if</span> (a[j] > a[j+<span class="num">1</span>]) { <span class="type">int</span> t=a[j]; a[j]=a[j+<span class="num">1</span>]; a[j+<span class="num">1</span>]=t; }
+}
+
+<span class="kw">void</span> <span class="fn">selectionSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n) {
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i < n-<span class="num">1</span>; i++) {
+        <span class="type">int</span> min = i;
+        <span class="kw">for</span> (<span class="type">int</span> j = i+<span class="num">1</span>; j < n; j++)
+            <span class="kw">if</span> (a[j] < a[min]) min = j;
+        <span class="type">int</span> t=a[i]; a[i]=a[min]; a[min]=t;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">insertionSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n) {
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">1</span>; i < n; i++) {
+        <span class="type">int</span> x = a[i], j = i-<span class="num">1</span>;
+        <span class="kw">while</span> (j >= <span class="num">0</span> && a[j] > x) {
+            a[j+<span class="num">1</span>] = a[j];
+            j--;
+        }
+        a[j+<span class="num">1</span>] = x;
+    }
+}</span>`
+  },
+  {
+    id: 5,
+    num: "05",
+    title: "Merge sort",
+    phase: "Bloque 2 — Sortings",
+    difficulty: "medium",
+    complexity: "O(n log n)",
+    type: "impl",
+    struct: "sort",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 05 · BLOQUE 2</div>
+  <div class="problem-title">Merge Sort</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log n)</span>
+    <span class="badge badge-type">recursivo</span>
+    <span class="badge badge-struct">divide & conquer</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá Merge Sort recursivo. La función <code>Merge</code> combina dos mitades ya ordenadas en un arreglo auxiliar y las copia de vuelta.</div>
+<div class="example-block">
+<div class="ex-label">pseudocódigo</div>
+<span class="ex-in">MergeSort(A[], i, s)
+  si i == s → return
+  medio = (i+s)/2
+  MergeSort(A[], i, medio)
+  MergeSort(A[], medio+1, s)
+  Merge(A[], i, medio, s)</span>
+</div>
+<table class="complexity-table">
+  <tr><th>Propiedad</th><th>Valor</th></tr>
+  <tr><td>Complejidad</td><td class="good">O(n log n) siempre</td></tr>
+  <tr><td>Estable</td><td class="good">Sí</td></tr>
+  <tr><td>In-place</td><td class="bad">No (necesita O(n) extra)</td></tr>
+  <tr><td>Tipo</td><td>Recursivo</td></tr>
+</table>
+<div class="hint-block">
+  <div class="hint-title">La clave: Merge</div>
+  <div class="hint-text">Merge usa un arreglo auxiliar. Tiene dos índices apuntando al inicio de cada mitad. En cada paso toma el menor de los dos y lo pone en el auxiliar. Al terminar, copia el auxiliar de vuelta al original.</div>
+</div>`,
+    solution: `<span class="kw">void</span> <span class="fn">merge</span>(<span class="type">int</span> a[], <span class="type">int</span> ini, <span class="type">int</span> med, <span class="type">int</span> fin) {
+    <span class="type">int</span> n = fin - ini + <span class="num">1</span>;
+    <span class="type">int</span> *aux = <span class="fn">malloc</span>(n * <span class="kw">sizeof</span>(<span class="type">int</span>));
+    <span class="type">int</span> i = ini, j = med+<span class="num">1</span>, k = <span class="num">0</span>;
+
+    <span class="kw">while</span> (i <= med && j <= fin)
+        aux[k++] = (a[i] <= a[j]) ? a[i++] : a[j++];
+    <span class="kw">while</span> (i <= med)  aux[k++] = a[i++];
+    <span class="kw">while</span> (j <= fin)  aux[k++] = a[j++];
+
+    <span class="kw">for</span> (<span class="type">int</span> x = <span class="num">0</span>; x < n; x++) a[ini+x] = aux[x];
+    <span class="fn">free</span>(aux);
+}
+
+<span class="kw">void</span> <span class="fn">mergeSort</span>(<span class="type">int</span> a[], <span class="type">int</span> ini, <span class="type">int</span> fin) {
+    <span class="kw">if</span> (ini >= fin) <span class="kw">return</span>;
+    <span class="type">int</span> med = (ini + fin) / <span class="num">2</span>;
+    <span class="fn">mergeSort</span>(a, ini, med);
+    <span class="fn">mergeSort</span>(a, med+<span class="num">1</span>, fin);
+    <span class="fn">merge</span>(a, ini, med, fin);
+}`
+  },
+  {
+    id: 6,
+    num: "06",
+    title: "Conteo de inversiones",
+    phase: "Bloque 2 — Sortings",
+    difficulty: "medium",
+    complexity: "O(n log n)",
+    type: "olimpiada",
+    struct: "merge sort",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 06 · BLOQUE 2 · OLÍMPICA</div>
+  <div class="problem-title">Conteo de Inversiones</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log n)</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-struct">merge sort</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Problema</div>
+<div class="problem-text">Dado un arreglo, contá el número de <strong>inversiones</strong>: pares (i, j) con i &lt; j pero a[i] &gt; a[j]. Una inversión mide qué tan "desordenado" está el arreglo.</div>
+<div class="section-label">Ejemplos</div>
+<div class="example-block">
+<div class="ex-label">entrada → inversiones</div>
+<span class="ex-in">[2, 4, 1, 3, 5]</span>  →  <span class="ex-out">3</span>  <span class="ex-comment">// (2,1) (4,1) (4,3)</span>
+<br><span class="ex-in">[1, 2, 3, 4, 5]</span>  →  <span class="ex-out">0</span>  <span class="ex-comment">// ya ordenado</span>
+<br><span class="ex-in">[5, 4, 3, 2, 1]</span>  →  <span class="ex-out">10</span> <span class="ex-comment">// máximo</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Idea clave</div>
+  <div class="hint-text">Modificá el Merge de merge sort: cuando tomás un elemento de la mitad derecha (j) antes que uno de la izquierda (i), eso significa que hay <code>mid - i + 1</code> inversiones con todos los elementos restantes de la mitad izquierda. Contá estas inversiones dentro del Merge.</div>
+</div>`,
+    solution: `<span class="type">long long</span> <span class="fn">mergeCount</span>(<span class="type">int</span> a[], <span class="type">int</span> ini, <span class="type">int</span> med, <span class="type">int</span> fin) {
+    <span class="type">long long</span> inv = <span class="num">0</span>;
+    <span class="type">int</span> n = fin-ini+<span class="num">1</span>;
+    <span class="type">int</span> *aux = <span class="fn">malloc</span>(n * <span class="kw">sizeof</span>(<span class="type">int</span>));
+    <span class="type">int</span> i=ini, j=med+<span class="num">1</span>, k=<span class="num">0</span>;
+
+    <span class="kw">while</span> (i<=med && j<=fin) {
+        <span class="kw">if</span> (a[i] <= a[j]) { aux[k++] = a[i++]; }
+        <span class="kw">else</span> {
+            aux[k++] = a[j++];
+            inv += (med - i + <span class="num">1</span>);  <span class="cmt">// CLAVE: inversiones</span>
+        }
+    }
+    <span class="kw">while</span>(i<=med) aux[k++]=a[i++];
+    <span class="kw">while</span>(j<=fin) aux[k++]=a[j++];
+    <span class="kw">for</span>(<span class="type">int</span> x=<span class="num">0</span>;x<n;x++) a[ini+x]=aux[x];
+    <span class="fn">free</span>(aux);
+    <span class="kw">return</span> inv;
+}
+
+<span class="type">long long</span> <span class="fn">countInversions</span>(<span class="type">int</span> a[], <span class="type">int</span> ini, <span class="type">int</span> fin) {
+    <span class="kw">if</span> (ini>=fin) <span class="kw">return</span> <span class="num">0</span>;
+    <span class="type">int</span> med = (ini+fin)/<span class="num">2</span>;
+    <span class="type">long long</span> inv = <span class="num">0</span>;
+    inv += <span class="fn">countInversions</span>(a, ini, med);
+    inv += <span class="fn">countInversions</span>(a, med+<span class="num">1</span>, fin);
+    inv += <span class="fn">mergeCount</span>(a, ini, med, fin);
+    <span class="kw">return</span> inv;
+}`
+  },
+  {
+    id: 7,
+    num: "07",
+    title: "Quick sort",
+    phase: "Bloque 2 — Sortings",
+    difficulty: "medium",
+    complexity: "O(n log n) avg",
+    type: "impl",
+    struct: "sort",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 07 · BLOQUE 2</div>
+  <div class="problem-title">Quick Sort</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log n) avg</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-hard">O(n²) peor caso</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá Quick Sort con <strong>dos versiones del pivot</strong>: primer elemento y elemento aleatorio. Demostrá un caso donde el primer elemento como pivot da O(n²).</div>
+<div class="example-block">
+<div class="ex-label">peor caso con pivot = primero</div>
+<span class="ex-in">int peorCaso[] = {1,2,3,4,5,6,7,8};</span>
+<br><span class="ex-comment">// ¿Por qué este es el peor caso? La partición siempre queda desbalanceada</span>
+</div>
+<table class="complexity-table">
+  <tr><th>Pivot</th><th>Mejor</th><th>Promedio</th><th>Peor</th></tr>
+  <tr><td>Primer elemento</td><td class="good">O(n log n)</td><td class="good">O(n log n)</td><td class="bad">O(n²)</td></tr>
+  <tr><td>Aleatorio</td><td class="good">O(n log n)</td><td class="good">O(n log n)</td><td class="mid">O(n²) raro</td></tr>
+</table>`,
+    solution: `<span class="kw">#include</span> <span class="str">&lt;stdlib.h&gt;</span>
+
+<span class="type">int</span> <span class="fn">partition</span>(<span class="type">int</span> a[], <span class="type">int</span> l, <span class="type">int</span> r) {
+    <span class="type">int</span> pivot = a[r], i = l-<span class="num">1</span>;
+    <span class="kw">for</span> (<span class="type">int</span> j=l; j<r; j++) {
+        <span class="kw">if</span> (a[j] <= pivot) {
+            i++;
+            <span class="type">int</span> t=a[i]; a[i]=a[j]; a[j]=t;
+        }
+    }
+    <span class="type">int</span> t=a[i+<span class="num">1</span>]; a[i+<span class="num">1</span>]=a[r]; a[r]=t;
+    <span class="kw">return</span> i+<span class="num">1</span>;
+}
+
+<span class="kw">void</span> <span class="fn">quickSortRand</span>(<span class="type">int</span> a[], <span class="type">int</span> l, <span class="type">int</span> r) {
+    <span class="kw">if</span> (l >= r) <span class="kw">return</span>;
+    <span class="cmt">// pivot aleatorio: evita worst case</span>
+    <span class="type">int</span> idx = l + <span class="fn">rand</span>() % (r-l+<span class="num">1</span>);
+    <span class="type">int</span> t=a[idx]; a[idx]=a[r]; a[r]=t;
+    <span class="type">int</span> p = <span class="fn">partition</span>(a, l, r);
+    <span class="fn">quickSortRand</span>(a, l, p-<span class="num">1</span>);
+    <span class="fn">quickSortRand</span>(a, p+<span class="num">1</span>, r);
+}`
+  },
+  {
+    id: 8,
+    num: "08",
+    title: "Counting & Radix sort",
+    phase: "Bloque 2 — Sortings",
+    difficulty: "medium",
+    complexity: "O(n)",
+    type: "impl",
+    struct: "sort lineal",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 08 · BLOQUE 2</div>
+  <div class="problem-title">Sorting sin Comparaciones</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n) counting / O(kn) radix</span>
+    <span class="badge badge-type">lineal</span>
+    <span class="badge badge-struct">no comparativo</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá <strong>Counting Sort</strong> para enteros en rango [0, max]. Luego implementá <strong>Radix Sort</strong> usando counting sort por dígito.</div>
+<div class="example-block">
+<div class="ex-label">counting sort — ejemplo</div>
+<span class="ex-in">[7,1,3,1,2,4]</span>
+<br><span class="ex-comment">contadores: [0,2,1,1,1,0,0,1]</span>
+<br><span class="ex-out">resultado:  [1,1,2,3,4,7]</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">¿Por qué no siempre usamos O(n)?</div>
+  <div class="hint-text">Counting sort necesita un arreglo de tamaño <code>max</code>. Si max = 10^9, el arreglo auxiliar sería enorme. Solo sirve cuando el rango de valores es pequeño respecto a n.</div>
+</div>`,
+    solution: `<span class="kw">void</span> <span class="fn">countingSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n, <span class="type">int</span> max) {
+    <span class="type">int</span> *cnt = <span class="fn">calloc</span>(max+<span class="num">1</span>, <span class="kw">sizeof</span>(<span class="type">int</span>));
+    <span class="kw">for</span> (<span class="type">int</span> i=<span class="num">0</span>;i<n;i++) cnt[a[i]]++;
+    <span class="type">int</span> k=<span class="num">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> v=<span class="num">0</span>;v<=max;v++)
+        <span class="kw">while</span>(cnt[v]--) a[k++]=v;
+    <span class="fn">free</span>(cnt);
+}
+
+<span class="cmt">// Radix sort: ordena por cada dígito (LSD)</span>
+<span class="kw">void</span> <span class="fn">countByDigit</span>(<span class="type">int</span> a[], <span class="type">int</span> n, <span class="type">int</span> exp) {
+    <span class="type">int</span> *out = <span class="fn">malloc</span>(n*<span class="kw">sizeof</span>(<span class="type">int</span>)), cnt[<span class="num">10</span>]={};
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">0</span>;i<n;i++) cnt[(a[i]/exp)%<span class="num">10</span>]++;
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">1</span>;i<<span class="num">10</span>;i++) cnt[i]+=cnt[i-<span class="num">1</span>];
+    <span class="kw">for</span>(<span class="type">int</span> i=n-<span class="num">1</span>;i>=<span class="num">0</span>;i--) out[--cnt[(a[i]/exp)%<span class="num">10</span>]]=a[i];
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">0</span>;i<n;i++) a[i]=out[i];
+    <span class="fn">free</span>(out);
+}
+
+<span class="kw">void</span> <span class="fn">radixSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n) {
+    <span class="type">int</span> max=a[<span class="num">0</span>];
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">1</span>;i<n;i++) <span class="kw">if</span>(a[i]>max) max=a[i];
+    <span class="kw">for</span>(<span class="type">int</span> e=<span class="num">1</span>;max/e><span class="num">0</span>;e*=<span class="num">10</span>) <span class="fn">countByDigit</span>(a,n,e);
+}`
+  },
+  {
+    id: 9,
+    num: "09",
+    title: "Binary Heap (MinHeap)",
+    phase: "Bloque 3 — Heaps",
+    difficulty: "medium",
+    complexity: "O(log n) / Heapify O(n)",
+    type: "impl",
+    struct: "heap",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 09 · BLOQUE 3</div>
+  <div class="problem-title">Binary Heap</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(log n) insert</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-struct">heap</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá un <strong>MinHeap</strong> sobre arreglo. Recordá: el índice empieza en 1. Padre de X → X/2. Hijos de X → 2X y 2X+1.</div>
+<div class="example-block">
+<div class="ex-label">estructura interna</div>
+<span class="ex-comment">// arreglo:  [_, 3, 6, 5, 10, 8, 9, 7]
+//           pos: 0  1  2  3   4  5  6  7
+// árbol:        3
+//             /   \
+//            6     5
+//           / \   / \
+//          10  8 9   7</span>
+</div>
+<table class="complexity-table">
+  <tr><th>Operación</th><th>Costo</th><th>Mecanismo</th></tr>
+  <tr><td>GetMin</td><td class="good">O(1)</td><td>siempre en pos 1</td></tr>
+  <tr><td>Insert</td><td class="mid">O(log n)</td><td>agregar al final + HeapUp</td></tr>
+  <tr><td>RemoveMin</td><td class="mid">O(log n)</td><td>swap raíz-último + HeapDown</td></tr>
+  <tr><td>Heapify</td><td class="good">O(n)</td><td>HeapDown desde último al primero</td></tr>
+</table>
+<div class="hint-block">
+  <div class="hint-title">¿Por qué Heapify es O(n) y no O(n log n)?</div>
+  <div class="hint-text">Las hojas (n/2 nodos) tienen costo 0. Los nodos de altura 1 tienen costo 1, etc. La suma total converge a O(n). La mayoría de los nodos están cerca del fondo y tienen poca altura.</div>
+</div>`,
+    solution: `<span class="kw">typedef struct</span> { <span class="type">int</span> *p; <span class="type">int</span> n; <span class="type">int</span> cap; } <span class="type">Heap</span>;
+
+<span class="type">Heap</span>* <span class="fn">HeapBuild</span>(<span class="type">int</span> cap) {
+    <span class="type">Heap</span> *h = <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="type">Heap</span>));
+    h->p = <span class="fn">malloc</span>((cap+<span class="num">1</span>)*<span class="kw">sizeof</span>(<span class="type">int</span>));  <span class="cmt">// desde pos 1</span>
+    h->n = <span class="num">0</span>; h->cap = cap;
+    <span class="kw">return</span> h;
+}
+
+<span class="kw">void</span> <span class="fn">heapUp</span>(<span class="type">Heap</span>*h, <span class="type">int</span> i) {
+    <span class="kw">while</span> (i><span class="num">1</span> && h->p[i]<h->p[i/<span class="num">2</span>]) {
+        <span class="type">int</span> t=h->p[i]; h->p[i]=h->p[i/<span class="num">2</span>]; h->p[i/<span class="num">2</span>]=t;
+        i/=<span class="num">2</span>;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">heapDown</span>(<span class="type">Heap</span>*h, <span class="type">int</span> i) {
+    <span class="kw">while</span> (<span class="num">2</span>*i<=h->n) {
+        <span class="type">int</span> hijo=<span class="num">2</span>*i;
+        <span class="kw">if</span>(hijo<h->n && h->p[hijo+<span class="num">1</span>]<h->p[hijo]) hijo++;
+        <span class="kw">if</span>(h->p[i]<=h->p[hijo]) <span class="kw">break</span>;
+        <span class="type">int</span> t=h->p[i]; h->p[i]=h->p[hijo]; h->p[hijo]=t;
+        i=hijo;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">HeapInsert</span>(<span class="type">Heap</span>*h, <span class="type">int</span> v) { h->p[++h->n]=v; <span class="fn">heapUp</span>(h,h->n); }
+<span class="type">int</span>  <span class="fn">HeapGetMin</span>(<span class="type">Heap</span>*h) { <span class="kw">return</span> h->p[<span class="num">1</span>]; }
+
+<span class="type">int</span> <span class="fn">HeapRemoveMin</span>(<span class="type">Heap</span>*h) {
+    <span class="type">int</span> min=h->p[<span class="num">1</span>];
+    h->p[<span class="num">1</span>]=h->p[h->n--];
+    <span class="fn">heapDown</span>(h,<span class="num">1</span>);
+    <span class="kw">return</span> min;
+}
+
+<span class="kw">void</span> <span class="fn">Heapify</span>(<span class="type">Heap</span>*h, <span class="type">int</span>*a, <span class="type">int</span> n) {
+    <span class="kw">for</span>(<span class="type">int</span>i=<span class="num">1</span>;i<=n;i++) h->p[i]=a[i-<span class="num">1</span>];
+    h->n=n;
+    <span class="kw">for</span>(<span class="type">int</span>i=n/<span class="num">2</span>;i>=<span class="num">1</span>;i--) <span class="fn">heapDown</span>(h,i);  <span class="cmt">// O(n)!</span>
+}`
+  },
+  {
+    id: 10,
+    num: "10",
+    title: "Heap sort",
+    phase: "Bloque 3 — Heaps",
+    difficulty: "easy",
+    complexity: "O(n log n)",
+    type: "impl",
+    struct: "heap",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 10 · BLOQUE 3</div>
+  <div class="problem-title">Heap Sort</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log n)</span>
+    <span class="badge badge-type">in-place</span>
+    <span class="badge badge-struct">heap</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Usá el Heap implementado en la tarea 09 para ordenar un arreglo. Algoritmo: Heapify en O(n), luego extraer el mínimo n veces en O(n log n).</div>
+<table class="complexity-table">
+  <tr><th>Propiedad</th><th>Heap Sort</th><th>Merge Sort</th><th>Quick Sort</th></tr>
+  <tr><td>Complejidad</td><td class="good">O(n log n)</td><td class="good">O(n log n)</td><td class="good">O(n log n) avg</td></tr>
+  <tr><td>Peor caso</td><td class="good">O(n log n)</td><td class="good">O(n log n)</td><td class="bad">O(n²)</td></tr>
+  <tr><td>In-place</td><td class="good">Sí</td><td class="bad">No</td><td class="good">Sí</td></tr>
+  <tr><td>Estable</td><td class="bad">No</td><td class="good">Sí</td><td class="bad">No</td></tr>
+</table>`,
+    solution: `<span class="kw">void</span> <span class="fn">heapSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n) {
+    <span class="type">Heap</span> *h = <span class="fn">HeapBuild</span>(n);
+    <span class="fn">Heapify</span>(h, a, n);          <span class="cmt">// O(n)</span>
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">0</span>;i<n;i++)
+        a[i] = <span class="fn">HeapRemoveMin</span>(h); <span class="cmt">// n veces O(log n)</span>
+    <span class="fn">free</span>(h->p); <span class="fn">free</span>(h);
+}
+<span class="cmt">// Total: O(n) + O(n log n) = O(n log n)</span>`
+  },
+  {
+    id: 11,
+    num: "11",
+    title: "K-ésimo menor con heap",
+    phase: "Bloque 3 — Heaps",
+    difficulty: "medium",
+    complexity: "O(n log k)",
+    type: "olimpiada",
+    struct: "heap",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 11 · BLOQUE 3 · OLÍMPICA</div>
+  <div class="problem-title">K-ésimo Menor Elemento</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log k)</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-struct">maxheap</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Problema</div>
+<div class="problem-text">Dado un arreglo de n números, encontrá el <strong>k-ésimo menor</strong> sin ordenar todo el arreglo. Solución óptima: O(n log k) usando un MaxHeap de tamaño k.</div>
+<div class="section-label">Ejemplo</div>
+<div class="example-block">
+<div class="ex-label">entrada → salida</div>
+<span class="ex-in">a = [7, 10, 4, 3, 20, 15], k = 3</span>
+<br><span class="ex-out">resultado = 7</span>
+<br><span class="ex-comment">// los 3 menores son: 3, 4, 7 → el 3ero es 7</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Idea del MaxHeap de tamaño k</div>
+  <div class="hint-text">Mantenés un MaxHeap con los k menores vistos hasta ahora. Para cada nuevo elemento: si es menor que el máximo del heap, lo insertás y sacás el máximo. Al final, el máximo del heap es el k-ésimo menor.</div>
+</div>`,
+    solution: `<span class="type">int</span> <span class="fn">kesimoMenor</span>(<span class="type">int</span> a[], <span class="type">int</span> n, <span class="type">int</span> k) {
+    <span class="cmt">// MaxHeap de tamaño k (negamos valores para usar MinHeap)</span>
+    <span class="type">Heap</span> *h = <span class="fn">HeapBuild</span>(k);
+    
+    <span class="kw">for</span> (<span class="type">int</span> i=<span class="num">0</span>; i<n; i++) {
+        <span class="kw">if</span> (h->n < k) {
+            <span class="fn">HeapInsert</span>(h, -a[i]);  <span class="cmt">// negamos para max→min</span>
+        } <span class="kw">else if</span> (-a[i] > h->p[<span class="num">1</span>]) {
+            <span class="fn">HeapRemoveMin</span>(h);
+            <span class="fn">HeapInsert</span>(h, -a[i]);
+        }
+    }
+    <span class="type">int</span> res = -<span class="fn">HeapGetMin</span>(h);
+    <span class="fn">free</span>(h->p); <span class="fn">free</span>(h);
+    <span class="kw">return</span> res;
+}
+<span class="cmt">// Complejidad: O(n log k) — mucho mejor que O(n log n)</span>`
+  },
+  {
+    id: 12,
+    num: "12",
+    title: "Mediana de un flujo",
+    phase: "Bloque 3 — Heaps",
+    difficulty: "hard",
+    complexity: "O(log n) por elemento",
+    type: "olimpiada",
+    struct: "2 heaps",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 12 · BLOQUE 3 · OLÍMPICA</div>
+  <div class="problem-title">Mediana de un Flujo</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(log n) por elemento</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-hard">difícil</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Problema</div>
+<div class="problem-text">Llegan números uno por uno. Después de recibir cada número, imprimí la <strong>mediana actual</strong> del conjunto. Solución eficiente: usar dos heaps.</div>
+<div class="example-block">
+<div class="ex-label">entrada → mediana</div>
+<span class="ex-in">5</span>  →  <span class="ex-out">5</span>
+<br><span class="ex-in">2</span>  →  <span class="ex-out">3.5</span>
+<br><span class="ex-in">8</span>  →  <span class="ex-out">5</span>
+<br><span class="ex-in">1</span>  →  <span class="ex-out">3.5</span>
+<br><span class="ex-in">9</span>  →  <span class="ex-out">5</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Idea: dos heaps balanceados</div>
+  <div class="hint-text"><strong>MaxHeap izquierda</strong> guarda la mitad menor. <strong>MinHeap derecha</strong> guarda la mitad mayor. La mediana es el máximo de izquierda (o promedio de los dos topes si n es par). Mantenés que |iz| - |de| ≤ 1.</div>
+</div>`,
+    solution: `<span class="cmt">// MaxHeap izquierda (mitad menor) + MinHeap derecha (mitad mayor)</span>
+<span class="type">Heap</span> *izq, *der;  <span class="cmt">// izq: negar valores para MaxHeap</span>
+
+<span class="kw">void</span> <span class="fn">agregarNumero</span>(<span class="type">int</span> num) {
+    <span class="cmt">// decidir en cuál heap va</span>
+    <span class="kw">if</span> (izq->n==<span class="num">0</span> || num <= -<span class="fn">HeapGetMin</span>(izq))
+        <span class="fn">HeapInsert</span>(izq, -num);  <span class="cmt">// negamos: maxheap</span>
+    <span class="kw">else</span>
+        <span class="fn">HeapInsert</span>(der, num);
+
+    <span class="cmt">// balancear: diferencia máx 1</span>
+    <span class="kw">if</span> (izq->n > der->n + <span class="num">1</span>) {
+        <span class="fn">HeapInsert</span>(der, -<span class="fn">HeapRemoveMin</span>(izq));
+    } <span class="kw">else if</span> (der->n > izq->n) {
+        <span class="fn">HeapInsert</span>(izq, -<span class="fn">HeapRemoveMin</span>(der));
+    }
+}
+
+<span class="type">double</span> <span class="fn">getMediana</span>() {
+    <span class="kw">if</span> (izq->n > der->n)
+        <span class="kw">return</span> -<span class="fn">HeapGetMin</span>(izq);
+    <span class="kw">return</span> (-<span class="fn">HeapGetMin</span>(izq) + <span class="fn">HeapGetMin</span>(der)) / <span class="num">2.0</span>;
+}`
+  },
+  {
+    id: 13,
+    num: "13",
+    title: "Tournament Heap",
+    phase: "Bloque 4 — Tournament Heaps",
+    difficulty: "hard",
+    complexity: "Insert O(log n)",
+    type: "impl",
+    struct: "t.heap",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 13 · BLOQUE 4</div>
+  <div class="problem-title">Tournament Heap</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">Insert O(log n)</span>
+    <span class="badge badge-type">implementación</span>
+    <span class="badge badge-struct">tournament tree</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá un Tournament Heap. Consiste en una lista de Tournament Trees ordenados por tamaño (2⁰, 2¹, 2², ...). Hay a lo sumo log(n) árboles.</div>
+<div class="example-block">
+<div class="ex-label">estructura de nodos</div>
+<span class="ex-in">typedef struct Nodo {
+  struct Nodo *izq;
+  int valor;
+  struct Nodo *der;
+} Nodo;</span>
+</div>
+<div class="section-label">Operaciones clave</div>
+<div class="problem-text"><strong>Coalesce:</strong> combina dos TT del mismo tamaño 2ᵏ en uno de tamaño 2ᵏ⁺¹. El ganador (menor) queda como raíz.<br><br><strong>Insert:</strong> crear TT de 1 nodo, hacer Coalesce mientras haya dos del mismo tamaño.<br><br><strong>RemoveMin:</strong> encontrar el TT con el mínimo, hacer Fracture (quitar raíz + camino), hacer Coalesce.</div>
+<table class="complexity-table">
+  <tr><th>Op</th><th>Heap</th><th>T.Heap</th><th>Lazy T.Heap</th></tr>
+  <tr><td>Insert</td><td class="mid">O(log n)</td><td class="mid">O(log n)</td><td class="good">O(1)</td></tr>
+  <tr><td>GetMin</td><td class="good">O(1)</td><td class="mid">O(log n)</td><td class="mid">O(log n)</td></tr>
+  <tr><td>Meld</td><td class="bad">O(n)</td><td class="good">O(log n₁+log n₂)</td><td class="good">O(1)</td></tr>
+</table>`,
+    solution: `<span class="kw">typedef struct</span> <span class="type">Nodo</span> {
+    <span class="kw">struct</span> <span class="type">Nodo</span> *izq, *der;
+    <span class="type">int</span> valor;
+} <span class="type">Nodo</span>;
+
+<span class="cmt">// Coalesce: combina 2 TTs del mismo tamaño</span>
+<span class="type">Nodo</span>* <span class="fn">coalesce</span>(<span class="type">Nodo</span>*a, <span class="type">Nodo</span>*b) {
+    <span class="kw">if</span> (!a) <span class="kw">return</span> b;
+    <span class="kw">if</span> (!b) <span class="kw">return</span> a;
+    <span class="cmt">// ganador = menor valor → raíz del nuevo árbol</span>
+    <span class="type">Nodo</span> *ganador, *perdedor;
+    <span class="kw">if</span> (a->valor <= b->valor)
+        { ganador=a; perdedor=b; }
+    <span class="kw">else</span>
+        { ganador=b; perdedor=a; }
+    <span class="cmt">// perdedor se convierte en hijo derecho del ganador</span>
+    perdedor->der = ganador->der;
+    ganador->der = perdedor;
+    <span class="kw">return</span> ganador;
+}`
+  },
+  {
+    id: 14,
+    num: "14",
+    title: "Fusión de K listas ordenadas",
+    phase: "Bloque 4 — Tournament Heaps",
+    difficulty: "hard",
+    complexity: "O(n log k)",
+    type: "olimpiada",
+    struct: "heap",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 14 · BLOQUE 4 · OLÍMPICA</div>
+  <div class="problem-title">Fusión de K Listas Ordenadas</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O(n log k)</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-struct">minheap</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Problema</div>
+<div class="problem-text">Tenés <strong>k listas ordenadas</strong> con un total de n elementos. Fusionalas en una sola lista ordenada en O(n log k).</div>
+<div class="example-block">
+<div class="ex-label">ejemplo k=3</div>
+<span class="ex-in">Lista 1: [1, 4, 7]
+Lista 2: [2, 5, 8]
+Lista 3: [3, 6, 9]</span>
+<br><span class="ex-out">Resultado: [1, 2, 3, 4, 5, 6, 7, 8, 9]</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">Algoritmo con MinHeap</div>
+  <div class="hint-text">El heap guarda pares (valor, índice_de_lista). Inicializá con el primer elemento de cada lista. En cada paso: extraés el mínimo, lo agregás al resultado, e insertás el siguiente elemento de esa misma lista. El heap nunca tiene más de k elementos → O(n log k).</div>
+</div>`,
+    solution: `<span class="kw">typedef struct</span> { <span class="type">int</span> val, lista, pos; } <span class="type">Item</span>;
+
+<span class="cmt">// Heap de Items por valor</span>
+<span class="type">int</span>* <span class="fn">fusionarKListas</span>(<span class="type">int</span> **listas, <span class="type">int</span> *tams, <span class="type">int</span> k, <span class="type">int</span> n) {
+    <span class="type">int</span> *res = <span class="fn">malloc</span>(n * <span class="kw">sizeof</span>(<span class="type">int</span>));
+    <span class="cmt">// MinHeap de k elementos (uno por lista)</span>
+    <span class="type">Item</span> heap[k]; <span class="type">int</span> hn=<span class="num">0</span>;
+
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">0</span>;i<k;i++) <span class="kw">if</span>(tams[i]><span class="num">0</span>)
+        heap[hn++] = (Item){listas[i][<span class="num">0</span>], i, <span class="num">0</span>};
+
+    <span class="cmt">// ... hacer heapify del array de Items ...</span>
+    
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">0</span>;i<n;i++) {
+        <span class="cmt">// extraer mínimo del heap</span>
+        <span class="type">Item</span> min = heap[<span class="num">0</span>];
+        res[i] = min.val;
+        <span class="cmt">// insertar siguiente de la misma lista</span>
+        <span class="kw">if</span>(min.pos+<span class="num">1</span> < tams[min.lista])
+            heap[<span class="num">0</span>] = (Item){listas[min.lista][min.pos+<span class="num">1</span>], min.lista, min.pos+<span class="num">1</span>};
+        <span class="cmt">// ... heapDown ...</span>
+    }
+    <span class="kw">return</span> res;
+}`
+  },
+  {
+    id: 15,
+    num: "15",
+    title: "Dijkstra con DecreaseKey",
+    phase: "Bloque 4 — Tournament Heaps",
+    difficulty: "xhard",
+    complexity: "O((V+E) log V)",
+    type: "olimpiada",
+    struct: "heap + grafo",
+    problem: `
+<div class="problem-header">
+  <div class="problem-num">TAREA 15 · BLOQUE 4 · OLÍMPICA</div>
+  <div class="problem-title">Dijkstra — Camino Mínimo</div>
+  <div class="problem-badges">
+    <span class="badge badge-complexity">O((V+E) log V)</span>
+    <span class="badge badge-type">olímpica</span>
+    <span class="badge badge-hard">DecreaseKey</span>
+  </div>
+</div>
+<div class="divider-line"></div>
+<div class="section-label">Descripción</div>
+<div class="problem-text">Implementá el algoritmo de Dijkstra para encontrar el camino mínimo desde un nodo fuente a todos los demás. Este algoritmo es la <strong>motivación real del DecreaseKey</strong> en el Abdication Heap.</div>
+<div class="example-block">
+<div class="ex-label">grafo de ejemplo</div>
+<span class="ex-in">Nodos: 0,1,2,3,4
+Aristas: 0→1 (4), 0→2 (1), 2→1 (2), 1→3 (1), 2→3 (5), 3→4 (3)
+Fuente: 0</span>
+<br><span class="ex-out">dist[0]=0, dist[1]=3, dist[2]=1, dist[3]=4, dist[4]=7</span>
+</div>
+<div class="hint-block">
+  <div class="hint-title">¿Por qué necesitamos DecreaseKey?</div>
+  <div class="hint-text">Cuando encontramos un camino más corto a un nodo ya en el heap, necesitamos actualizar su distancia. Eso es exactamente DecreaseKey. Con un heap normal simulamos esto insertando duplicados — menos eficiente pero más simple.</div>
+</div>`,
+    solution: `<span class="kw">#define</span> INF <span class="num">1e9</span>
+<span class="kw">#define</span> V <span class="num">100</span>
+
+<span class="type">int</span> grafo[V][V];  <span class="cmt">// matriz de adyacencia</span>
+
+<span class="kw">void</span> <span class="fn">dijkstra</span>(<span class="type">int</span> n, <span class="type">int</span> src) {
+    <span class="type">double</span> dist[V]; <span class="type">int</span> vis[V]={};
+    <span class="kw">for</span>(<span class="type">int</span>i=<span class="num">0</span>;i<n;i++) dist[i]=INF;
+    dist[src]=<span class="num">0</span>;
+
+    <span class="kw">for</span>(<span class="type">int</span> iter=<span class="num">0</span>; iter<n; iter++) {
+        <span class="cmt">// encontrar el no visitado con dist mínima</span>
+        <span class="type">int</span> u=-<span class="num">1</span>;
+        <span class="kw">for</span>(<span class="type">int</span>i=<span class="num">0</span>;i<n;i++)
+            <span class="kw">if</span>(!vis[i] && (u==-<span class="num">1</span>||dist[i]<dist[u])) u=i;
+
+        <span class="kw">if</span>(dist[u]==INF) <span class="kw">break</span>;
+        vis[u]=<span class="num">1</span>;
+
+        <span class="cmt">// relajar aristas (aquí iría DecreaseKey)</span>
+        <span class="kw">for</span>(<span class="type">int</span>v=<span class="num">0</span>;v<n;v++) {
+            <span class="kw">if</span>(grafo[u][v] && dist[u]+grafo[u][v]<dist[v])
+                dist[v] = dist[u]+grafo[u][v];  <span class="cmt">// ← DecreaseKey!</span>
+        }
+    }
+    <span class="kw">for</span>(<span class="type">int</span>i=<span class="num">0</span>;i<n;i++)
+        <span class="fn">printf</span>(<span class="str">"dist[%d] = %.0f\n"</span>, i, dist[i]);
+}`
+  }
+];
+
+let currentTask = null;
+let done = new Set();
+let streak = 0;
+let solutionVisible = false;
+
+function renderSidebar() {
+  const list = document.getElementById('taskList');
+  let html = '';
+  let currentPhase = '';
+
+  tasks.forEach(t => {
+    if (t.phase !== currentPhase) {
+      currentPhase = t.phase;
+      html += `<div class="phase-label">${t.phase}</div>`;
+    }
+    const isDone = done.has(t.id);
+    html += `
+      <div class="task-item ${currentTask?.id===t.id?'active':''} ${isDone?'done':''}" onclick="openTask(${t.id})" data-title="${t.title.toLowerCase()}" data-phase="${t.phase.toLowerCase()}">
+        <span class="task-num">${isDone?'✓':t.num}</span>
+        <div class="task-info">
+          <div class="task-title-sm">${t.title}</div>
+          <div class="task-meta-sm">${t.complexity}</div>
+        </div>
+        <div class="difficulty-dot d-${t.difficulty}"></div>
+      </div>`;
+  });
+
+  list.innerHTML = html;
+  updateProgress();
+}
+
+function openTask(id) {
+  currentTask = tasks.find(t => t.id === id);
+  solutionVisible = false;
+
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('taskView').classList.add('visible');
+  document.getElementById('problemPanel').innerHTML = currentTask.problem;
+
+  const sol = document.getElementById('solutionOverlay');
+  sol.classList.remove('visible');
+  document.getElementById('solutionCode').innerHTML = currentTask.solution;
+  document.getElementById('codeEditor').value = '';
+
+  renderSidebar();
+}
+
+function toggleSolution() {
+  solutionVisible = !solutionVisible;
+  const overlay = document.getElementById('solutionOverlay');
+  overlay.classList.toggle('visible', solutionVisible);
+}
+
+function markDone() {
+  if (!currentTask) return;
+  if (!done.has(currentTask.id)) {
+    done.add(currentTask.id);
+    streak++;
+  }
+  document.getElementById('statDone').textContent = done.size;
+  document.getElementById('statStreak').textContent = streak;
+  renderSidebar();
+}
+
+function updateProgress() {
+  const pct = (done.size / tasks.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done.size} / ${tasks.length}`;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===(tab==='problem'?0:1)));
+}
+
+function filterTasks(q) {
+  const items = document.querySelectorAll('.task-item');
+  items.forEach(item => {
+    const match = item.dataset.title.includes(q.toLowerCase()) || item.dataset.phase.includes(q.toLowerCase());
+    item.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.phase-label').forEach(label => {
+    label.style.display = '';
+  });
+}
+
+renderSidebar();
+</script>
+</body>
+</html>

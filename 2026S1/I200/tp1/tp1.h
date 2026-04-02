@@ -45,7 +45,6 @@ void selection_sort(int *array, int length);
 * Dado dos arreglos de enteros sin repetidos, queremos devolver un arreglo que sea la union de ambos arreglos de forma ordenada.
 * La union no debe tener repetidos.
 */
-
 int* array_union(const int *array1, int length1,
     const int *array2, int length2);
 

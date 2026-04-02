@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDA · Práctica</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f5f0e8;
+  --paper2: #ede8df;
+  --paper3: #e4ddd3;
+  --ink: #1a1714;
+  --ink2: #4a4540;
+  --ink3: #8a8278;
+  --ink4: #b8b2a8;
+  --red: #c0392b;
+  --green: #27ae60;
+  --blue: #2471a3;
+  --orange: #d35400;
+  --purple: #7d3c98;
+  --border: #cfc8be;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --serif: 'Lora', serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ═══ LAYOUT ═══ */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ═══ SIDEBAR ═══ */
+.sb {
+  width: 300px; min-width: 300px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.sb::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: repeating-linear-gradient(90deg, var(--red) 0 20px, var(--orange) 20px 40px, var(--green) 40px 60px, var(--blue) 60px 80px, var(--purple) 80px 100px);
+}
+
+.sb-head {
+  padding: 28px 20px 16px;
+  border-bottom: 1px solid #2a2824;
+}
+
+.logo {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.logo em { font-style: normal; color: var(--red); }
+
+.logo-tagline {
+  font-size: 10px;
+  color: #5a5450;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.sb-filters {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a2824;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid #3a3834;
+  background: transparent;
+  color: #6a6460;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.12s;
+}
+.filter-btn:hover { color: var(--paper); border-color: #6a6460; }
+.filter-btn.on { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+.sb-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a2824;
+}
+
+.sb-search input {
+  width: 100%;
+  background: #1e1c1a;
+  border: 1px solid #3a3834;
+  border-radius: 2px;
+  padding: 6px 10px;
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  outline: none;
+}
+.sb-search input::placeholder { color: #4a4844; }
+.sb-search input:focus { border-color: #6a6460; }
+
+.sb-list {
+  flex: 1; overflow-y: auto;
+  padding: 6px 0 12px;
+}
+.sb-list::-webkit-scrollbar { width: 3px; }
+.sb-list::-webkit-scrollbar-thumb { background: #3a3834; }
+
+.blk-label {
+  padding: 14px 16px 4px;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #3a3834;
+  font-weight: 600;
+}
+
+.t-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.1s;
+  position: relative;
+}
+.t-item:hover { background: #1e1c1a; }
+.t-item.active { background: #1a1816; border-left-color: var(--red); }
+.t-item.done { opacity: 0.5; }
+.t-item.done .t-n { color: var(--green); }
+
+.t-n {
+  font-size: 10px; color: #4a4844; min-width: 20px;
+  font-weight: 500;
+}
+.t-item.active .t-n { color: var(--red); }
+
+.t-info { flex: 1; min-width: 0; }
+
+.t-name {
+  font-size: 12px; color: #c8c0b8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.t-item.active .t-name { color: var(--paper); }
+
+.t-sub {
+  font-size: 10px; color: #4a4844;
+}
+
+.d-pip {
+  width: 5px; height: 5px; border-radius: 50%; min-width: 5px;
+}
+.dp-1{background:#27ae60} .dp-2{background:#f39c12} .dp-3{background:#e67e22} .dp-4{background:#c0392b}
+
+.sb-foot {
+  border-top: 1px solid #2a2824;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.prog-track {
+  flex: 1; height: 2px; background: #2a2824; border-radius: 1px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%; background: var(--green); border-radius: 1px; transition: width 0.4s;
+}
+.prog-txt { font-size: 10px; color: #4a4844; white-space: nowrap; }
+
+/* ═══ MAIN ═══ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--paper); }
+
+.main-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper2);
+  min-height: 44px;
+}
+
+.tabs { display: flex; gap: 0; }
+.tab {
+  padding: 13px 14px;
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--ink4); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+}
+.tab:hover { color: var(--ink2); }
+.tab.on { color: var(--ink); border-bottom-color: var(--red); }
+
+.bar-stats { display: flex; gap: 20px; }
+.bst { text-align: right; }
+.bst-v { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--ink); display: block; line-height: 1; }
+.bst-l { font-size: 9px; color: var(--ink4); letter-spacing: 1px; text-transform: uppercase; }
+
+.main-body { flex: 1; overflow: hidden; position: relative; }
+
+/* ═══ WELCOME ═══ */
+.welcome {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: 8px; text-align: center;
+  padding: 40px;
+}
+
+.welcome-glyph {
+  font-family: var(--display);
+  font-size: 80px; font-weight: 800;
+  color: var(--paper3);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: -4px;
+}
+
+.welcome-title {
+  font-family: var(--display);
+  font-size: 20px; font-weight: 700;
+  color: var(--ink2);
+}
+
+.welcome-sub { font-size: 12px; color: var(--ink4); }
+
+/* ═══ TASK VIEW ═══ */
+.tv { display: none; height: 100%; flex-direction: column; }
+.tv.on { display: flex; }
+
+.tv-scroll { flex: 1; overflow-y: auto; padding: 32px 36px 24px; }
+.tv-scroll::-webkit-scrollbar { width: 4px; }
+.tv-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Problem header */
+.ph-num {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink4); margin-bottom: 6px;
+}
+
+.ph-title {
+  font-family: var(--display);
+  font-size: 30px; font-weight: 800;
+  letter-spacing: -1px; line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.ph-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+
+.badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 1px;
+  letter-spacing: 0.5px; font-weight: 500;
+  border: 1px solid;
+}
+.b-o { background: #fef9f0; color: #d35400; border-color: #f5dcc0; }
+.b-t { background: #f0f8f0; color: #27ae60; border-color: #c0e0c0; }
+.b-s { background: #f0f4ff; color: #2471a3; border-color: #c0d4f0; }
+.b-d { background: #fef0f0; color: #c0392b; border-color: #f0c0c0; }
+
+.divl { height: 1px; background: var(--border); margin: 22px 0; }
+
+.sec-lbl {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink4); margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.p-text {
+  color: var(--ink2); font-size: 13px; line-height: 1.85;
+  font-family: var(--serif);
+  margin-bottom: 14px;
+}
+.p-text code {
+  font-family: var(--mono); font-size: 12px;
+  background: var(--paper3); padding: 1px 5px; border-radius: 2px;
+  color: var(--ink);
+}
+.p-text strong { color: var(--ink); font-weight: 600; }
+
+.code-block {
+  background: var(--ink);
+  color: #c8c0b4;
+  border-radius: 3px;
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.hint {
+  background: var(--paper2);
+  border-left: 3px solid var(--orange);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border-radius: 0 3px 3px 0;
+}
+.hint-t { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--orange); margin-bottom: 6px; font-weight: 600; }
+.hint-b { font-size: 13px; color: var(--ink2); font-family: var(--serif); line-height: 1.7; }
+
+.ctable {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; margin-bottom: 16px;
+}
+.ctable th {
+  text-align: left; padding: 7px 12px;
+  border-bottom: 2px solid var(--border);
+  font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--ink4); font-weight: 500;
+}
+.ctable td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--paper3);
+  color: var(--ink2);
+}
+.ctable td:first-child { color: var(--ink); font-weight: 500; }
+.cg { color: var(--green) !important; }
+.cy { color: var(--orange) !important; }
+.cr { color: var(--red) !important; }
+.cb { color: var(--blue) !important; }
+
+.theory-box {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 2;
+}
+
+/* ═══ EDITOR ═══ */
+.editor-panel {
+  border-top: 2px solid var(--border);
+  background: var(--paper2);
+  display: flex; flex-direction: column;
+  max-height: 320px;
+}
+
+.ed-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ed-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink4); }
+
+.ed-btns { display: flex; gap: 6px; }
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px; padding: 5px 14px;
+  border-radius: 2px; cursor: pointer;
+  transition: all 0.12s; letter-spacing: 0.5px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--ink2);
+}
+.btn:hover { background: var(--paper3); color: var(--ink); }
+.btn-sol {
+  background: var(--ink); color: var(--paper);
+  border-color: var(--ink);
+}
+.btn-sol:hover { background: #2a2824; }
+.btn-done {
+  background: var(--green); color: white;
+  border-color: var(--green); font-weight: 500;
+}
+.btn-done:hover { background: #229954; }
+
+.ed-area { position: relative; flex: 1; overflow: hidden; }
+
+.ed-area textarea {
+  width: 100%; height: 100%; min-height: 200px;
+  background: var(--paper);
+  border: none; outline: none; resize: none;
+  color: var(--ink);
+  font-family: var(--mono); font-size: 13px; line-height: 1.7;
+  padding: 14px 18px;
+  tab-size: 4;
+}
+
+.sol-overlay {
+  position: absolute; inset: 0;
+  background: var(--ink);
+  display: none; overflow-y: auto;
+}
+.sol-overlay.on { display: block; }
+
+.sol-code {
+  padding: 16px 20px;
+  font-family: var(--mono); font-size: 12px; line-height: 1.8;
+  color: #c8c0b4; white-space: pre; overflow-x: auto;
+}
+
+/* syntax */
+.kw{color:#e06c75}.ty{color:#61afef}.fn{color:#e5c07b}.st{color:#98c379}.cm{color:#5c6370;font-style:italic}.nm{color:#d19a66}
+
+/* ═══ NOTES TAB ═══ */
+.notes-panel {
+  flex:1; overflow-y:auto; padding: 28px 36px;
+  display: none;
+}
+.notes-panel.on { display: block; }
+
+.notes-title {
+  font-family: var(--display); font-size: 22px; font-weight: 700;
+  margin-bottom: 16px; color: var(--ink);
+}
+
+.notes-area {
+  width: 100%; min-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 14px 16px;
+  font-family: var(--serif); font-size: 14px;
+  color: var(--ink); background: var(--paper);
+  resize: vertical; outline: none; line-height: 1.8;
+}
+.notes-area:focus { border-color: var(--ink3); }
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.tv.on .tv-scroll { animation: slideIn 0.2s ease; }
+
+/* scrollbar */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sb">
+  <div class="sb-head">
+    <div class="logo">EDA<em>.</em>lab</div>
+    <div class="logo-tagline">Estructuras &amp; Algoritmos · C</div>
+  </div>
+
+  <div class="sb-filters" id="filterRow">
+    <button class="filter-btn on" onclick="setFilter('all',this)">todo</button>
+    <button class="filter-btn" onclick="setFilter('estructura',this)">estructura</button>
+    <button class="filter-btn" onclick="setFilter('sorting',this)">sorting</button>
+    <button class="filter-btn" onclick="setFilter('heap',this)">heap</button>
+    <button class="filter-btn" onclick="setFilter('teoria',this)">teoría</button>
+    <button class="filter-btn" onclick="setFilter('olimpiada',this)">olímpica</button>
+  </div>
+
+  <div class="sb-search">
+    <input type="text" placeholder="buscar..." oninput="doSearch(this.value)">
+  </div>
+
+  <div class="sb-list" id="sbList"></div>
+
+  <div class="sb-foot">
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-txt" id="progTxt">0/0</div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="main-bar">
+    <div class="tabs">
+      <div class="tab on" onclick="switchTab('problem',this)">Problema</div>
+      <div class="tab" onclick="switchTab('notes',this)">Mis notas</div>
+    </div>
+    <div class="bar-stats">
+      <div class="bst">
+        <span class="bst-v" id="stDone">0</span>
+        <span class="bst-l">hechas</span>
+      </div>
+      <div class="bst">
+        <span class="bst-v" id="stTotal">0</span>
+        <span class="bst-l">total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-body">
+    <div class="welcome" id="welcomeEl">
+      <div class="welcome-glyph">EDA</div>
+      <div class="welcome-title">Elegí una tarea del menú</div>
+      <div class="welcome-sub">Todas las estructuras y algoritmos de los slides · implementación en C</div>
+    </div>
+
+    <div class="tv" id="taskView">
+      <div class="tv-scroll" id="tvScroll"></div>
+
+      <div class="editor-panel" id="editorPanel">
+        <div class="ed-head">
+          <span class="ed-title">Editor C</span>
+          <div class="ed-btns">
+            <button class="btn btn-sol" onclick="toggleSol()">Ver solución</button>
+            <button class="btn btn-done" onclick="markDone()">✓ Completada</button>
+          </div>
+        </div>
+        <div class="ed-area">
+          <textarea id="codeEd" spellcheck="false" placeholder="// Escribí tu implementación acá...
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+"></textarea>
+          <div class="sol-overlay" id="solOv">
+            <div class="sol-code" id="solCode"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-panel" id="notesPanel">
+        <div class="notes-title" id="notesTitleEl">Notas</div>
+        <textarea class="notes-area" id="notesArea" placeholder="Escribí tus notas acá...&#10;¿Qué entendiste? ¿Qué no? ¿Preguntas?"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA — todas las tareas de los slides
+// ═══════════════════════════════════════════════════
+const TASKS = [
+
+// ── BLOQUE 0: TEORÍA DE COMPLEJIDAD ──────────────────
+{id:1,blk:"Bloque 0 · Teoría",cat:"teoria",title:"Big-O y órdenes",diff:1,compl:"O(1) → O(n!)",
+problem:`
+<div class="ph-num">TAREA 01 · TEORÍA</div>
+<div class="ph-title">Big-O y Órdenes de Complejidad</div>
+<div class="ph-badges">
+  <span class="badge b-t">teoría</span>
+  <span class="badge b-s">análisis</span>
+</div>
+<div class="divl"></div>
+<div class="sec-lbl">¿Qué es?</div>
+<div class="p-text">
+La notación Big-O describe cómo crece el <strong>esfuerzo computacional</strong> en función del tamaño de los datos (N). Ignoramos constantes y términos menores.
+</div>
+<div class="sec-lbl">Órdenes de menor a mayor costo</div>
+<div class="theory-box">O(1) → O(log n) → O(n) → O(n log n) → O(n²) → O(n³) → O(2ⁿ) → O(n!)</div>
+<div class="sec-lbl">Tabla comparativa (con constante base = 2500)</div>
+<table class="ctable">
+  <tr><th>Orden</th><th>N=100</th><th>N=300</th><th>N=600</th><th>Calificación</th></tr>
+  <tr><td>O(1)</td><td>2500</td><td>2500</td><td>2500</td><td class="cg">excelente</td></tr>
+  <tr><td>O(log n)</td><td>3164</td><td>3323</td><td>3423</td><td class="cg">excelente</td></tr>
+  <tr><td>O(n)</td><td>2600</td><td>2800</td><td>3100</td><td class="cg">bueno</td></tr>
+  <tr><td>O(n log n)</td><td>3164</td><td>4969</td><td>8037</td><td class="cb">aceptable</td></tr>
+  <tr><td>O(n²)</td><td>2600</td><td>3400</td><td>6100</td><td class="cy">malo</td></tr>
+  <tr><td>O(n!)</td><td>2e+00</td><td>7.2e+02</td><td>4.8e+08</td><td class="cr">imposible</td></tr>
+</table>
+<div class="sec-lbl">Costo amortizado</div>
+<div class="p-text">El costo <strong>amortizado</strong> es el costo promedio por operación en una secuencia de N operaciones. Por ejemplo, <code>PushBack</code> en vector dinámico es O(1) amortizado aunque a veces sea O(n).</div>
+<div class="hint">
+  <div class="hint-t">Para recordar</div>
+  <div class="hint-b">Si el algoritmo tiene un loop → O(n). Dos loops anidados → O(n²). Si divide a la mitad → O(log n). Recursión que hace eso → O(n log n).</div>
+</div>`,
+solution:`<span class="cm">// No hay código para teoría pura.
+// Pero podés practicar análisis:
+
+// ¿Cuál es el orden de esto?
+</span>
+<span class="kw">for</span> (<span class="ty">int</span> i=0; i<n; i++)           <span class="cm">// → O(n)</span>
+  <span class="kw">for</span> (<span class="ty">int</span> j=i; j<n; j++)         <span class="cm">// → O(n²/2) = O(n²)</span>
+    printf(<span class="st">"%d %d\\n"</span>, i, j);
+
+<span class="cm">// ¿Y esto?</span>
+<span class="ty">int</span> x = n;
+<span class="kw">while</span> (x > 1) x /= 2;             <span class="cm">// → O(log n)</span>
+
+<span class="cm">// ¿Y esto?</span>
+<span class="kw">for</span> (<span class="ty">int</span> i=0; i<n; i++)
+  <span class="ty">int</span> x = n;
+  <span class="kw">while</span> (x > 1) x /= 2;           <span class="cm">// → O(n log n)</span>`},
+
+{id:2,blk:"Bloque 0 · Teoría",cat:"teoria",title:"Teorema límite inferior sorting",diff:2,compl:"Ω(n log n)",
+problem:`
+<div class="ph-num">TAREA 02 · TEORÍA</div>
+<div class="ph-title">Límite Inferior del Sorting por Comparación</div>
+<div class="ph-badges">
+  <span class="badge b-t">teoría</span>
+  <span class="badge b-d">teorema</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">
+<strong>Teorema:</strong> "No se puede ordenar por comparación en menos de O(n log n)"
+</div>
+<div class="sec-lbl">Demostración por árbol de decisión</div>
+<div class="p-text">
+Cualquier algoritmo de sorting por comparación puede representarse como un <strong>árbol binario de decisiones</strong>. Cada nodo interno es una comparación a<sub>i</sub> vs a<sub>j</sub>. Cada hoja es un ordenamiento posible.
+</div>
+<div class="theory-box">Cantidad de hojas = N!           (todas las permutaciones posibles)
+Altura mínima del árbol = log₂(N!)
+Por aproximación de Stirling:
+  log₂(N!) ≈ N·log₂(N) - N·log₂(e) + O(log N)
+            = Ω(N log N)
+Por lo tanto: cualquier algoritmo de comparación necesita Ω(N log N) comparaciones</div>
+<div class="sec-lbl">Aproximación de Stirling</div>
+<div class="theory-box">n! ≈ √(2πn) · (n/e)ⁿ
+log(n!) ≈ log(√(2πn)) + n·log(n/e)
+        ≈ n·log(n) - n·log(e) + O(log n)
+        → O(n log n)</div>
+<div class="hint">
+  <div class="hint-t">Consecuencia práctica</div>
+  <div class="hint-b">Merge Sort y Heap Sort son <strong>óptimos</strong> para sorting por comparación. No existe ningún algoritmo de comparación que sea asintóticamente mejor. Sólo los algoritmos sin comparación (Counting, Radix) pueden romper esta barrera.</div>
+</div>`,
+solution:`<span class="cm">// Ejemplo de análisis: árbol de decisión para N=3
+// 
+// Permutaciones de {A,B,C}: 3! = 6 hojas
+// Altura mínima: ⌈log₂(6)⌉ = 3
+//
+// Árbol:
+//          A&lt;B?
+//         /    \\
+//       A&lt;C?   B&lt;C?
+//       / \\    / \\
+//    A&lt;C? ABC B&lt;C? BAC
+//    /  \\      / \\
+//   ACB  CAB  BAC  BCA
+//                  CBA
+//
+// Mínimo 3 comparaciones para 3 elementos → log₂(3!) = 2.58 ≈ 3
+// Para N elementos: log₂(N!) → Ω(N log N)</span>`},
+
+// ── BLOQUE 1: ESTRUCTURAS BASE ───────────────────────
+{id:3,blk:"Bloque 1 · Estructuras base",cat:"estructura",title:"Vector dinámico",diff:1,compl:"O(1) amort. insert",
+problem:`
+<div class="ph-num">TAREA 03 · ESTRUCTURA</div>
+<div class="ph-title">Vector Dinámico</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(1) amortizado</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">array</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">
+Implementá un vector dinámico en C. El vector debe crecer automáticamente cuando se llena, <strong>duplicando su capacidad</strong> con <code>realloc</code>.
+</div>
+<div class="sec-lbl">Metadatos</div>
+<div class="code-block">struct Vector {
+    int *datos;
+    int cantidad;    // elementos actuales
+    int capacidad;   // espacio total reservado
+};</div>
+<div class="sec-lbl">Interfaz</div>
+<div class="code-block">Vector* VectorBuild(int capInicial);
+void    VectorDestroy(Vector *v);
+int     VectorGetAt(Vector *v, int pos);
+void    VectorSetAt(Vector *v, int pos, int val);
+void    VectorPushBack(Vector *v, int val);   // amortizado O(1)
+int     VectorSearch(Vector *v, int buscado); // O(n)</div>
+<table class="ctable">
+  <tr><th>Operación</th><th>Costo</th><th>Explicación</th></tr>
+  <tr><td>GetAt/SetAt</td><td class="cg">O(1)</td><td>acceso directo por índice</td></tr>
+  <tr><td>PushBack normal</td><td class="cg">O(1)</td><td>escribe al final</td></tr>
+  <tr><td>PushBack con resize</td><td class="cr">O(n)</td><td>copia todo con realloc</td></tr>
+  <tr><td>PushBack amortizado</td><td class="cg">O(1)</td><td>resize ocurre 1/n veces</td></tr>
+  <tr><td>Search</td><td class="cy">O(n)</td><td>recorrido lineal</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">¿Por qué amortizado O(1)?</div>
+  <div class="hint-b">Si duplicás cada vez, con N pushbacks el resize ocurre en posiciones 1, 2, 4, 8, 16... El costo total es 1+2+4+...+N ≈ 2N. Entonces N pushbacks cuestan O(2N) = O(N) en total → O(1) por operación.</div>
+</div>`,
+solution:`<span class="kw">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+
+<span class="kw">typedef struct</span> {
+    <span class="ty">int</span> *datos;
+    <span class="ty">int</span> cantidad, capacidad;
+} <span class="ty">Vector</span>;
+
+<span class="ty">Vector</span>* <span class="fn">VectorBuild</span>(<span class="ty">int</span> cap) {
+    <span class="ty">Vector</span> *v = <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Vector</span>));
+    v->datos    = <span class="fn">malloc</span>(cap * <span class="kw">sizeof</span>(<span class="ty">int</span>));
+    v->cantidad = <span class="nm">0</span>;
+    v->capacidad= cap;
+    <span class="kw">return</span> v;
+}
+
+<span class="kw">void</span> <span class="fn">VectorPushBack</span>(<span class="ty">Vector</span>*v, <span class="ty">int</span> val) {
+    <span class="kw">if</span> (v->cantidad == v->capacidad) {
+        v->capacidad *= <span class="nm">2</span>;
+        v->datos = <span class="fn">realloc</span>(v->datos, v->capacidad*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    }
+    v->datos[v->cantidad++] = val;
+}
+
+<span class="ty">int</span>  <span class="fn">VectorGetAt</span>(<span class="ty">Vector</span>*v,<span class="ty">int</span> p)       { <span class="kw">return</span> v->datos[p]; }
+<span class="kw">void</span> <span class="fn">VectorSetAt</span>(<span class="ty">Vector</span>*v,<span class="ty">int</span> p,<span class="ty">int</span> x)  { v->datos[p]=x; }
+
+<span class="ty">int</span> <span class="fn">VectorSearch</span>(<span class="ty">Vector</span>*v, <span class="ty">int</span> buscado) {
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>; i<v->cantidad; i++)
+        <span class="kw">if</span>(v->datos[i]==buscado) <span class="kw">return</span> i;
+    <span class="kw">return</span> -<span class="nm">1</span>;
+}
+
+<span class="kw">void</span> <span class="fn">VectorDestroy</span>(<span class="ty">Vector</span>*v) { <span class="fn">free</span>(v->datos); <span class="fn">free</span>(v); }`},
+
+{id:4,blk:"Bloque 1 · Estructuras base",cat:"estructura",title:"Lista enlazada simple",diff:1,compl:"Insert O(1) / Search O(n)",
+problem:`
+<div class="ph-num">TAREA 04 · ESTRUCTURA</div>
+<div class="ph-title">Lista Enlazada Simple</div>
+<div class="ph-badges">
+  <span class="badge b-o">Insert O(1)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">linked list</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Implementá una lista enlazada simple. Incluí operaciones de inserción al inicio y al final, búsqueda, eliminación y <strong>reversa sin memoria extra</strong>.</div>
+<div class="sec-lbl">Metadatos</div>
+<div class="code-block">typedef struct Nodo {
+    int valor;
+    struct Nodo *sig;
+} Nodo;
+
+typedef struct { Nodo *cabeza; } Lista;</div>
+<div class="sec-lbl">Interfaz</div>
+<div class="code-block">Lista* ListaBuild();
+void   ListaDestroy(Lista *l);
+void   ListaInsertHead(Lista *l, int val);   // O(1)
+void   ListaInsertTail(Lista *l, int val);   // O(n) sin tail ptr
+void   ListaRemove(Lista *l, int val);        // O(n)
+int    ListaSearch(Lista *l, int val);        // O(n)
+void   ListaReverse(Lista *l);               // O(n), sin malloc</div>
+<table class="ctable">
+  <tr><th>Operación</th><th>Lista</th><th>Vector</th></tr>
+  <tr><td>Insert al inicio</td><td class="cg">O(1)</td><td class="cr">O(n) shift</td></tr>
+  <tr><td>Insert al final</td><td class="cr">O(n)*</td><td class="cg">O(1) amort</td></tr>
+  <tr><td>GetAt pos i</td><td class="cr">O(n)</td><td class="cg">O(1)</td></tr>
+  <tr><td>Destroy</td><td class="cr">O(n)</td><td class="cg">O(1)</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">Reverse sin malloc — truco de 3 punteros</div>
+  <div class="hint-b">Usás prev=NULL, curr=cabeza, next=?. En cada paso guardás curr→sig, apuntás curr→sig a prev, avanzás. Al terminar, la cabeza apunta al último nodo original.</div>
+</div>`,
+solution:`<span class="kw">typedef struct</span> <span class="ty">Nodo</span> { <span class="ty">int</span> valor; <span class="kw">struct</span> <span class="ty">Nodo</span>*sig; } <span class="ty">Nodo</span>;
+<span class="kw">typedef struct</span> { <span class="ty">Nodo</span>*cabeza; } <span class="ty">Lista</span>;
+
+<span class="ty">Lista</span>* <span class="fn">ListaBuild</span>() {
+    <span class="ty">Lista</span>*l=<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Lista</span>)); l->cabeza=<span class="kw">NULL</span>; <span class="kw">return</span> l;
+}
+
+<span class="kw">void</span> <span class="fn">ListaInsertHead</span>(<span class="ty">Lista</span>*l,<span class="ty">int</span> v){
+    <span class="ty">Nodo</span>*n=<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Nodo</span>));
+    n->valor=v; n->sig=l->cabeza; l->cabeza=n;
+}
+
+<span class="kw">void</span> <span class="fn">ListaReverse</span>(<span class="ty">Lista</span>*l){
+    <span class="ty">Nodo</span>*prev=<span class="kw">NULL</span>, *curr=l->cabeza;
+    <span class="kw">while</span>(curr){
+        <span class="ty">Nodo</span>*next=curr->sig; <span class="cm">// guardar siguiente</span>
+        curr->sig=prev;        <span class="cm">// revertir enlace</span>
+        prev=curr; curr=next;  <span class="cm">// avanzar</span>
+    }
+    l->cabeza=prev;
+}
+
+<span class="kw">void</span> <span class="fn">ListaDestroy</span>(<span class="ty">Lista</span>*l){
+    <span class="ty">Nodo</span>*c=l->cabeza;
+    <span class="kw">while</span>(c){ <span class="ty">Nodo</span>*n=c->sig; <span class="fn">free</span>(c); c=n; }
+    <span class="fn">free</span>(l);
+}`},
+
+{id:5,blk:"Bloque 1 · Estructuras base",cat:"estructura",title:"Pila (stack)",diff:1,compl:"Push/Pop O(1)",
+problem:`
+<div class="ph-num">TAREA 05 · ESTRUCTURA</div>
+<div class="ph-title">Pila (Stack)</div>
+<div class="ph-badges">
+  <span class="badge b-o">Push/Pop O(1)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">stack</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Implementá una Pila sobre array y sobre lista enlazada. Luego resolvé el problema clásico de <strong>validación de paréntesis</strong>.</div>
+<div class="sec-lbl">Interfaz</div>
+<div class="code-block">Pila* PilaBuild();
+void  PilaDestroy(Pila *p);
+void  PilaPush(Pila *p, int val);   // O(1)
+int   PilaPop(Pila *p);             // O(1)
+int   PilaTop(Pila *p);             // O(1)
+int   PilaEsVacia(Pila *p);         // O(1)</div>
+<div class="sec-lbl">Problema olímpico: validación de paréntesis</div>
+<div class="p-text">Dada una cadena de <code>()</code> <code>[]</code> <code>{}</code>, determiná si está correctamente balanceada.</div>
+<div class="code-block">Entrada:  "([]{})"  →  VALIDA
+Entrada:  "([)]"   →  INVALIDA
+Entrada:  "((("    →  INVALIDA</div>
+<div class="hint">
+  <div class="hint-t">Algoritmo</div>
+  <div class="hint-b">Apertura → push. Cierre → pop y verificar que coincide. Al final la pila debe estar vacía.</div>
+</div>`,
+solution:`<span class="kw">typedef struct</span> { <span class="ty">char</span> d[<span class="nm">1000</span>]; <span class="ty">int</span> t; } <span class="ty">Pila</span>;
+
+<span class="kw">void</span>  <span class="fn">push</span>(<span class="ty">Pila</span>*p,<span class="ty">char</span> c){p->d[++p->t]=c;}
+<span class="ty">char</span>  <span class="fn">pop</span>(<span class="ty">Pila</span>*p)      {<span class="kw">return</span> p->d[p->t--];}
+<span class="ty">int</span>   <span class="fn">vacia</span>(<span class="ty">Pila</span>*p)   {<span class="kw">return</span> p->t==-<span class="nm">1</span>;}
+
+<span class="ty">int</span> <span class="fn">esValida</span>(<span class="ty">char</span>*s){
+    <span class="ty">Pila</span> p={.t=-<span class="nm">1</span>};
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;s[i];i++){
+        <span class="ty">char</span> c=s[i];
+        <span class="kw">if</span>(c==<span class="st">'('</span>||c==<span class="st">'['</span>||c==<span class="st">'{'</span>){<span class="fn">push</span>(&p,c);<span class="kw">continue</span>;}
+        <span class="kw">if</span>(<span class="fn">vacia</span>(&p)) <span class="kw">return</span> <span class="nm">0</span>;
+        <span class="ty">char</span> t=<span class="fn">pop</span>(&p);
+        <span class="kw">if</span>(c==<span class="st">')'</span>&&t!=<span class="st">'('</span>) <span class="kw">return</span> <span class="nm">0</span>;
+        <span class="kw">if</span>(c==<span class="st">']'</span>&&t!=<span class="st">'['</span>) <span class="kw">return</span> <span class="nm">0</span>;
+        <span class="kw">if</span>(c==<span class="st">'}'</span>&&t!=<span class="st">'{'</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    }
+    <span class="kw">return</span> <span class="fn">vacia</span>(&p);
+}`},
+
+{id:6,blk:"Bloque 1 · Estructuras base",cat:"estructura",title:"Cola (queue)",diff:1,compl:"Enqueue/Dequeue O(1)",
+problem:`
+<div class="ph-num">TAREA 06 · ESTRUCTURA</div>
+<div class="ph-title">Cola (Queue)</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(1) todas ops</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">queue</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Implementá una Cola circular sobre array. La clave es usar módulo para envolver los índices y no desperdiciar espacio.</div>
+<div class="sec-lbl">Cola circular — idea</div>
+<div class="code-block">// head apunta al frente, tail al siguiente lugar libre
+// enqueue: datos[tail] = val; tail = (tail+1) % cap;
+// dequeue: val = datos[head]; head = (head+1) % cap;
+// llena cuando: (tail+1)%cap == head
+// vacía cuando: head == tail</div>
+<div class="sec-lbl">Interfaz</div>
+<div class="code-block">Cola* ColaBuild(int capacidad);
+void  ColaDestroy(Cola *c);
+void  ColaEnqueue(Cola *c, int val);   // O(1)
+int   ColaDequeue(Cola *c);            // O(1)
+int   ColaFrente(Cola *c);             // O(1)
+int   ColaEsVacia(Cola *c);            // O(1)</div>
+<div class="hint">
+  <div class="hint-t">Diferencia con Pila</div>
+  <div class="hint-b">Pila es LIFO (último en entrar, primero en salir). Cola es FIFO (primero en entrar, primero en salir). Cola circular sobre array es O(1) para todo gracias al módulo.</div>
+</div>`,
+solution:`<span class="kw">typedef struct</span> {
+    <span class="ty">int</span> *d, head, tail, n, cap;
+} <span class="ty">Cola</span>;
+
+<span class="ty">Cola</span>* <span class="fn">ColaBuild</span>(<span class="ty">int</span> cap){
+    <span class="ty">Cola</span>*c=<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Cola</span>));
+    c->d=<span class="fn">malloc</span>(cap*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    c->head=c->tail=c->n=<span class="nm">0</span>; c->cap=cap;
+    <span class="kw">return</span> c;
+}
+
+<span class="kw">void</span> <span class="fn">ColaEnqueue</span>(<span class="ty">Cola</span>*c,<span class="ty">int</span> v){
+    c->d[c->tail]=v;
+    c->tail=(c->tail+<span class="nm">1</span>)%c->cap;
+    c->n++;
+}
+
+<span class="ty">int</span> <span class="fn">ColaDequeue</span>(<span class="ty">Cola</span>*c){
+    <span class="ty">int</span> v=c->d[c->head];
+    c->head=(c->head+<span class="nm">1</span>)%c->cap;
+    c->n--;
+    <span class="kw">return</span> v;
+}
+
+<span class="ty">int</span> <span class="fn">ColaEsVacia</span>(<span class="ty">Cola</span>*c){ <span class="kw">return</span> c->n==<span class="nm">0</span>; }`},
+
+{id:7,blk:"Bloque 1 · Estructuras base",cat:"estructura",title:"Árbol binario — terminología",diff:1,compl:"teoría",
+problem:`
+<div class="ph-num">TAREA 07 · TEORÍA</div>
+<div class="ph-title">Árboles Binarios — Terminología y Propiedades</div>
+<div class="ph-badges">
+  <span class="badge b-t">teoría</span>
+  <span class="badge b-s">árbol</span>
+</div>
+<div class="divl"></div>
+<div class="p-text"><strong>Árbol:</strong> Grafo conexo acíclico. <strong>Árbol binario:</strong> árbol con máximo 2 hijos por nodo.</div>
+<div class="sec-lbl">Terminología clave</div>
+<div class="theory-box">Raíz (Root):      nodo sin padre
+Hoja (Leaf):      nodo sin hijos
+Nodo interno:     nodo con hijos
+Altura (h):       cantidad de aristas de la hoja más lejana a la raíz
+Nivel:            distancia desde la raíz (raíz = nivel 0)</div>
+<div class="sec-lbl">Tipos de árboles binarios</div>
+<table class="ctable">
+  <tr><th>Tipo</th><th>Definición</th><th>Nodos</th></tr>
+  <tr><td>Binario</td><td>máx. 2 hijos</td><td>(h+1) ≤ N ≤ 2^(h+1)-1</td></tr>
+  <tr><td>Completo</td><td>todos los niveles llenos</td><td>N = 2^(h+1)-1</td></tr>
+  <tr><td>Completo a izq.</td><td>último nivel lleno de izq. a der.</td><td>2^h ≤ N ≤ 2^(h+1)-1</td></tr>
+</table>
+<div class="sec-lbl">Implementación de árbol completo a izquierda como array</div>
+<div class="code-block">// Usando índices desde 1:
+// Padre de nodo en pos X  →  X / 2
+// Hijo izq de nodo en X   →  2 * X
+// Hijo der de nodo en X   →  2 * X + 1
+
+// Ejemplo: árbol [_, A, B, C, D, E, F, G]
+//              A (pos 1)
+//             / \\
+//          B(2)  C(3)
+//          /\\    /\\
+//        D  E  F  G  (pos 4,5,6,7)</div>
+<div class="hint">
+  <div class="hint-t">¿Por qué altura = O(log n)?</div>
+  <div class="hint-b">En un árbol binario completo a izquierda con N nodos, la altura h satisface 2^h ≤ N, entonces h = ⌊log₂(N)⌋. Esto es lo que hace que las operaciones sobre heaps sean O(log n).</div>
+</div>`,
+solution:`<span class="cm">// Árbol binario completo a izquierda sobre array
+// (base para el Heap)
+
+// Navegación con índices (desde pos 1):
+</span>
+<span class="ty">int</span> <span class="fn">padre</span>(<span class="ty">int</span> i)    { <span class="kw">return</span> i/<span class="nm">2</span>; }
+<span class="ty">int</span> <span class="fn">hijoIzq</span>(<span class="ty">int</span> i) { <span class="kw">return</span> <span class="nm">2</span>*i; }
+<span class="ty">int</span> <span class="fn">hijoDer</span>(<span class="ty">int</span> i) { <span class="kw">return</span> <span class="nm">2</span>*i+<span class="nm">1</span>; }
+<span class="ty">int</span> <span class="fn">esHoja</span>(<span class="ty">int</span> i, <span class="ty">int</span> n) { <span class="kw">return</span> <span class="nm">2</span>*i > n; }
+
+<span class="cm">// Altura de un árbol con n nodos:
+// h = floor(log2(n))</span>
+<span class="ty">int</span> <span class="fn">altura</span>(<span class="ty">int</span> n){
+    <span class="ty">int</span> h=<span class="nm">0</span>;
+    <span class="kw">while</span>((<span class="nm">1</span><<(h+<span class="nm">1</span>))-<span class="nm">1</span> < n) h++;
+    <span class="kw">return</span> h;
+}`},
+
+// ── BLOQUE 2: SORTING ────────────────────────────────
+{id:8,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Bubble Sort",diff:1,compl:"O(n²)",
+problem:`
+<div class="ph-num">TAREA 08 · SORTING</div>
+<div class="ph-title">Bubble Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n²)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">estable · in-place</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Bubble sort compara adyacentes y los intercambia si están en el orden incorrecto. En cada pasada, el elemento mayor "burbujea" hasta el final.</div>
+<div class="code-block">for (cont=1; cont &lt;= n-1; cont++)
+    for (j=0; j &lt; n-cont; j++)
+        si a[j] > a[j+1]
+            swap(a[j], a[j+1])</div>
+<table class="ctable">
+  <tr><th>Caso</th><th>Costo</th></tr>
+  <tr><td>Mejor</td><td class="cr">O(n²)</td></tr>
+  <tr><td>Amortizado</td><td class="cr">O(n²)</td></tr>
+  <tr><td>Peor</td><td class="cr">O(n²)</td></tr>
+  <tr><td>Estable</td><td class="cg">Sí</td></tr>
+  <tr><td>In-place</td><td class="cg">Sí</td></tr>
+  <tr><td>Recursivo</td><td>No</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">Tarea extra</div>
+  <div class="hint-b">Agregá una optimización: si en una pasada completa no hubo ningún swap, el arreglo ya está ordenado → podés terminar anticipadamente. Esto mejora el mejor caso a O(n).</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">bubbleSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n){
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>; i<n-<span class="nm">1</span>; i++){
+        <span class="ty">int</span> swapped=<span class="nm">0</span>;
+        <span class="kw">for</span>(<span class="ty">int</span> j=<span class="nm">0</span>; j<n-i-<span class="nm">1</span>; j++){
+            <span class="kw">if</span>(a[j]>a[j+<span class="nm">1</span>]){
+                <span class="ty">int</span> t=a[j]; a[j]=a[j+<span class="nm">1</span>]; a[j+<span class="nm">1</span>]=t;
+                swapped=<span class="nm">1</span>;
+            }
+        }
+        <span class="kw">if</span>(!swapped) <span class="kw">break</span>; <span class="cm">// ya ordenado</span>
+    }
+}`},
+
+{id:9,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Selection Sort",diff:1,compl:"O(n²)",
+problem:`
+<div class="ph-num">TAREA 09 · SORTING</div>
+<div class="ph-title">Selection Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n²)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">no estable · in-place</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">En cada pasada busca el mínimo de la parte no ordenada y lo coloca en su posición final. Hace exactamente N-1 swaps — ventaja cuando el swap es costoso.</div>
+<div class="code-block">for (i=0; i &lt; n-1; i++)
+    minimo = i
+    for (j=i+1; j &lt; n; j++)
+        si a[j] &lt; a[minimo] → minimo = j
+    swap(a[i], a[minimo])</div>
+<table class="ctable">
+  <tr><th>Caso</th><th>Costo</th></tr>
+  <tr><td>Todos los casos</td><td class="cr">O(n²)</td></tr>
+  <tr><td>Cantidad de swaps</td><td class="cg">Exactamente N-1</td></tr>
+  <tr><td>Estable</td><td class="cr">No</td></tr>
+  <tr><td>In-place</td><td class="cg">Sí</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">¿Por qué no es estable?</div>
+  <div class="hint-b">Cuando hacemos swap(a[i], a[minimo]), el elemento en posición i salta por encima de elementos iguales. Ejemplo: [3a, 3b, 1] → swap a[0] con a[2] → [1, 3b, 3a]. Los 3 quedaron en orden inverso.</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">selectionSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n){
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>; i<n-<span class="nm">1</span>; i++){
+        <span class="ty">int</span> min=i;
+        <span class="kw">for</span>(<span class="ty">int</span> j=i+<span class="nm">1</span>; j<n; j++)
+            <span class="kw">if</span>(a[j]<a[min]) min=j;
+        <span class="ty">int</span> t=a[i]; a[i]=a[min]; a[min]=t; <span class="cm">// exactamente N-1 swaps</span>
+    }
+}`},
+
+{id:10,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Insertion Sort + Shell Sort",diff:1,compl:"O(n²) / mejor O(n)",
+problem:`
+<div class="ph-num">TAREA 10 · SORTING</div>
+<div class="ph-title">Insertion Sort + Shell Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n²) / mejor O(n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">estable · in-place</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Insertion sort toma cada elemento y lo inserta en la posición correcta dentro de la parte ya ordenada. Es el mejor para arreglos casi ordenados.</div>
+<div class="code-block">for (i=1; i &lt; n; i++)
+    X = a[i]
+    for (j=i-1; j>=0 &amp;&amp; a[j]>X; j--)
+        a[j+1] = a[j]
+    a[j+1] = X</div>
+<div class="sec-lbl">Shell Sort — variante con rangos</div>
+<div class="p-text">Shell sort aplica insertion sort con "saltos" decrecientes (gap = 5, 3, 1). Esto pre-ordena el arreglo a mayor escala antes del sort final.</div>
+<div class="code-block">Para cada Rango en {5,3,1}:
+    for (i=Rango; i &lt; n; i++)
+        X = a[i]
+        for (j=i-Rango; j>=0 &amp;&amp; a[j]>X; j-=Rango)
+            a[j+Rango] = a[j]
+        a[j+Rango] = X</div>
+<table class="ctable">
+  <tr><th></th><th>Insertion</th><th>Shell</th></tr>
+  <tr><td>Mejor</td><td class="cg">O(n)</td><td class="cg">O(n)</td></tr>
+  <tr><td>Amortizado</td><td class="cr">O(n²)</td><td class="cb">O(n log² n)</td></tr>
+  <tr><td>Peor</td><td class="cr">O(n²)</td><td class="cy">&lt;O(n²)</td></tr>
+  <tr><td>Estable</td><td class="cg">Sí</td><td class="cr">No</td></tr>
+</table>`,
+solution:`<span class="kw">void</span> <span class="fn">insertionSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n){
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">1</span>; i<n; i++){
+        <span class="ty">int</span> x=a[i], j=i-<span class="nm">1</span>;
+        <span class="kw">while</span>(j>=<span class="nm">0</span> && a[j]>x){ a[j+<span class="nm">1</span>]=a[j]; j--; }
+        a[j+<span class="nm">1</span>]=x;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">shellSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n){
+    <span class="ty">int</span> gaps[]={<span class="nm">5</span>,<span class="nm">3</span>,<span class="nm">1</span>};
+    <span class="kw">for</span>(<span class="ty">int</span> g=<span class="nm">0</span>; g<<span class="nm">3</span>; g++){
+        <span class="ty">int</span> rng=gaps[g];
+        <span class="kw">for</span>(<span class="ty">int</span> i=rng; i<n; i++){
+            <span class="ty">int</span> x=a[i], j=i-rng;
+            <span class="kw">while</span>(j>=<span class="nm">0</span>&&a[j]>x){ a[j+rng]=a[j]; j-=rng; }
+            a[j+rng]=x;
+        }
+    }
+}`},
+
+{id:11,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Merge Sort",diff:2,compl:"O(n log n)",
+problem:`
+<div class="ph-num">TAREA 11 · SORTING</div>
+<div class="ph-title">Merge Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">estable · no in-place</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Divide y vencerás. Divide el arreglo a la mitad recursivamente, ordena cada mitad, y luego las fusiona (merge). La fusión requiere O(n) memoria extra.</div>
+<div class="code-block">MergeSort(A[], i, s)
+    si i == s → return
+    medio = (i+s)/2
+    MergeSort(A[], i, medio)
+    MergeSort(A[], medio+1, s)
+    Merge(A[], i, medio, s)     ← O(n)</div>
+<div class="sec-lbl">Recurrencia</div>
+<div class="theory-box">T(n) = 2·T(n/2) + O(n)
+Por Master Theorem (caso 2): T(n) = O(n log n)</div>
+<div class="hint">
+  <div class="hint-t">La clave: la función Merge</div>
+  <div class="hint-b">Merge toma dos mitades ya ordenadas y las combina. Usa dos índices (uno por mitad) y siempre toma el menor. Necesita un arreglo auxiliar de tamaño n.</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">merge</span>(<span class="ty">int</span> a[], <span class="ty">int</span> l, <span class="ty">int</span> m, <span class="ty">int</span> r){
+    <span class="ty">int</span> n=r-l+<span class="nm">1</span>;
+    <span class="ty">int</span>*aux=<span class="fn">malloc</span>(n*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    <span class="ty">int</span> i=l,j=m+<span class="nm">1</span>,k=<span class="nm">0</span>;
+    <span class="kw">while</span>(i<=m&&j<=r)
+        aux[k++]=(a[i]<=a[j])?a[i++]:a[j++];
+    <span class="kw">while</span>(i<=m) aux[k++]=a[i++];
+    <span class="kw">while</span>(j<=r) aux[k++]=a[j++];
+    <span class="kw">for</span>(<span class="ty">int</span> x=<span class="nm">0</span>;x<n;x++) a[l+x]=aux[x];
+    <span class="fn">free</span>(aux);
+}
+
+<span class="kw">void</span> <span class="fn">mergeSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> l, <span class="ty">int</span> r){
+    <span class="kw">if</span>(l>=r) <span class="kw">return</span>;
+    <span class="ty">int</span> m=(l+r)/<span class="nm">2</span>;
+    <span class="fn">mergeSort</span>(a,l,m);
+    <span class="fn">mergeSort</span>(a,m+<span class="nm">1</span>,r);
+    <span class="fn">merge</span>(a,l,m,r);
+}`},
+
+{id:12,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Quick Sort",diff:2,compl:"O(n log n) avg",
+problem:`
+<div class="ph-num">TAREA 12 · SORTING</div>
+<div class="ph-title">Quick Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log n) avg</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-d">O(n²) peor caso</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Elige un pivot, coloca todo lo menor a su izquierda y todo lo mayor a su derecha (partición), luego recursa en ambos lados. In-place pero no estable.</div>
+<div class="code-block">QuickSort(A[], i, s)
+    si i &lt; s
+        p = Dividir(A[], i, s)   ← elige pivot y particiona
+        QuickSort(A[], i, p-1)
+        QuickSort(A[], p+1, s)</div>
+<table class="ctable">
+  <tr><th>Caso</th><th>Costo</th><th>Cuándo ocurre</th></tr>
+  <tr><td>Mejor</td><td class="cg">O(n log n)</td><td>pivot siempre en el medio</td></tr>
+  <tr><td>Amortizado</td><td class="cg">O(n log n)</td><td>pivot aleatorio</td></tr>
+  <tr><td>Peor</td><td class="cr">O(n²)</td><td>arreglo ya ordenado + pivot=primero</td></tr>
+  <tr><td>In-place</td><td class="cg">Sí</td></tr>
+  <tr><td>Estable</td><td class="cr">No</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">¿Cuándo ocurre O(n²)?</div>
+  <div class="hint-b">Si el arreglo ya está ordenado y siempre elegís el primer elemento como pivot, la partición siempre queda [vacío | pivot | todo lo demás]. Esto crea n niveles de recursión con trabajo O(n) cada uno → O(n²). Solución: pivot aleatorio.</div>
+</div>`,
+solution:`<span class="ty">int</span> <span class="fn">partition</span>(<span class="ty">int</span> a[],<span class="ty">int</span> l,<span class="ty">int</span> r){
+    <span class="cm">// pivot aleatorio para evitar worst case</span>
+    <span class="ty">int</span> ri=l+<span class="fn">rand</span>()%(r-l+<span class="nm">1</span>);
+    <span class="ty">int</span> t=a[ri]; a[ri]=a[r]; a[r]=t;
+
+    <span class="ty">int</span> pivot=a[r], i=l-<span class="nm">1</span>;
+    <span class="kw">for</span>(<span class="ty">int</span> j=l;j<r;j++)
+        <span class="kw">if</span>(a[j]<=pivot){
+            i++; t=a[i];a[i]=a[j];a[j]=t;
+        }
+    t=a[i+<span class="nm">1</span>];a[i+<span class="nm">1</span>]=a[r];a[r]=t;
+    <span class="kw">return</span> i+<span class="nm">1</span>;
+}
+
+<span class="kw">void</span> <span class="fn">quickSort</span>(<span class="ty">int</span> a[],<span class="ty">int</span> l,<span class="ty">int</span> r){
+    <span class="kw">if</span>(l>=r) <span class="kw">return</span>;
+    <span class="ty">int</span> p=<span class="fn">partition</span>(a,l,r);
+    <span class="fn">quickSort</span>(a,l,p-<span class="nm">1</span>);
+    <span class="fn">quickSort</span>(a,p+<span class="nm">1</span>,r);
+}`},
+
+{id:13,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Counting Sort",diff:2,compl:"O(n)",
+problem:`
+<div class="ph-num">TAREA 13 · SORTING</div>
+<div class="ph-title">Counting Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">sin comparaciones</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Counting sort nunca compara elementos. Usa un arreglo auxiliar para contar las apariciones de cada valor y luego reconstruye el arreglo ordenado.</div>
+<div class="sec-lbl">Algoritmo</div>
+<div class="code-block">1. Crear array contador[0..max] inicializado en 0
+2. Para cada elemento a[i]: contador[a[i]]++
+3. Reconstruir el arreglo en orden:
+   para v de 0 a max:
+       mientras contador[v] > 0: poner v en resultado, contador[v]--</div>
+<div class="sec-lbl">Ejemplo visual</div>
+<div class="code-block">Entrada:  [7, 1, 3, 1, 2, 4]
+Contadores: [0:0, 1:2, 2:1, 3:1, 4:1, 5:0, 6:0, 7:1]
+Salida:   [1, 1, 2, 3, 4, 7]</div>
+<div class="hint">
+  <div class="hint-t">Cuándo NO usar Counting Sort</div>
+  <div class="hint-b">Si el rango de valores (max) es mucho mayor que n, el arreglo de contadores sería enorme. Por ejemplo, si ordenás 5 números de 0 a 10^9, necesitarías 10^9 contadores. Solo sirve cuando max = O(n).</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">countingSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n, <span class="ty">int</span> max){
+    <span class="ty">int</span>*cnt=<span class="fn">calloc</span>(max+<span class="nm">1</span>,<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++) cnt[a[i]]++;
+    <span class="ty">int</span> k=<span class="nm">0</span>;
+    <span class="kw">for</span>(<span class="ty">int</span> v=<span class="nm">0</span>;v<=max;v++)
+        <span class="kw">while</span>(cnt[v]--) a[k++]=v;
+    <span class="fn">free</span>(cnt);
+}
+<span class="cm">// Complejidad: O(n + max) tiempo, O(max) espacio</span>`},
+
+{id:14,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Radix Sort",diff:2,compl:"O(k·n)",
+problem:`
+<div class="ph-num">TAREA 14 · SORTING</div>
+<div class="ph-title">Radix Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(k·n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">sin comparaciones</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Radix sort ordena dígito por dígito, desde el menos significativo al más significativo. Usa counting sort (o bucket sort) internamente para cada dígito.</div>
+<div class="sec-lbl">Ejemplo paso a paso</div>
+<div class="code-block">Entrada: [198, 055, 371, 120, 285, 474]
+
+Por unidades (dígito 0):
+  → [120, 371, 055, 285, 474, 198]
+
+Por decenas (dígito 1):
+  → [120, 055, 371, 474, 285, 198]
+
+Por centenas (dígito 2):
+  → [055, 120, 198, 285, 371, 474]  ✓ ordenado</div>
+<div class="hint">
+  <div class="hint-t">¿Por qué funciona?</div>
+  <div class="hint-b">Cada pasada de counting sort es estable: preserva el orden relativo de elementos iguales en ese dígito. Entonces al ordenar por dígito más significativo, los ya ordenados por los anteriores mantienen su posición.</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">countByDigit</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n, <span class="ty">int</span> exp){
+    <span class="ty">int</span>*out=<span class="fn">malloc</span>(n*<span class="kw">sizeof</span>(<span class="ty">int</span>)), cnt[<span class="nm">10</span>]={};
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++) cnt[(a[i]/exp)%<span class="nm">10</span>]++;
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">1</span>;i<<span class="nm">10</span>;i++) cnt[i]+=cnt[i-<span class="nm">1</span>];
+    <span class="kw">for</span>(<span class="ty">int</span> i=n-<span class="nm">1</span>;i>=<span class="nm">0</span>;i--)
+        out[--cnt[(a[i]/exp)%<span class="nm">10</span>]]=a[i];
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++) a[i]=out[i];
+    <span class="fn">free</span>(out);
+}
+
+<span class="kw">void</span> <span class="fn">radixSort</span>(<span class="ty">int</span> a[], <span class="ty">int</span> n){
+    <span class="ty">int</span> max=a[<span class="nm">0</span>];
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">1</span>;i<n;i++) <span class="kw">if</span>(a[i]>max) max=a[i];
+    <span class="kw">for</span>(<span class="ty">int</span> e=<span class="nm">1</span>;max/e><span class="nm">0</span>;e*=<span class="nm">10</span>) <span class="fn">countByDigit</span>(a,n,e);
+}`},
+
+{id:15,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Bucket Sort",diff:2,compl:"O(n) avg",
+problem:`
+<div class="ph-num">TAREA 15 · SORTING</div>
+<div class="ph-title">Bucket Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n) promedio</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">sin comparaciones</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Distribuye los elementos en "buckets" según rangos, ordena cada bucket individualmente, y concatena.</div>
+<div class="sec-lbl">Algoritmo</div>
+<div class="code-block">1. Crear k buckets vacíos (rangos mutuamente excluyentes)
+2. Para cada elemento → ponerlo en el bucket correspondiente
+3. Ordenar cada bucket individualmente (insertion sort)
+4. Concatenar todos los buckets</div>
+<div class="sec-lbl">Ejemplo con floats en [0,5)</div>
+<div class="code-block">Entrada: [1.9, 0.5, 3.7, 1.2, 2.8, 4.3]
+
+Buckets:
+  [0,1):  [0.5]
+  [1,2):  [1.9, 1.2]  →  ordenado: [1.2, 1.9]
+  [2,3):  [2.8]
+  [3,4):  [3.7]
+  [4,5):  [4.3]
+
+Resultado: [0.5, 1.2, 1.9, 2.8, 3.7, 4.3]</div>
+<table class="ctable">
+  <tr><th>Caso</th><th>Costo</th></tr>
+  <tr><td>Promedio</td><td class="cg">O(n)</td></tr>
+  <tr><td>Peor caso</td><td class="cr">O(n²)</td></tr>
+</table>`,
+solution:`<span class="cm">// Bucket sort para floats en [0, maxVal)</span>
+<span class="kw">void</span> <span class="fn">bucketSort</span>(<span class="ty">float</span> a[], <span class="ty">int</span> n){
+    <span class="cm">// n buckets para distribución uniforme</span>
+    <span class="ty">float</span>** buckets=<span class="fn">calloc</span>(n,<span class="kw">sizeof</span>(<span class="ty">float</span>*));
+    <span class="ty">int</span>* tam=<span class="fn">calloc</span>(n,<span class="kw">sizeof</span>(<span class="ty">int</span>));
+
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++){
+        <span class="ty">int</span> bi=(int)(a[i]*n); <span class="cm">// índice del bucket</span>
+        <span class="cm">// agregar a[i] al bucket bi...</span>
+        tam[bi]++;
+    }
+
+    <span class="cm">// ordenar cada bucket con insertion sort
+    // concatenar resultados...</span>
+    <span class="fn">free</span>(buckets); <span class="fn">free</span>(tam);
+}`},
+
+{id:16,blk:"Bloque 2 · Sorting",cat:"sorting",title:"Sorting — tabla comparativa completa",diff:1,compl:"análisis",
+problem:`
+<div class="ph-num">TAREA 16 · ANÁLISIS</div>
+<div class="ph-title">Comparativa Completa de Sortings</div>
+<div class="ph-badges">
+  <span class="badge b-t">teoría</span>
+  <span class="badge b-s">análisis</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Conocé de memoria esta tabla. En el examen siempre preguntan por propiedades de cada algoritmo.</div>
+<table class="ctable">
+  <tr><th>Algoritmo</th><th>Mejor</th><th>Amort.</th><th>Peor</th><th>Estable</th><th>In-place</th><th>Recurs.</th></tr>
+  <tr><td>Bubble</td><td class="cr">O(n²)</td><td class="cr">O(n²)</td><td class="cr">O(n²)</td><td class="cg">Sí</td><td class="cg">Sí</td><td>No</td></tr>
+  <tr><td>Selection</td><td class="cr">O(n²)</td><td class="cr">O(n²)</td><td class="cr">O(n²)</td><td class="cr">No</td><td class="cg">Sí</td><td>No</td></tr>
+  <tr><td>Insertion</td><td class="cg">O(n)</td><td class="cr">O(n²)</td><td class="cr">O(n²)</td><td class="cg">Sí</td><td class="cg">Sí</td><td>No</td></tr>
+  <tr><td>Shell</td><td class="cg">O(n)</td><td class="cb">O(n log²n)</td><td class="cy">&lt;O(n²)</td><td class="cr">No</td><td class="cg">Sí</td><td>algo</td></tr>
+  <tr><td>Merge</td><td class="cg">O(n log n)</td><td class="cg">O(n log n)</td><td class="cg">O(n log n)</td><td class="cg">Sí</td><td class="cr">No</td><td class="cg">Sí</td></tr>
+  <tr><td>Heap</td><td class="cg">O(n log n)</td><td class="cg">O(n log n)</td><td class="cg">O(n log n)</td><td class="cr">No</td><td class="cg">Sí</td><td>algo</td></tr>
+  <tr><td>Quick</td><td class="cg">O(n log n)</td><td class="cg">O(n log n)</td><td class="cr">O(n²)</td><td class="cr">No</td><td class="cg">Sí</td><td class="cg">Sí</td></tr>
+  <tr><td>Counting</td><td class="cg">O(n)</td><td class="cg">O(n)</td><td class="cg">O(n)</td><td class="cg">Sí</td><td class="cr">No</td><td>No</td></tr>
+  <tr><td>Radix</td><td class="cg">O(kn)</td><td class="cg">O(kn)</td><td class="cg">O(kn)</td><td class="cg">Sí</td><td class="cr">No</td><td>No</td></tr>
+  <tr><td>Bucket</td><td class="cg">O(n)</td><td class="cg">O(n)</td><td class="cr">O(n²)</td><td class="cg">Sí</td><td class="cr">No</td><td>No</td></tr>
+</table>
+<div class="sec-lbl">Algoritmos híbridos</div>
+<div class="p-text"><strong>Introsort</strong> (C++ STL): Quick → Heap (cuando profundidad &gt; log n) → Insertion (para n pequeño). In-place, no estable.</div>
+<div class="p-text"><strong>Timsort</strong> (Python/Java): Merge + Insertion. Busca secuencias ya ordenadas. Estable, no in-place.</div>`,
+solution:`<span class="cm">// Preguntas típicas de examen:
+//
+// ¿Cuál es el único O(n) siempre? → Counting/Radix (no comparación)
+// ¿Cuál es estable Y in-place?   → Bubble, Insertion, (Shell no)
+// ¿Cuál tiene mejor caso O(n)?   → Insertion (ya ordenado), Bubble (con opt)
+// ¿Cuál nunca es O(n²)?          → Merge, Heap
+// ¿Cuál usa O(n) memoria extra?  → Merge
+// ¿Cuál usa O(1) memoria extra?  → Heap, Quick, Bubble, Selection, Insertion
+//
+// Para ordenar strings largos → Radix
+// Casi ordenado               → Insertion
+// Garantía absoluta O(n logn) → Merge o Heap
+// Práctica más rápido         → Quick (con pivot aleatorio)</span>`},
+
+// ── BLOQUE 3: HEAPS ──────────────────────────────────
+{id:17,blk:"Bloque 3 · Heaps",cat:"heap",title:"Heap — HeapUp y HeapDown",diff:2,compl:"O(log n)",
+problem:`
+<div class="ph-num">TAREA 17 · HEAP</div>
+<div class="ph-title">Heap — Operaciones Auxiliares HeapUp y HeapDown</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">heap</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Estas dos operaciones son el núcleo de todas las operaciones del Heap. Entenderlas bien es fundamental.</div>
+<div class="sec-lbl">HeapDown — "hundir" un nodo</div>
+<div class="p-text">Cuando un nodo viola la propiedad del heap (es mayor que algún hijo en MinHeap), lo intercambiamos con el <strong>menor de sus hijos</strong> y repetimos hacia abajo.</div>
+<div class="code-block">// Ejemplo: "acomodar el 4" en un MinHeap
+//     16                   16                   16
+//    /  \      →          /  \      →          /  \
+//   4    10             14    10             14    10
+//  /\   /\             /\    /\             /\    /\
+// 14  7  9  3         4  7  9  3          8  7  9  3
+// /\                  /\                  /\
+// 2  8               2  8               2  4
+//
+// 4 baja: primero a posición de 14, luego a posición de 8</div>
+<div class="sec-lbl">HeapUp — "subir" un nodo</div>
+<div class="p-text">Cuando insertamos al final, el nuevo nodo puede ser menor que su padre. Lo intercambiamos con el padre y repetimos hacia arriba.</div>
+<div class="hint">
+  <div class="hint-t">¿Cuántas veces se repite?</div>
+  <div class="hint-b">A lo sumo h veces = O(log n). HeapDown baja hasta una hoja. HeapUp sube hasta la raíz. La altura del árbol es log₂(n).</div>
+</div>`,
+solution:`<span class="kw">void</span> <span class="fn">heapDown</span>(<span class="ty">int</span>*a, <span class="ty">int</span> n, <span class="ty">int</span> i){
+    <span class="cm">// MinHeap: padre &lt; hijos</span>
+    <span class="kw">while</span>(<span class="nm">2</span>*i<=n){
+        <span class="ty">int</span> hijo=<span class="nm">2</span>*i;
+        <span class="cm">// elegir el menor de los dos hijos</span>
+        <span class="kw">if</span>(hijo<n && a[hijo+<span class="nm">1</span>]<a[hijo]) hijo++;
+        <span class="kw">if</span>(a[i]<=a[hijo]) <span class="kw">break</span>; <span class="cm">// ya cumple</span>
+        <span class="ty">int</span> t=a[i]; a[i]=a[hijo]; a[hijo]=t;
+        i=hijo;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">heapUp</span>(<span class="ty">int</span>*a, <span class="ty">int</span> i){
+    <span class="kw">while</span>(i><span class="nm">1</span> && a[i]<a[i/<span class="nm">2</span>]){
+        <span class="ty">int</span> t=a[i]; a[i]=a[i/<span class="nm">2</span>]; a[i/<span class="nm">2</span>]=t;
+        i/=<span class="nm">2</span>;
+    }
+}`},
+
+{id:18,blk:"Bloque 3 · Heaps",cat:"heap",title:"Heap — Build, Insert, RemoveMin, Heapify",diff:2,compl:"Heapify O(n)",
+problem:`
+<div class="ph-num">TAREA 18 · HEAP</div>
+<div class="ph-title">Heap Completo — todas las operaciones</div>
+<div class="ph-badges">
+  <span class="badge b-o">Heapify O(n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">cola con prioridad</span>
+</div>
+<div class="divl"></div>
+<div class="sec-lbl">Metadatos</div>
+<div class="code-block">struct Heap { int *p; int cantidad; }
+// p[0] sin usar, elementos desde p[1]</div>
+<div class="sec-lbl">Todas las operaciones</div>
+<div class="code-block">Heap*  Build()                   → O(1)
+void   Destroy(Heap*)            → O(1) (free del array)
+Heap*  Heapify(int* elems, n)   → O(n)  ← ver explicación
+void   Insert(Heap*, int val)    → O(log n)
+int    GetMin(Heap*)             → O(1)
+int    RemoveMin(Heap*)          → O(log n)</div>
+<div class="sec-lbl">¿Por qué Heapify es O(n)?</div>
+<div class="theory-box">Hacemos HeapDown desde el último al primero.
+Las hojas (n/2 nodos) tienen altura 0 → costo 0 cada una.
+Nodos de altura 1: n/4 nodos, costo 1 cada uno.
+Nodos de altura h: n/2^(h+1) nodos, costo h cada uno.
+
+Total = Σ h=0..log(n)  n/2^(h+1) · h
+      &lt; Σ h=0..∞  n/2^h · h
+      = n · Σ h/2^h
+      = n · 2 = O(n)
+
+(Σ h/2^h converge a 2 — serie geométrica diferenciada)</div>
+<div class="hint">
+  <div class="hint-t">Intuitivamente</div>
+  <div class="hint-b">La mayoría de los nodos están en el fondo (hojas) y no necesitan bajar. Solo los nodos de arriba necesitan bajar mucho, pero hay pocos. El costo total converge a O(n).</div>
+</div>`,
+solution:`<span class="kw">typedef struct</span> { <span class="ty">int</span>*p; <span class="ty">int</span> n,cap; } <span class="ty">Heap</span>;
+
+<span class="ty">Heap</span>* <span class="fn">Build</span>(<span class="ty">int</span> cap){
+    <span class="ty">Heap</span>*h=<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Heap</span>));
+    h->p=<span class="fn">malloc</span>((cap+<span class="nm">1</span>)*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    h->n=<span class="nm">0</span>; h->cap=cap; <span class="kw">return</span> h;
+}
+
+<span class="kw">void</span> <span class="fn">Insert</span>(<span class="ty">Heap</span>*h, <span class="ty">int</span> v){
+    h->p[++h->n]=v;
+    <span class="fn">heapUp</span>(h->p, h->n);    <span class="cm">// O(log n)</span>
+}
+
+<span class="ty">int</span> <span class="fn">GetMin</span>(<span class="ty">Heap</span>*h){ <span class="kw">return</span> h->p[<span class="nm">1</span>]; } <span class="cm">// O(1)</span>
+
+<span class="ty">int</span> <span class="fn">RemoveMin</span>(<span class="ty">Heap</span>*h){
+    <span class="ty">int</span> min=h->p[<span class="nm">1</span>];
+    h->p[<span class="nm">1</span>]=h->p[h->n--];    <span class="cm">// mover último a raíz</span>
+    <span class="fn">heapDown</span>(h->p,h->n,<span class="nm">1</span>);   <span class="cm">// O(log n)</span>
+    <span class="kw">return</span> min;
+}
+
+<span class="ty">Heap</span>* <span class="fn">Heapify</span>(<span class="ty">int</span>*a,<span class="ty">int</span> n){
+    <span class="ty">Heap</span>*h=<span class="fn">Build</span>(n);
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++) h->p[i+<span class="nm">1</span>]=a[i]; h->n=n;
+    <span class="kw">for</span>(<span class="ty">int</span> i=n/<span class="nm">2</span>;i>=<span class="nm">1</span>;i--)   <span class="cm">// desde el último padre</span>
+        <span class="fn">heapDown</span>(h->p,n,i);     <span class="cm">// O(n) total!</span>
+    <span class="kw">return</span> h;
+}`},
+
+{id:19,blk:"Bloque 3 · Heaps",cat:"heap",title:"Heap Sort",diff:2,compl:"O(n log n)",
+problem:`
+<div class="ph-num">TAREA 19 · HEAP</div>
+<div class="ph-title">Heap Sort</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">in-place · no estable</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Heap Sort usa la estructura del heap para ordenar en O(n log n) con O(1) memoria extra. Es el mejor en garantías (siempre O(n log n), a diferencia de Quick).</div>
+<div class="sec-lbl">Algoritmo</div>
+<div class="code-block">HeapSort(A[]):
+    Heap.Heapify(A)      → O(n)
+    repetir n veces:
+        extraer mínimo   → O(log n) cada vez
+    → Total: O(n) + n·O(log n) = O(n log n)</div>
+<div class="hint">
+  <div class="hint-t">In-place con MaxHeap</div>
+  <div class="hint-b">Se puede hacer in-place usando un MaxHeap: swap raíz con el último, reducir tamaño del heap en 1, HeapDown de la raíz. El máximo queda al final. Repetir n veces → arreglo ordenado ascendente.</div>
+</div>`,
+solution:`<span class="cm">// HeapSort in-place con MaxHeap (arreglos 0-indexed)</span>
+<span class="kw">void</span> <span class="fn">heapDownMax</span>(<span class="ty">int</span>*a,<span class="ty">int</span> n,<span class="ty">int</span> i){
+    <span class="kw">while</span>(<span class="nm">2</span>*i+<span class="nm">1</span><n){
+        <span class="ty">int</span> c=<span class="nm">2</span>*i+<span class="nm">1</span>;
+        <span class="kw">if</span>(c+<span class="nm">1</span><n && a[c+<span class="nm">1</span>]>a[c]) c++;
+        <span class="kw">if</span>(a[i]>=a[c]) <span class="kw">break</span>;
+        <span class="ty">int</span> t=a[i];a[i]=a[c];a[c]=t; i=c;
+    }
+}
+
+<span class="kw">void</span> <span class="fn">heapSort</span>(<span class="ty">int</span>*a,<span class="ty">int</span> n){
+    <span class="cm">// 1. Heapify MaxHeap: O(n)</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=n/<span class="nm">2</span>-<span class="nm">1</span>;i>=<span class="nm">0</span>;i--) <span class="fn">heapDownMax</span>(a,n,i);
+    <span class="cm">// 2. Extraer max n veces: O(n log n)</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=n-<span class="nm">1</span>;i><span class="nm">0</span>;i--){
+        <span class="ty">int</span> t=a[<span class="nm">0</span>]; a[<span class="nm">0</span>]=a[i]; a[i]=t;
+        <span class="fn">heapDownMax</span>(a,i,<span class="nm">0</span>);
+    }
+}`},
+
+{id:20,blk:"Bloque 3 · Heaps",cat:"heap",title:"Heap — Meld y DecreaseKey",diff:3,compl:"O(n) / O(log n)",
+problem:`
+<div class="ph-num">TAREA 20 · HEAP</div>
+<div class="ph-title">Heap — Meld y DecreaseKey</div>
+<div class="ph-badges">
+  <span class="badge b-o">Meld O(n) / DK O(log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">operaciones avanzadas</span>
+</div>
+<div class="divl"></div>
+<div class="p-text"><strong>DecreaseKey</strong>: Reduce la clave de un nodo ya en el heap (útil para Dijkstra). Después de reducir, el nodo puede violar la propiedad → HeapUp.</div>
+<div class="code-block">DecreaseKey(Heap *H, int pos, int newKey):
+    H→p[pos] = newKey         // actualizar valor
+    HeapUp(H→p, pos)          // restablecer propiedad
+    → O(log n)</div>
+<div class="p-text"><strong>Meld</strong>: Combina dos heaps en uno solo. Para el Heap clásico hay dos opciones:</div>
+<div class="code-block">Opción 1: insertar cada elem del H2 en H1
+    → O(n2 · log n1)   ← lento
+
+Opción 2: unir los dos arrays + Heapify
+    → O(n1 + n2)       ← mejor!</div>
+<table class="ctable">
+  <tr><th>Operación</th><th>Heap</th><th>T.Heap</th><th>L.T.Heap</th><th>Ab.Heap</th></tr>
+  <tr><td>DecreaseKey</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+  <tr><td>Meld</td><td class="cr">O(n₁+n₂)</td><td class="cg">O(log n₁+log n₂)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">¿Por qué DecreaseKey importa?</div>
+  <div class="hint-b">En Dijkstra, cuando encontramos un camino más corto a un nodo, necesitamos bajar su distancia en el heap. Con DecreaseKey O(1) (Abdication Heap), Dijkstra queda O((V+E) log V). Con heap simple hay que hacer workarounds.</div>
+</div>`,
+solution:`<span class="cm">// DecreaseKey en Heap clásico (necesita pos del elemento)</span>
+<span class="kw">void</span> <span class="fn">decreaseKey</span>(<span class="ty">Heap</span>*h, <span class="ty">int</span> pos, <span class="ty">int</span> newKey){
+    <span class="kw">if</span>(newKey > h->p[pos]) <span class="kw">return</span>; <span class="cm">// solo bajar</span>
+    h->p[pos] = newKey;
+    <span class="fn">heapUp</span>(h->p, pos);  <span class="cm">// puede necesitar subir</span>
+}
+
+<span class="cm">// Meld eficiente: unir + Heapify</span>
+<span class="ty">Heap</span>* <span class="fn">meld</span>(<span class="ty">Heap</span>*h1, <span class="ty">Heap</span>*h2){
+    <span class="ty">int</span> n=h1->n+h2->n;
+    <span class="ty">Heap</span>*res=<span class="fn">Build</span>(n);
+    <span class="cm">// copiar ambos arreglos</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">1</span>;i<=h1->n;i++) res->p[i]=h1->p[i];
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">1</span>;i<=h2->n;i++) res->p[h1->n+i]=h2->p[i];
+    res->n=n;
+    <span class="cm">// Heapify sobre la union: O(n1+n2)</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=n/<span class="nm">2</span>;i>=<span class="nm">1</span>;i--) <span class="fn">heapDown</span>(res->p,n,i);
+    <span class="kw">return</span> res;
+}`},
+
+// ── BLOQUE 4: TOURNAMENT HEAPS ───────────────────────
+{id:21,blk:"Bloque 4 · Tournament Heaps",cat:"heap",title:"Tournament Tree — concepto",diff:2,compl:"teoría",
+problem:`
+<div class="ph-num">TAREA 21 · TOURNAMENT HEAP</div>
+<div class="ph-title">Tournament Tree — Concepto</div>
+<div class="ph-badges">
+  <span class="badge b-t">teoría</span>
+  <span class="badge b-s">tournament tree</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Un <strong>Tournament Tree</strong> representa un torneo donde los equipos compiten de a dos, y el ganador sube. El mínimo siempre está en la raíz.</div>
+<div class="code-block">Ejemplo con 8 hojas:
+         5
+       /   \
+      8     5
+    /  \  /  \
+   20  8  7   5
+  (hojas en amarillo, internos en azul)</div>
+<div class="sec-lbl">Propiedades formales</div>
+<div class="theory-box">- Árbol binario completo con N hojas y N-1 nodos internos
+- Tamaño: N = 2^k (potencia de 2)
+- Altura: h = log₂(N)
+- Nodos internos = copias del ganador de cada sub-torneo
+- Todos los nodos internos son redundantes (info ya en hojas)</div>
+<div class="sec-lbl">Limitación</div>
+<div class="p-text">Solo puede contener conjuntos de <strong>exactamente 2^k</strong> elementos. Para cualquier cantidad → Tournament Heap (colección de TTs).</div>
+<div class="hint">
+  <div class="hint-t">¿Cómo encontrar el 2do mínimo?</div>
+  <div class="hint-b">El 2do mínimo perdió exactamente una vez: contra el mínimo. Entonces hay que revisar todos los que perdieron contra el mínimo — hay log(n) de ellos (uno por nivel). Costo: O(log n).</div>
+</div>`,
+solution:`<span class="cm">// Tournament Tree: estructura de nodos
+typedef struct Nodo {
+    struct Nodo *izq, *der;
+    int valor;  // el ganador (mínimo) del sub-árbol
+} Nodo;
+
+// Construir TT desde hojas
+</span>
+<span class="ty">Nodo</span>* <span class="fn">nuevoNodo</span>(<span class="ty">int</span> v){
+    <span class="ty">Nodo</span>*n=<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="ty">Nodo</span>));
+    n->valor=v; n->izq=n->der=<span class="kw">NULL</span>;
+    <span class="kw">return</span> n;
+}
+
+<span class="ty">Nodo</span>* <span class="fn">combinar</span>(<span class="ty">Nodo</span>*a, <span class="ty">Nodo</span>*b){
+    <span class="ty">Nodo</span>*p=<span class="fn">nuevoNodo</span>(a->valor<b->valor ? a->valor : b->valor);
+    p->izq=a; p->der=b;
+    <span class="kw">return</span> p;
+}`},
+
+{id:22,blk:"Bloque 4 · Tournament Heaps",cat:"heap",title:"Tournament Heap — Coalesce e Insert",diff:3,compl:"Insert O(log n)",
+problem:`
+<div class="ph-num">TAREA 22 · TOURNAMENT HEAP</div>
+<div class="ph-title">Tournament Heap — Coalesce e Insert</div>
+<div class="ph-badges">
+  <span class="badge b-o">Insert O(log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">coalesce</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">El Tournament Heap es una colección de Tournament Trees, uno de cada tamaño 2^i (como la representación binaria de n). Hay a lo sumo <strong>log(n) árboles</strong>.</div>
+<div class="sec-lbl">Metadatos</div>
+<div class="code-block">typedef struct Nodo { struct Nodo *izq, *der; int valor; } Nodo;
+typedef struct TT   { Nodo *raiz; int tamano; } TT;
+typedef struct TH   { TT* arboles[64]; int num; } TH; // lista ordenada</div>
+<div class="sec-lbl">Coalesce — unir dos TTs del mismo tamaño</div>
+<div class="code-block">Coalesce(TT *a, TT *b):  // a y b tienen tamaño 2^k
+    ganador = min(a.raiz.valor, b.raiz.valor)
+    perdedor = el otro
+    // perdedor se vuelve hijo derecho del ganador
+    perdedor.der = ganador.der
+    ganador.der = perdedor
+    retornar TT de tamaño 2^(k+1) con raiz=ganador</div>
+<div class="sec-lbl">Insert — como suma binaria</div>
+<div class="code-block">Insert(TH *h, int val):
+    nuevo = TT de 1 nodo (hoja)
+    mientras existan dos TTs del mismo tamaño:
+        los fusionamos con Coalesce
+    → como sumar 1 en binario: carry propagation</div>
+<div class="hint">
+  <div class="hint-t">Analogía con binario</div>
+  <div class="hint-b">11 = 1011 en binario → hay TTs de tamaño 8, 2, 1. Insertar un elemento nuevo es como sumar 1 al número binario: posibles carries. En el peor caso hay log(n) carries = O(log n).</div>
+</div>`,
+solution:`<span class="kw">typedef struct</span> <span class="ty">Nodo</span> {
+    <span class="kw">struct</span> <span class="ty">Nodo</span> *izq, *der;
+    <span class="ty">int</span> valor;
+} <span class="ty">Nodo</span>;
+
+<span class="cm">// Coalesce: combina dos TTs de mismo tamaño</span>
+<span class="ty">Nodo</span>* <span class="fn">coalesce</span>(<span class="ty">Nodo</span>*a, <span class="ty">Nodo</span>*b){
+    <span class="ty">Nodo</span> *gan, *per;
+    <span class="kw">if</span>(a->valor <= b->valor){ gan=a; per=b; }
+    <span class="kw">else</span>                    { gan=b; per=a; }
+    <span class="cm">// perdedor se convierte en hijo derecho del ganador</span>
+    per->der  = gan->der;
+    gan->der  = per;
+    <span class="kw">return</span> gan;  <span class="cm">// nuevo árbol de tamaño doble</span>
+}
+
+<span class="cm">// Insert: armar TT de 1 + Coalesce mientras haya 2 iguales
+// (como sumar 1 en representación binaria)</span>`},
+
+{id:23,blk:"Bloque 4 · Tournament Heaps",cat:"heap",title:"Tournament Heap — RemoveMin y Fracture",diff:3,compl:"RemoveMin O(log n)",
+problem:`
+<div class="ph-num">TAREA 23 · TOURNAMENT HEAP</div>
+<div class="ph-title">Tournament Heap — RemoveMin y Fracture</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(log n)</span>
+  <span class="badge b-t">implementar</span>
+  <span class="badge b-s">fracture</span>
+</div>
+<div class="divl"></div>
+<div class="sec-lbl">GetMin — encontrar el mínimo global</div>
+<div class="p-text">El mínimo es la raíz de alguno de los log(n) TTs. Hay que comparar todas las raíces → O(log n).</div>
+<div class="sec-lbl">RemoveMin — Fracture</div>
+<div class="p-text">Al eliminar el mínimo de un TT de tamaño 2^k, el camino desde la raíz hasta la hoja del mínimo queda "roto". Cada nodo en ese camino pierde su hijo ganador → quedan log(n) sub-árboles de tamaños 2^0, 2^1, ..., 2^(k-1).</div>
+<div class="code-block">RemoveMin(TH *h):
+    1. Encontrar el TT con el mínimo global   → O(log n)
+    2. Fracture: eliminar raíz + camino a hoja
+       Esto genera log(n) sub-árboles nuevos  → O(log n)
+    3. Agregar sub-árboles al TH y Coalesce   → O(log n)
+    Total: O(log n)</div>
+<div class="sec-lbl">Orden de operaciones del Tournament Heap</div>
+<table class="ctable">
+  <tr><th>Op</th><th>Costo</th></tr>
+  <tr><td>Build vacío</td><td class="cg">O(1)</td></tr>
+  <tr><td>Heapify</td><td class="cg">O(n)</td></tr>
+  <tr><td>Insert</td><td class="cy">O(log n)</td></tr>
+  <tr><td>GetMin</td><td class="cy">O(log n)</td></tr>
+  <tr><td>RemoveMin</td><td class="cy">O(log n)</td></tr>
+  <tr><td>Meld</td><td class="cg">O(log n₁ + log n₂)</td></tr>
+  <tr><td>Destroy</td><td class="cy">O(n)</td></tr>
+</table>`,
+solution:`<span class="cm">// Fracture: eliminar raíz de un TT y devolver sub-árboles
+// El camino raíz→hoja-mínimo se "rompe"</span>
+<span class="ty">Nodo</span>** <span class="fn">fracture</span>(<span class="ty">Nodo</span>*raiz, <span class="ty">int</span>*count){
+    <span class="cm">// recorrer el camino hacia la hoja más pequeña
+    // en cada nivel: el ganador (iz) sube, perdedor (der) queda
+    // los "perdedores" forman TTs de tamaños 2^0, 2^1, ...</span>
+    *count=<span class="nm">0</span>;
+    <span class="ty">Nodo</span>**resultado=<span class="fn">malloc</span>(<span class="nm">64</span>*<span class="kw">sizeof</span>(<span class="ty">Nodo</span>*));
+    <span class="ty">Nodo</span>*curr=raiz;
+    <span class="kw">while</span>(curr->izq!=<span class="kw">NULL</span>){
+        <span class="cm">// el camino ganador siempre va por izquierda</span>
+        <span class="ty">Nodo</span>*ganador=curr->izq;
+        resultado[(*count)++]=curr->der; <span class="cm">// perdedor → nuevo TT</span>
+        <span class="fn">free</span>(curr);
+        curr=ganador;
+    }
+    <span class="fn">free</span>(curr); <span class="cm">// liberar la hoja</span>
+    <span class="kw">return</span> resultado;
+}`},
+
+{id:24,blk:"Bloque 4 · Tournament Heaps",cat:"heap",title:"Lazy Tournament Heap",diff:3,compl:"Insert O(1) amort.",
+problem:`
+<div class="ph-num">TAREA 24 · LAZY TOURNAMENT HEAP</div>
+<div class="ph-title">Lazy Tournament Heap</div>
+<div class="ph-badges">
+  <span class="badge b-o">Insert O(1)</span>
+  <span class="badge b-t">concepto + implementar</span>
+  <span class="badge b-s">lazy</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">La idea "lazy" es <strong>no hacer Coalesce al insertar</strong>. Simplemente agregamos el nuevo TT de 1 nodo a la lista, sin fusionar nada. El Coalesce se hace solo cuando hacemos RemoveMin.</div>
+<div class="sec-lbl">Operaciones</div>
+<div class="code-block">Insert(LTH *h, int val):
+    crear TT de 1 nodo
+    agregar a la lista de TTs sin Coalesce
+    → O(1)   ← mejora sobre Tournament Heap O(log n)!
+
+RemoveMin(LTH *h):
+    GetMin: comparar TODAS las raíces  → puede ser O(n) peor caso
+    Fracture del TT mínimo             → O(log n)
+    Coalesce todos los TTs ahora       → O(log n) amortizado
+    → O(log n) amortizado</div>
+<div class="sec-lbl">Análisis amortizado de RemoveMin</div>
+<div class="theory-box">Argumento: después de cada RemoveMin queda a lo sumo log(n) TTs.
+Los inserts "guardan créditos" que se gastan en el Coalesce del RemoveMin.
+Promediando sobre todas las operaciones → O(log n) amortizado.</div>
+<div class="sec-lbl">Tabla comparativa</div>
+<table class="ctable">
+  <tr><th>Op</th><th>Heap</th><th>T.Heap</th><th>L.T.Heap</th></tr>
+  <tr><td>Insert</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cg">O(1)</td></tr>
+  <tr><td>GetMin</td><td class="cg">O(1)</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td></tr>
+  <tr><td>Meld</td><td class="cr">O(n)</td><td class="cg">O(log n₁+log n₂)</td><td class="cg">O(1)</td></tr>
+</table>
+<div class="hint">
+  <div class="hint-t">Teorema: no se puede mejorar ambas a la vez</div>
+  <div class="hint-b">Si Insert fuera mejor que O(log n) Y RemoveMin mejor que O(log n), podríamos ordenar n elementos en menos de O(n log n): insertar todos + extraer todos. Imposible por el teorema del límite inferior. Por eso solo podemos mejorar una de las dos.</div>
+</div>`,
+solution:`<span class="cm">// Lazy Tournament Heap: Insert sin Coalesce</span>
+
+<span class="kw">void</span> <span class="fn">LazyInsert</span>(<span class="ty">LTH</span>*h, <span class="ty">int</span> val){
+    <span class="ty">Nodo</span>*n=<span class="fn">nuevoNodo</span>(val);
+    <span class="cm">// simplemente agregar a la lista de TTs</span>
+    <span class="cm">// sin Coalesce → O(1)</span>
+    h->arboles[h->num++] = n;
+}
+
+<span class="cm">// RemoveMin: ahora sí hacemos todo el trabajo
+// 1. Encontrar mínimo entre TODOS los árboles (lazy list puede tener muchos)
+// 2. Fracture del ganador
+// 3. Coalesce de todos → dejar a lo sumo log(n) árboles
+// Costo amortizado: O(log n)</span>`},
+
+{id:25,blk:"Bloque 4 · Tournament Heaps",cat:"heap",title:"Abdication Heap + DecreaseKey",diff:4,compl:"DecreaseKey O(1)",
+problem:`
+<div class="ph-num">TAREA 25 · ABDICATION HEAP</div>
+<div class="ph-title">Abdication Heap — DecreaseKey O(1)</div>
+<div class="ph-badges">
+  <span class="badge b-o">DecreaseKey O(1)</span>
+  <span class="badge b-t">concepto</span>
+  <span class="badge b-d">avanzado</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">El Abdication Heap extiende el Lazy Tournament Heap para soportar DecreaseKey en O(1) amortizado. Esto lo hace ideal para Dijkstra.</div>
+<div class="sec-lbl">Problema con DecreaseKey en Tournament Heap</div>
+<div class="p-text">Si una hoja disminuye su valor, puede violar la propiedad del torneo. En el Tournament Heap normal, tendríamos que "re-jugar" el torneo desde esa hoja hasta la raíz → O(log n).</div>
+<div class="sec-lbl">Idea del Abdication Heap</div>
+<div class="p-text">En lugar de re-jugar, hacemos un <strong>Fracture parcial</strong>: el nodo actualizado "abdica" de su posición actual y se libera como un nuevo TT de 1 nodo. Los ancestros que ya no tienen el campeón correcto se marcan o actualizan.</div>
+<div class="code-block">DecreaseKey en Abdication Heap:
+    a) Actualizar el valor de la hoja
+    b) Hacer Fracture parcial del camino raíz→hoja
+       → genera nuevos TTs (sub-árboles del camino)
+    c) Agregar el nodo modificado como TT nuevo
+    → O(1) amortizado</div>
+<div class="sec-lbl">Tabla final — todas las estructuras</div>
+<table class="ctable">
+  <tr><th>Op</th><th>Heap</th><th>T.Heap</th><th>L.T.Heap</th><th>Ab.Heap</th></tr>
+  <tr><td>Build</td><td class="cg">O(1)</td><td class="cg">O(1)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+  <tr><td>Heapify</td><td class="cg">O(n)</td><td class="cg">O(n)</td><td class="cg">O(n)</td><td class="cg">O(n)</td></tr>
+  <tr><td>Insert</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+  <tr><td>GetMin</td><td class="cg">O(1)</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td></tr>
+  <tr><td>RemoveMin</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td></tr>
+  <tr><td>DecreaseKey</td><td class="cy">O(log n)</td><td class="cy">O(log n)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+  <tr><td>Meld</td><td class="cr">O(n)</td><td class="cg">O(log)</td><td class="cg">O(1)</td><td class="cg">O(1)</td></tr>
+  <tr><td>Destroy</td><td class="cg">O(1)</td><td class="cy">O(n)</td><td class="cy">O(n)</td><td class="cy">O(n)</td></tr>
+</table>`,
+solution:`<span class="cm">// Abdication Heap — DecreaseKey en O(1) amortizado
+//
+// La clave: en lugar de "re-jugar" el torneo hacia arriba,
+// hacemos que el nodo "abdique": se separa de su árbol,
+// sus ancestros se actualizan mínimamente, y el nodo
+// modificado se convierte en un nuevo TT de tamaño 1.
+//
+// El resultado ya NO es un Tournament Heap clásico
+// (algunos internos pueden tener valor incorrecto),
+// pero la propiedad global de heap se mantiene.
+//
+// Implementación completa es compleja — lo importante:
+// entender el concepto y la tabla de complejidades.</span>
+
+<span class="cm">// Aplicación: Dijkstra con Abdication Heap
+// Al relajar una arista (u,v) con nuevo dist[v]:
+//   decreaseKey(h, nodo_v, nuevo_dist)  → O(1)
+// Total Dijkstra: O((V+E) · O(1)) + O(V · log V para RemoveMin)
+//              = O(E + V log V)  ← óptimo!</span>`},
+
+// ── BLOQUE 5: OLÍMPICAS ──────────────────────────────
+{id:26,blk:"Bloque 5 · Olímpicas",cat:"olimpiada",title:"Conteo de inversiones",diff:2,compl:"O(n log n)",
+problem:`
+<div class="ph-num">TAREA 26 · OLÍMPICA</div>
+<div class="ph-title">Conteo de Inversiones</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log n)</span>
+  <span class="badge b-t">olímpica</span>
+  <span class="badge b-s">merge sort</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Dado un arreglo, contá el número de <strong>inversiones</strong>: pares (i, j) con i &lt; j pero a[i] &gt; a[j]. Una inversión mide qué tan "desordenado" está.</div>
+<div class="code-block">Ejemplos:
+[2,4,1,3,5] → 3 inversiones: (2,1),(4,1),(4,3)
+[1,2,3,4,5] → 0 inversiones (ya ordenado)
+[5,4,3,2,1] → 10 inversiones (máximo para n=5)</div>
+<div class="hint">
+  <div class="hint-t">Idea: modificar Merge</div>
+  <div class="hint-b">Cuando en el Merge tomamos un elemento de la mitad derecha (j) antes que uno de la izquierda (i), hay exactamente (mid - i + 1) inversiones con todos los elementos restantes de la izquierda. Contarlas dentro del Merge.</div>
+</div>`,
+solution:`<span class="ty">long long</span> <span class="fn">mergeCount</span>(<span class="ty">int</span>*a,<span class="ty">int</span> l,<span class="ty">int</span> m,<span class="ty">int</span> r){
+    <span class="ty">long long</span> inv=<span class="nm">0</span>;
+    <span class="ty">int</span> n=r-l+<span class="nm">1</span>,*aux=<span class="fn">malloc</span>(n*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    <span class="ty">int</span> i=l,j=m+<span class="nm">1</span>,k=<span class="nm">0</span>;
+    <span class="kw">while</span>(i<=m&&j<=r){
+        <span class="kw">if</span>(a[i]<=a[j]) aux[k++]=a[i++];
+        <span class="kw">else</span>{ aux[k++]=a[j++]; inv+=(m-i+<span class="nm">1</span>); } <span class="cm">// CLAVE</span>
+    }
+    <span class="kw">while</span>(i<=m) aux[k++]=a[i++];
+    <span class="kw">while</span>(j<=r) aux[k++]=a[j++];
+    <span class="kw">for</span>(<span class="ty">int</span> x=<span class="nm">0</span>;x<n;x++) a[l+x]=aux[x];
+    <span class="fn">free</span>(aux); <span class="kw">return</span> inv;
+}
+
+<span class="ty">long long</span> <span class="fn">countInversions</span>(<span class="ty">int</span>*a,<span class="ty">int</span> l,<span class="ty">int</span> r){
+    <span class="kw">if</span>(l>=r) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="ty">int</span> m=(l+r)/<span class="nm">2</span>;
+    <span class="ty">long long</span> inv=<span class="nm">0</span>;
+    inv+=<span class="fn">countInversions</span>(a,l,m);
+    inv+=<span class="fn">countInversions</span>(a,m+<span class="nm">1</span>,r);
+    inv+=<span class="fn">mergeCount</span>(a,l,m,r);
+    <span class="kw">return</span> inv;
+}`},
+
+{id:27,blk:"Bloque 5 · Olímpicas",cat:"olimpiada",title:"K-ésimo menor elemento",diff:2,compl:"O(n log k)",
+problem:`
+<div class="ph-num">TAREA 27 · OLÍMPICA</div>
+<div class="ph-title">K-ésimo Menor con MaxHeap</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log k)</span>
+  <span class="badge b-t">olímpica</span>
+  <span class="badge b-s">heap</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Dado un arreglo de n números, encontrá el k-ésimo menor <strong>sin ordenar todo</strong>. Solución eficiente: MaxHeap de tamaño k.</div>
+<div class="code-block">Idea: mantener un MaxHeap con los k menores vistos.
+Para cada elemento nuevo:
+  si heap.size &lt; k    → insertar
+  si elem &lt; heap.max  → sacar max, insertar elem
+Al final: heap.max = k-ésimo menor
+
+Ejemplo: [7,10,4,3,20,15], k=3
+→ k-ésimo menor = 7 (menores son 3,4,7)</div>
+<div class="hint">
+  <div class="hint-t">¿Por qué O(n log k) y no O(n log n)?</div>
+  <div class="hint-b">El heap siempre tiene a lo sumo k elementos, entonces cada operación es O(log k). Hacemos n operaciones → O(n log k). Si k es pequeño, es mucho mejor que ordenar todo.</div>
+</div>`,
+solution:`<span class="cm">// Usando MaxHeap (negamos los valores para usar MinHeap)</span>
+<span class="ty">int</span> <span class="fn">kesimo</span>(<span class="ty">int</span>*a, <span class="ty">int</span> n, <span class="ty">int</span> k){
+    <span class="ty">Heap</span>*h=<span class="fn">Build</span>(k);
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++){
+        <span class="kw">if</span>(h->n < k){
+            <span class="fn">Insert</span>(h, -a[i]);         <span class="cm">// negar = MaxHeap</span>
+        } <span class="kw">else if</span>(-a[i] > h->p[<span class="nm">1</span>]){ <span class="cm">// más chico que el max</span>
+            <span class="fn">RemoveMin</span>(h);
+            <span class="fn">Insert</span>(h, -a[i]);
+        }
+    }
+    <span class="ty">int</span> res=-<span class="fn">GetMin</span>(h);
+    <span class="fn">free</span>(h->p); <span class="fn">free</span>(h);
+    <span class="kw">return</span> res;
+}`},
+
+{id:28,blk:"Bloque 5 · Olímpicas",cat:"olimpiada",title:"Mediana de un flujo",diff:3,compl:"O(log n) por elem.",
+problem:`
+<div class="ph-num">TAREA 28 · OLÍMPICA</div>
+<div class="ph-title">Mediana de un Flujo</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(log n) por elemento</span>
+  <span class="badge b-t">olímpica</span>
+  <span class="badge b-d">dos heaps</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Llegan números uno a uno. Después de cada número, imprimí la mediana actual. Solución: <strong>dos heaps balanceados</strong>.</div>
+<div class="code-block">MaxHeap izquierda: guarda mitad menor
+MinHeap derecha:   guarda mitad mayor
+
+Invariante: |izq.size - der.size| ≤ 1
+Mediana: si igual tamaño → (izq.max + der.min) / 2
+         si diferente    → tope del heap más grande
+
+Flujo: 5 → med=5 | agregar 2 → med=3.5 | agregar 8 → med=5</div>
+<div class="hint">
+  <div class="hint-t">Balanceo</div>
+  <div class="hint-b">Después de cada inserción, verificá que los tamaños no difieran en más de 1. Si el izquierdo tiene 2 más que el derecho, movés el max del izquierdo al derecho, y vice versa.</div>
+</div>`,
+solution:`<span class="ty">Heap</span> *izq, *der; <span class="cm">// izq: MaxHeap (negamos), der: MinHeap</span>
+
+<span class="kw">void</span> <span class="fn">agregar</span>(<span class="ty">int</span> num){
+    <span class="cm">// decidir a qué heap va</span>
+    <span class="kw">if</span>(izq->n==<span class="nm">0</span> || num <= -<span class="fn">GetMin</span>(izq))
+        <span class="fn">Insert</span>(izq, -num);
+    <span class="kw">else</span>
+        <span class="fn">Insert</span>(der, num);
+    <span class="cm">// balancear</span>
+    <span class="kw">if</span>(izq->n > der->n+<span class="nm">1</span>)
+        <span class="fn">Insert</span>(der, -<span class="fn">RemoveMin</span>(izq));
+    <span class="kw">else if</span>(der->n > izq->n)
+        <span class="fn">Insert</span>(izq, -<span class="fn">RemoveMin</span>(der));
+}
+
+<span class="ty">double</span> <span class="fn">mediana</span>(){
+    <span class="kw">if</span>(izq->n > der->n) <span class="kw">return</span> -<span class="fn">GetMin</span>(izq);
+    <span class="kw">return</span> (-<span class="fn">GetMin</span>(izq) + <span class="fn">GetMin</span>(der)) / <span class="nm">2.0</span>;
+}`},
+
+{id:29,blk:"Bloque 5 · Olímpicas",cat:"olimpiada",title:"Fusión de K listas ordenadas",diff:3,compl:"O(n log k)",
+problem:`
+<div class="ph-num">TAREA 29 · OLÍMPICA</div>
+<div class="ph-title">Fusión de K Listas Ordenadas</div>
+<div class="ph-badges">
+  <span class="badge b-o">O(n log k)</span>
+  <span class="badge b-t">olímpica</span>
+  <span class="badge b-s">minheap</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Tenés k listas ordenadas con n elementos en total. Fusionalas en una sola lista ordenada.</div>
+<div class="code-block">Algoritmo con MinHeap de k elementos:
+1. Insertar el primer elemento de cada lista en el heap
+   (guardando de qué lista viene y su posición)
+2. Repetir n veces:
+   - Extraer el mínimo del heap → agregarlo al resultado
+   - Insertar el siguiente elemento de esa misma lista
+3. Heap nunca tiene más de k elementos → O(n log k)</div>
+<div class="code-block">Ejemplo k=3:
+Lista 1: [1,4,7]    Lista 2: [2,5,8]    Lista 3: [3,6,9]
+Heap inicial: {(1,L1), (2,L2), (3,L3)}
+→ sacar 1, insertar 4 → {(2,L2),(3,L3),(4,L1)}
+→ sacar 2, insertar 5 → {(3,L3),(4,L1),(5,L2)}
+... → [1,2,3,4,5,6,7,8,9]</div>`,
+solution:`<span class="kw">typedef struct</span> { <span class="ty">int</span> val, lista, pos; } <span class="ty">Item</span>;
+
+<span class="cm">// MinHeap de Items por val (implementación simplificada)</span>
+<span class="ty">int</span>* <span class="fn">fusionarK</span>(<span class="ty">int</span>**listas, <span class="ty">int</span>*tams, <span class="ty">int</span> k, <span class="ty">int</span> n){
+    <span class="ty">int</span>*res=<span class="fn">malloc</span>(n*<span class="kw">sizeof</span>(<span class="ty">int</span>));
+    <span class="ty">Item</span> heap[k]; <span class="ty">int</span> hn=<span class="nm">0</span>;
+
+    <span class="cm">// inicializar con primeros elementos</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<k;i++)
+        <span class="kw">if</span>(tams[i]><span class="nm">0</span>)
+            heap[hn++]=(Item){listas[i][<span class="nm">0</span>],i,<span class="nm">0</span>};
+    <span class="cm">// heapify inicial...</span>
+
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++){
+        Item min=heap[<span class="nm">0</span>]; res[i]=min.val;
+        <span class="kw">if</span>(min.pos+<span class="nm">1</span> < tams[min.lista])
+            heap[<span class="nm">0</span>]=(Item){listas[min.lista][min.pos+<span class="nm">1</span>],min.lista,min.pos+<span class="nm">1</span>};
+        <span class="cm">// heapDown de heap[0]...</span>
+    }
+    <span class="kw">return</span> res;
+}`},
+
+{id:30,blk:"Bloque 5 · Olímpicas",cat:"olimpiada",title:"Dijkstra — camino mínimo",diff:4,compl:"O((V+E) log V)",
+problem:`
+<div class="ph-num">TAREA 30 · OLÍMPICA</div>
+<div class="ph-title">Dijkstra — Camino Mínimo</div>
+<div class="ph-badges">
+  <span class="badge b-o">O((V+E) log V)</span>
+  <span class="badge b-t">olímpica</span>
+  <span class="badge b-d">DecreaseKey</span>
+</div>
+<div class="divl"></div>
+<div class="p-text">Dijkstra encuentra el camino más corto desde un nodo fuente a todos los demás en un grafo con pesos positivos. Es la motivación real del Abdication Heap.</div>
+<div class="code-block">Dijkstra(G, fuente):
+    dist[] = INF para todos, dist[fuente] = 0
+    heap = MinHeap con todos los nodos
+    mientras heap no vacío:
+        u = RemoveMin(heap)          ← nodo más cercano
+        para cada vecino v de u:
+            if dist[u] + peso(u,v) &lt; dist[v]:
+                dist[v] = dist[u] + peso(u,v)
+                DecreaseKey(heap, v, dist[v])  ← aquí el DecreaseKey!</div>
+<div class="code-block">Ejemplo:
+  0 →1(4), 0→2(1), 2→1(2), 1→3(1), 3→4(3)
+  desde nodo 0:
+  dist = [0, 3, 1, 4, 7]</div>
+<div class="hint">
+  <div class="hint-t">Complejidad</div>
+  <div class="hint-b">Con MinHeap + DecreaseKey: O((V+E) log V). Con Abdication Heap donde DecreaseKey=O(1): O(E + V log V) ← óptimo para grafos densos. Con array simple (sin heap): O(V²) ← mejor para grafos muy densos.</div>
+</div>`,
+solution:`<span class="kw">#define</span> INF 1e9
+<span class="kw">#define</span> MAXV 100
+
+<span class="kw">void</span> <span class="fn">dijkstra</span>(<span class="ty">int</span> G[][MAXV], <span class="ty">int</span> n, <span class="ty">int</span> src){
+    <span class="ty">double</span> dist[MAXV]; <span class="ty">int</span> vis[MAXV]={};
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++) dist[i]=INF;
+    dist[src]=<span class="nm">0</span>;
+
+    <span class="kw">for</span>(<span class="ty">int</span> iter=<span class="nm">0</span>;iter<n;iter++){
+        <span class="cm">// RemoveMin: O(V) con array simple</span>
+        <span class="ty">int</span> u=-<span class="nm">1</span>;
+        <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++)
+            <span class="kw">if</span>(!vis[i]&&(u==-<span class="nm">1</span>||dist[i]<dist[u])) u=i;
+        <span class="kw">if</span>(dist[u]==INF) <span class="kw">break</span>;
+        vis[u]=<span class="nm">1</span>;
+
+        <span class="kw">for</span>(<span class="ty">int</span> v=<span class="nm">0</span>;v<n;v++){
+            <span class="kw">if</span>(G[u][v] && dist[u]+G[u][v]<dist[v]){
+                dist[v]=dist[u]+G[u][v]; <span class="cm">// DecreaseKey!</span>
+            }
+        }
+    }
+    <span class="kw">for</span>(<span class="ty">int</span> i=<span class="nm">0</span>;i<n;i++)
+        printf(<span class="st">"dist[%d]=%.0f\\n"</span>,i,dist[i]);
+}`}
+
+]; // end TASKS
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let cur = null;
+let done = new Set();
+let solVis = false;
+let activeFilter = 'all';
+let notes = {};
+
+// ═══════════════════════════════════════════════════
+// RENDER SIDEBAR
+// ═══════════════════════════════════════════════════
+function buildSidebar(tasks) {
+  const el = document.getElementById('sbList');
+  let html = '', blk = '';
+  tasks.forEach(t => {
+    if (t.blk !== blk) {
+      blk = t.blk;
+      html += `<div class="blk-label">${blk}</div>`;
+    }
+    const isDone = done.has(t.id);
+    const isActive = cur?.id === t.id;
+    html += `<div class="t-item${isActive?' active':''}${isDone?' done':''}" onclick="openTask(${t.id})" data-id="${t.id}">
+      <span class="t-n">${isDone?'✓':t.id}</span>
+      <div class="t-info">
+        <div class="t-name">${t.title}</div>
+        <div class="t-sub">${t.compl}</div>
+      </div>
+      <div class="d-pip dp-${t.diff}"></div>
+    </div>`;
+  });
+  el.innerHTML = html;
+
+  const total = TASKS.length;
+  const doneN = done.size;
+  document.getElementById('progFill').style.width = (doneN/total*100)+'%';
+  document.getElementById('progTxt').textContent = doneN+'/'+total;
+  document.getElementById('stDone').textContent = doneN;
+  document.getElementById('stTotal').textContent = total;
+}
+
+function getFiltered() {
+  return TASKS.filter(t => activeFilter==='all' || t.cat===activeFilter);
+}
+
+// ═══════════════════════════════════════════════════
+// OPEN TASK
+// ═══════════════════════════════════════════════════
+function openTask(id) {
+  const t = TASKS.find(x=>x.id===id);
+  if(!t) return;
+  cur = t;
+  solVis = false;
+
+  document.getElementById('welcomeEl').style.display='none';
+  document.getElementById('taskView').classList.add('on');
+  document.getElementById('tvScroll').innerHTML = t.problem;
+  document.getElementById('solCode').innerHTML = t.solution;
+  document.getElementById('solOv').classList.remove('on');
+
+  // restore notes
+  document.getElementById('notesTitleEl').textContent = t.title + ' — notas';
+  document.getElementById('notesArea').value = notes[id]||'';
+
+  // restore editor
+  document.getElementById('codeEd').value = '';
+
+  buildSidebar(getFiltered());
+  switchToTab('problem');
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+let currentTab = 'problem';
+
+function switchToTab(tab) {
+  currentTab = tab;
+  const scroll = document.getElementById('tvScroll');
+  const editor = document.getElementById('editorPanel');
+  const notes_ = document.getElementById('notesPanel');
+  const tabs = document.querySelectorAll('.tab');
+
+  tabs.forEach((t,i)=>t.classList.toggle('on',i===(tab==='problem'?0:1)));
+
+  if(tab==='problem'){
+    scroll.style.display='';
+    editor.style.display='';
+    notes_.classList.remove('on');
+  } else {
+    scroll.style.display='none';
+    editor.style.display='none';
+    notes_.classList.add('on');
+  }
+}
+
+function switchTab(tab, el) { switchToTab(tab); }
+
+// save notes on input
+document.getElementById('notesArea').addEventListener('input', function(){
+  if(cur) notes[cur.id] = this.value;
+});
+
+// ═══════════════════════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════════════════════
+function toggleSol() {
+  solVis = !solVis;
+  document.getElementById('solOv').classList.toggle('on', solVis);
+}
+
+function markDone() {
+  if(!cur) return;
+  done.add(cur.id);
+  buildSidebar(getFiltered());
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildSidebar(getFiltered());
+}
+
+function doSearch(q) {
+  const items = document.querySelectorAll('.t-item');
+  const labels = document.querySelectorAll('.blk-label');
+  q = q.toLowerCase();
+  items.forEach(el => {
+    const name = el.querySelector('.t-name').textContent.toLowerCase();
+    const sub = el.querySelector('.t-sub').textContent.toLowerCase();
+    el.style.display = (name.includes(q)||sub.includes(q)) ? '' : 'none';
+  });
+  // hide empty block labels
+  labels.forEach(lbl => {
+    let next = lbl.nextElementSibling;
+    let visible = false;
+    while(next && !next.classList.contains('blk-label')) {
+      if(next.style.display !== 'none') visible = true;
+      next = next.nextElementSibling;
+    }
+    lbl.style.display = visible ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+buildSidebar(TASKS);
+</script>
+</body>
+</html>

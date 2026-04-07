@@ -1,0 +1,401 @@
+\documentclass[11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[default]{opensans}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usetikzlibrary{calc,patterns}
+\usepackage{bm}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  linkcolor=blue,
+  citecolor=blue
+}
+
+\usetheme{default}
+\usecolortheme{dolphin}
+\useinnertheme{circles}
+
+\title{Belief-Aware Drone Navigation Under Partial Observability}
+\subtitle{Project Proposal}
+\author[M. Osipova]{Mariia Osipova\\[3pt]\textit{mosipova@udesa.edu.ar}}
+\institute{\\[12pt]Under the supervision of Juan Felipe Perdomo}
+\date[Apr 2026]{April 2026}
+
+%----------------------------------------------------------------------------------------
+% sources
+%----------------------------------------------------------------------------------------
+\newcommand{\srcSuttonBarto}{\href{http://incompleteideas.net/book/the-book.html}{Sutton \& Barto (2018)}}
+\newcommand{\srcKochenderferADM}{\href{https://algorithmsbook.com}{Kochenderfer, Wheeler \& Wray (2022)}}
+\newcommand{\srcKaelbling}{Kaelbling, Littman \& Cassandra (1998)}
+\newcommand{\srcSchulman}{\href{https://arxiv.org/abs/1707.06347}{Schulman et al. (2017)}}
+\newcommand{\srcTobin}{Tobin et al. (2017)}
+\newcommand{\srcHwangbo}{Hwangbo et al. (2017)}
+\newcommand{\SourceLine}[1]{\vfill{\tiny\textcolor{gray}{Sources: #1}}}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+% TITLE SLIDE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+% TABLE OF CONTENTS SLIDE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}{Presentation Overview}
+  \tableofcontents
+\end{frame}
+
+%------------------------------------------------
+
+\section{Motivation}
+
+%------------------------------------------------
+
+\begin{frame}{Why this problem?}
+
+The question behind this project is simple:
+
+\medskip
+\begin{quote}
+How should a drone act when it does not know exactly where it is?
+\end{quote}
+
+\medskip
+What made this question compelling to me was the combination of:
+\begin{itemize}
+  \item reinforcement learning as a way to learn behavior from interaction,
+  \item robotics as a concrete testbed for decision-making,
+  \item uncertainty as the condition that makes the problem genuinely hard.
+\end{itemize}
+
+The setting is autonomous quadrotor navigation with noisy and incomplete sensing.
+
+\SourceLine{\srcSuttonBarto; \srcKochenderferADM}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{From control to partial observability}
+
+My path toward this topic was gradual:
+\begin{itemize}
+  \item first, classical control: for example, a PID controller for altitude stabilization;
+  \item then, reinforcement learning: letting the agent learn rather than hand-coding behavior;
+  \item finally, partial observability: realistic flight means noisy, delayed, and incomplete sensor data.
+\end{itemize}
+
+\medskip
+This changes the nature of the task:
+\begin{block}{Key shift}
+The drone should not act only on raw observations. It should act on what it believes about its state, together with how certain that belief is.
+\end{block}
+
+\SourceLine{\srcSuttonBarto; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Problem Formulation}
+
+%------------------------------------------------
+
+\begin{frame}{MDP vs. POMDP}
+
+In a standard RL setup, the agent observes the true state and learns a policy
+\[
+\pi(a \mid s).
+\]
+
+For a drone with imperfect sensors, that assumption is false.
+
+\medskip
+A better model is a POMDP:
+\begin{itemize}
+  \item the true state is hidden,
+  \item the agent receives noisy observations $o_t$,
+  \item the relevant object is a belief over possible states.
+\end{itemize}
+
+\medskip
+So the central issue is not only \emph{what action to take}, but also \emph{what to believe about the current state}.
+
+\SourceLine{\srcKochenderferADM; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Research question}
+
+\begin{block}{Central question}
+Can a reinforcement-learning agent navigate a quadrotor more effectively under noisy and incomplete sensor data by explicitly maintaining a belief over its own state, compared to an agent that treats raw observations as ground truth?
+\end{block}
+
+\medskip
+More specifically, I want to test whether explicit uncertainty representation improves:
+\begin{itemize}
+  \item robustness under noise,
+  \item stability during training,
+  \item sample efficiency,
+  \item generalization to unseen conditions.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Method}
+
+%------------------------------------------------
+
+\begin{frame}{Experimental setup}
+
+The project will use a simulated quadrotor navigation task built with:
+\begin{itemize}
+  \item \texttt{gym-pybullet-drones} for the environment,
+  \item Stable-Baselines3 for PPO,
+  \item NumPy / SciPy for belief statistics,
+  \item Matplotlib for trajectory and training plots.
+\end{itemize}
+
+\medskip
+Baseline task:
+\begin{itemize}
+  \item fly from the origin to a fixed waypoint.
+\end{itemize}
+
+Controllers to compare:
+\begin{itemize}
+  \item PID,
+  \item PPO with raw observations,
+  \item PPO with belief-augmented observations.
+\end{itemize}
+
+\SourceLine{\srcSchulman; \srcHwangbo}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Phase 1: Baseline under ideal conditions}
+
+Goal: establish whether the RL pipeline works before introducing uncertainty.
+
+\medskip
+I will compare:
+\begin{itemize}
+  \item a classical PID controller with direct state access,
+  \item a PPO agent trained from scratch on the same waypoint task.
+\end{itemize}
+
+Main outputs of this phase:
+\begin{itemize}
+  \item reward curves,
+  \item successful trajectories,
+  \item a clean baseline for later degradation studies.
+\end{itemize}
+
+\SourceLine{\srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Phase 2: Introduce uncertainty}
+
+I will corrupt the observation pipeline using three noise mechanisms:
+\begin{itemize}
+  \item Gaussian noise on observed position,
+  \item observation dropout or repeated stale measurements,
+  \item external wind disturbances.
+\end{itemize}
+
+\medskip
+This phase is designed to produce degradation curves and answer:
+\begin{quote}
+How quickly does performance collapse as sensing becomes less reliable?
+\end{quote}
+
+\medskip
+It also tests whether the plain RL policy has learned genuine robustness or simply overfit to clean observations.
+
+\SourceLine{\srcKochenderferADM; \srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Phase 3: Belief-augmented observations}
+
+This is the core contribution.
+
+\medskip
+From a sliding window of recent observations, compute:
+\[
+\hat{\mu}_t \qquad \text{and} \qquad \hat{\sigma}_t,
+\]
+where:
+\begin{itemize}
+  \item $\hat{\mu}_t$ is a filtered state estimate,
+  \item $\hat{\sigma}_t$ is a measure of confidence.
+\end{itemize}
+
+The policy then receives an augmented input:
+\[
+[o_t, \hat{\mu}_t, \hat{\sigma}_t].
+\]
+
+Hypothesis: the agent will learn to behave more cautiously when uncertainty is high and more decisively when it is low.
+
+\SourceLine{\srcKaelbling; \srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Phase 4: Generalization and transfer}
+
+I will compare three training regimes:
+\begin{itemize}
+  \item a specialist trained only under low noise,
+  \item a specialist trained only under high noise,
+  \item a generalist trained with domain randomization across noise levels.
+\end{itemize}
+
+\medskip
+Evaluation will be done on held-out noise conditions.
+
+\medskip
+Key question:
+\begin{block}{Transfer question}
+Does the belief-augmented generalist transfer better to unseen conditions than policies specialized for a single regime?
+\end{block}
+
+\SourceLine{\srcTobin}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Expected Results}
+
+%------------------------------------------------
+
+\begin{frame}{Expected outcomes}
+
+\begin{itemize}
+  \item Under ideal conditions, PPO should roughly match PID after sufficient training.
+  \item PID should be more sample-efficient because it requires tuning, not learning.
+  \item Under moderate and high noise, plain PPO may degrade sharply if it overfits to clean observations.
+  \item Belief-augmented PPO should outperform plain PPO when sensing becomes unreliable.
+  \item Domain-randomized training should improve transfer to unseen noise regimes.
+\end{itemize}
+
+\medskip
+The main expected result is that even a lightweight belief signal can improve RL behavior under partial observability.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Planned outputs and evaluation}
+
+Concrete outputs:
+\begin{itemize}
+  \item training curves for all agent variants,
+  \item trajectory plots for PID, plain PPO, and belief-aware PPO,
+  \item RMSE degradation curves under varying noise levels,
+  \item a train/test generalization matrix across noise regimes,
+  \item a written POMDP framing of the task.
+\end{itemize}
+
+\medskip
+Evaluation criteria:
+\begin{itemize}
+  \item navigation accuracy,
+  \item success rate,
+  \item robustness to uncertainty,
+  \item generalization outside the training regime.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Discussion}
+
+%------------------------------------------------
+
+\begin{frame}{Why this matters}
+
+This project is a small but concrete test of a broader question in reinforcement learning:
+
+\medskip
+\begin{quote}
+What representations need to be explicit for an agent to act well under uncertainty?
+\end{quote}
+
+\medskip
+If belief-aware inputs help, that would support two claims:
+\begin{itemize}
+  \item partial observability is a practical bottleneck, not just a theoretical detail,
+  \item explicit uncertainty information can change the behavior an RL agent learns.
+\end{itemize}
+
+It also connects control, robotics, RL, and POMDP-based reasoning in one concrete experimental setting.
+
+\SourceLine{\srcSuttonBarto; \srcKochenderferADM; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Limitations and extensions}
+
+Current limitations:
+\begin{itemize}
+  \item the belief representation is only a lightweight approximation,
+  \item PPO is only one possible RL algorithm,
+  \item the project remains in simulation.
+\end{itemize}
+
+\medskip
+Possible extensions:
+\begin{itemize}
+  \item compare with Kalman-filter-based state estimation,
+  \item test recurrent policies such as LSTMs,
+  \item explore model-based RL or explicit POMDP solvers,
+  \item study sim-to-real transfer later on.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{References}
+
+%------------------------------------------------
+
+\begin{frame}{Selected references}
+\footnotesize
+\begin{itemize}
+  \item Sutton, R. S., \& Barto, A. G. (2018). \textit{Reinforcement Learning: An Introduction}.
+  \item Kochenderfer, M. J., Wheeler, T. A., \& Wray, K. H. (2022). \textit{Algorithms for Decision Making}.
+  \item Kaelbling, L. P., Littman, M. L., \& Cassandra, A. R. (1998). Planning and acting in partially observable stochastic domains.
+  \item Schulman, J. et al. (2017). Proximal Policy Optimization Algorithms.
+  \item Hwangbo, J. et al. (2017). Control of a quadrotor with reinforcement learning.
+  \item Tobin, J. et al. (2017). Domain randomization for transferring deep neural networks from simulation to real world.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+  \centering
+  \Huge Thank you
+\end{frame}
+
+\end{document}

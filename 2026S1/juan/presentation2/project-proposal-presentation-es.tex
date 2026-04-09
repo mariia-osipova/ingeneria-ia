@@ -1,0 +1,428 @@
+\documentclass[11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[default]{opensans}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usetikzlibrary{calc,patterns}
+\usepackage{bm}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=blue,
+  linkcolor=blue,
+  citecolor=blue
+}
+
+\usetheme{default}
+\usecolortheme{dolphin}
+\useinnertheme{circles}
+
+\title{Navegación de drones consciente de la creencia bajo observabilidad parcial}
+\subtitle{Propuesta de proyecto}
+\author[M. Osipova]{Mariia Osipova\\[3pt]\textit{mosipova@udesa.edu.ar}}
+\institute{\\[12pt]Bajo la supervisión de Juan Felipe Perdomo}
+\date[Abr 2026]{Abril 2026}
+
+%----------------------------------------------------------------------------------------
+% fuentes
+%----------------------------------------------------------------------------------------
+\newcommand{\srcSuttonBarto}{\href{http://incompleteideas.net/book/the-book.html}{Sutton \& Barto (2018)}}
+\newcommand{\srcKochenderferADM}{\href{https://algorithmsbook.com}{Kochenderfer, Wheeler \& Wray (2022)}}
+\newcommand{\srcKaelbling}{Kaelbling, Littman \& Cassandra (1998)}
+\newcommand{\srcSchulman}{\href{https://arxiv.org/abs/1707.06347}{Schulman et al. (2017)}}
+\newcommand{\srcTobin}{Tobin et al. (2017)}
+\newcommand{\srcHwangbo}{Hwangbo et al. (2017)}
+\newcommand{\SourceLine}[1]{\vfill{\tiny\textcolor{gray}{Fuentes: #1}}}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+% PORTADA
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+% ÍNDICE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}{Resumen de la presentación}
+  \tableofcontents
+\end{frame}
+
+%------------------------------------------------
+
+\section{Motivación}
+
+%------------------------------------------------
+
+\begin{frame}{¿De qué se trata el proyecto?}
+
+En términos simples: comparar tres maneras de controlar un dron simulado cuando los sensores no son perfectos.
+
+\medskip
+\textbf{Tarea base:} volar desde el origen hasta un destino fijo.
+
+\medskip
+Los tres enfoques a comparar:
+\begin{itemize}
+  \item \textbf{PID} --- un controlador clásico escrito a mano,
+  \item \textbf{RL sin información extra} --- un agente que aprende solo con lecturas ruidosas,
+  \item \textbf{RL con ``creencia''} --- el mismo agente, pero que además sabe cuánto confía en sus sensores.
+\end{itemize}
+
+\medskip
+\begin{block}{Pregunta central}
+¿Ayuda que el agente sepa cuánto no sabe?
+\end{block}
+
+\smallskip
+{\small Todo en simulación --- sin dron físico.}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{¿Por qué este problema?}
+
+La pregunta detrás de este proyecto es simple:
+
+\medskip
+\begin{quote}
+¿Cómo debería actuar un dron cuando no sabe exactamente dónde está?
+\end{quote}
+
+\medskip
+Lo que volvió atractiva esta pregunta para mí fue la combinación de:
+\begin{itemize}
+  \item aprendizaje por refuerzo como forma de aprender comportamiento por interacción,
+  \item robótica como banco de pruebas concreto para la toma de decisiones,
+  \item incertidumbre como la condición que vuelve al problema genuinamente difícil.
+\end{itemize}
+
+El contexto es la navegación autónoma de un cuadricóptero con sensado ruidoso e incompleto.
+
+\SourceLine{\srcSuttonBarto; \srcKochenderferADM}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Del control a la observabilidad parcial}
+
+Mi camino hacia este tema fue gradual:
+\begin{itemize}
+  \item primero, control clásico: por ejemplo, un controlador PID para estabilización de altitud;
+  \item luego, aprendizaje por refuerzo: dejar que el agente aprenda en lugar de codificar el comportamiento a mano;
+  \item finalmente, observabilidad parcial: un vuelo real implica datos de sensores ruidosos, retrasados e incompletos.
+\end{itemize}
+
+\medskip
+Eso cambia la naturaleza de la tarea:
+\begin{block}{Cambio clave}
+El dron no debería actuar solo sobre observaciones crudas. Debería actuar sobre lo que cree acerca de su estado, junto con cuán seguro está de esa creencia.
+\end{block}
+
+\SourceLine{\srcSuttonBarto; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Formulación del problema}
+
+%------------------------------------------------
+
+\begin{frame}{MDP vs. POMDP}
+
+En una formulación estándar de RL, el agente observa el estado verdadero y aprende una política
+\[
+\pi(a \mid s).
+\]
+
+Para un dron con sensores imperfectos, ese supuesto es falso.
+
+\medskip
+Un modelo más adecuado es un POMDP:
+\begin{itemize}
+  \item el estado verdadero está oculto,
+  \item el agente recibe observaciones ruidosas $o_t$,
+  \item el objeto relevante es una creencia sobre los posibles estados.
+\end{itemize}
+
+\medskip
+Entonces el problema central no es solo \emph{qué acción tomar}, sino también \emph{qué creer sobre el estado actual}.
+
+\SourceLine{\srcKochenderferADM; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Pregunta de investigación}
+
+\begin{block}{Pregunta central}
+¿Puede un agente de aprendizaje por refuerzo navegar un cuadricóptero de manera más efectiva bajo datos de sensores ruidosos e incompletos al mantener explícitamente una creencia sobre su propio estado, en comparación con un agente que trata las observaciones crudas como verdad de terreno?
+\end{block}
+
+\medskip
+Más específicamente, quiero evaluar si la representación explícita de la incertidumbre mejora:
+\begin{itemize}
+  \item la robustez frente al ruido,
+  \item la estabilidad durante el entrenamiento,
+  \item la eficiencia en muestras,
+  \item la generalización a condiciones no vistas.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Método}
+
+%------------------------------------------------
+
+\begin{frame}{Configuración experimental}
+
+El proyecto usará una tarea de navegación de cuadricóptero simulado construida con:
+\begin{itemize}
+  \item \texttt{gym-pybullet-drones} para el entorno,
+  \item Stable-Baselines3 para PPO,
+  \item NumPy / SciPy para estadísticas de creencia,
+  \item Matplotlib para trayectorias y curvas de entrenamiento.
+\end{itemize}
+
+\medskip
+Tarea base:
+\begin{itemize}
+  \item volar desde el origen hasta un waypoint fijo.
+\end{itemize}
+
+Controladores a comparar:
+\begin{itemize}
+  \item PID,
+  \item PPO con observaciones crudas,
+  \item PPO con observaciones aumentadas con creencia.
+\end{itemize}
+
+\SourceLine{\srcSchulman; \srcHwangbo}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Fase 1: línea de base bajo condiciones ideales}
+
+Objetivo: establecer si la canalización de RL funciona antes de introducir incertidumbre.
+
+\medskip
+Voy a comparar:
+\begin{itemize}
+  \item un controlador PID clásico con acceso directo al estado,
+  \item un agente PPO entrenado desde cero en la misma tarea de waypoint.
+\end{itemize}
+
+Resultados principales de esta fase:
+\begin{itemize}
+  \item curvas de recompensa,
+  \item trayectorias exitosas,
+  \item una línea de base limpia para estudios posteriores de degradación.
+\end{itemize}
+
+\SourceLine{\srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Fase 2: introducir incertidumbre}
+
+Voy a degradar la canalización de observación usando tres mecanismos de ruido:
+\begin{itemize}
+  \item ruido gaussiano sobre la posición observada,
+  \item pérdida de observaciones o repetición de mediciones viejas,
+  \item perturbaciones externas de viento.
+\end{itemize}
+
+\medskip
+Esta fase está diseñada para producir curvas de degradación y responder:
+\begin{quote}
+¿Qué tan rápido colapsa el desempeño cuando el sensado se vuelve menos confiable?
+\end{quote}
+
+\medskip
+También prueba si la política RL simple aprendió robustez genuina o si simplemente se sobreajustó a observaciones limpias.
+
+\SourceLine{\srcKochenderferADM; \srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Fase 3: observaciones aumentadas con creencia}
+
+Esta es la contribución central.
+
+\medskip
+A partir de una ventana deslizante de observaciones recientes, calcular:
+\[
+\hat{\mu}_t \qquad \text{y} \qquad \hat{\sigma}_t,
+\]
+
+donde:
+\begin{itemize}
+  \item $\hat{\mu}_t$ es una estimación filtrada del estado,
+  \item $\hat{\sigma}_t$ es una medida de confianza.
+\end{itemize}
+
+La política recibe entonces una entrada aumentada:
+\[
+[o_t, \hat{\mu}_t, \hat{\sigma}_t].
+\]
+
+Hipótesis: el agente aprenderá a comportarse con más cautela cuando la incertidumbre sea alta y con mayor decisión cuando sea baja.
+
+\SourceLine{\srcKaelbling; \srcSchulman}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Fase 4: generalización y transferencia}
+
+Voy a comparar tres regímenes de entrenamiento:
+\begin{itemize}
+  \item un especialista entrenado solo con ruido bajo,
+  \item un especialista entrenado solo con ruido alto,
+  \item un generalista entrenado con aleatorización del dominio a través de niveles de ruido.
+\end{itemize}
+
+\medskip
+La evaluación se hará sobre condiciones de ruido no vistas.
+
+\medskip
+Pregunta clave:
+\begin{block}{Pregunta de transferencia}
+¿El generalista aumentado con creencia transfiere mejor a condiciones no vistas que las políticas especializadas en un solo régimen?
+\end{block}
+
+\SourceLine{\srcTobin}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Resultados esperados}
+
+%------------------------------------------------
+
+\begin{frame}{Resultados esperados}
+
+\begin{itemize}
+  \item Bajo condiciones ideales, PPO debería igualar aproximadamente a PID después de suficiente entrenamiento.
+  \item PID debería ser más eficiente en muestras porque requiere ajuste, no aprendizaje.
+  \item Bajo ruido moderado y alto, PPO simple podría degradarse bruscamente si se sobreajusta a observaciones limpias.
+  \item PPO aumentado con creencia debería superar a PPO simple cuando el sensado se vuelve poco confiable.
+  \item El entrenamiento con aleatorización del dominio debería mejorar la transferencia a regímenes de ruido no vistos.
+\end{itemize}
+
+\medskip
+El resultado principal esperado es que incluso una señal de creencia liviana puede mejorar el comportamiento de RL bajo observabilidad parcial.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Productos y evaluación}
+
+Productos concretos:
+\begin{itemize}
+  \item curvas de entrenamiento para todas las variantes de agentes,
+  \item gráficos de trayectorias para PID, PPO simple y PPO consciente de la creencia,
+  \item curvas de degradación RMSE bajo distintos niveles de ruido,
+  \item una matriz de generalización train/test a través de regímenes de ruido,
+  \item un encuadre escrito de la tarea como POMDP.
+\end{itemize}
+
+\medskip
+Criterios de evaluación:
+\begin{itemize}
+  \item precisión de navegación,
+  \item tasa de éxito,
+  \item robustez frente a la incertidumbre,
+  \item generalización fuera del régimen de entrenamiento.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Discusión}
+
+%------------------------------------------------
+
+\begin{frame}{Por qué importa}
+
+Este proyecto es una prueba pequeña pero concreta de una pregunta más amplia en aprendizaje por refuerzo:
+
+\medskip
+\begin{quote}
+¿Qué representaciones deben hacerse explícitas para que un agente actúe bien bajo incertidumbre?
+\end{quote}
+
+\medskip
+Si las entradas conscientes de la creencia ayudan, eso respaldaría dos afirmaciones:
+\begin{itemize}
+  \item la observabilidad parcial es un cuello de botella práctico, no solo un detalle teórico,
+  \item la información explícita sobre incertidumbre puede cambiar el comportamiento que aprende un agente de RL.
+\end{itemize}
+
+También conecta control, robótica, RL y razonamiento basado en POMDP dentro de un único entorno experimental concreto.
+
+\SourceLine{\srcSuttonBarto; \srcKochenderferADM; \srcKaelbling}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Limitaciones y extensiones}
+
+Limitaciones actuales:
+\begin{itemize}
+  \item la representación de creencia es solo una aproximación liviana,
+  \item PPO es solo un algoritmo posible de RL,
+  \item el proyecto sigue estando en simulación.
+\end{itemize}
+
+\medskip
+Posibles extensiones:
+\begin{itemize}
+  \item comparar con estimación del estado basada en filtro de Kalman,
+  \item probar políticas recurrentes como LSTMs,
+  \item explorar RL basado en modelo o solucionadores explícitos de POMDP,
+  \item estudiar más adelante la transferencia sim-to-real.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\section{Referencias}
+
+%------------------------------------------------
+
+\begin{frame}{Referencias seleccionadas}
+\footnotesize
+\begin{itemize}
+  \item Sutton, R. S., \& Barto, A. G. (2018). \textit{Reinforcement Learning: An Introduction}.
+  \item Kochenderfer, M. J., Wheeler, T. A., \& Wray, K. H. (2022). \textit{Algorithms for Decision Making}.
+  \item Kaelbling, L. P., Littman, M. L., \& Cassandra, A. R. (1998). Planning and acting in partially observable stochastic domains.
+  \item Schulman, J. et al. (2017). Proximal Policy Optimization Algorithms.
+  \item Hwangbo, J. et al. (2017). Control of a quadrotor with reinforcement learning.
+  \item Tobin, J. et al. (2017). Domain randomization for transferring deep neural networks from simulation to real world.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+  \centering
+  \Huge Gracias
+\end{frame}
+
+\end{document}

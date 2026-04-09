@@ -1,0 +1,616 @@
+% !TEX program = xelatex
+\documentclass[10pt, a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\setotherlanguage{english}
+\setmainfont{Times New Roman}
+\setsansfont{Helvetica Neue}
+\setmonofont{Menlo}
+\newfontfamily\cyrillicfonttt{Times New Roman}
+
+\usepackage[top=2cm,bottom=2cm,left=2.2cm,right=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{colortbl}
+\usepackage{parskip}
+\usepackage{makecell}
+\usepackage{pdflscape}
+
+\tcbuselibrary{skins, breakable}
+
+% ─── Colors ─────────────────────────────────────────────────────────────────
+\definecolor{navy}{HTML}{1A237E}
+\definecolor{steelblue}{HTML}{0277BD}
+\definecolor{teal}{HTML}{00897B}
+\definecolor{amber}{HTML}{E65100}
+\definecolor{lightblue}{HTML}{E3F2FD}
+\definecolor{lightgreen}{HTML}{E8F5E9}
+\definecolor{lightyellow}{HTML}{FFF9C4}
+\definecolor{lightorange}{HTML}{FFE0B2}
+\definecolor{lightred}{HTML}{FFCDD2}
+\definecolor{lightgem}{HTML}{E1F5EE}
+\definecolor{lightstar}{HTML}{FFF8E1}
+\definecolor{darkgray}{HTML}{333333}
+\definecolor{midgray}{HTML}{607D8B}
+\definecolor{rowalt}{HTML}{F5F5F5}
+
+% ─── Section styling ────────────────────────────────────────────────────────
+\titleformat{\section}{\large\bfseries\color{navy}}{\thesection.}{0.5em}{}
+  [{\color{steelblue}\titlerule[1pt]}]
+\titleformat{\subsection}{\normalsize\bfseries\color{steelblue}}{\thesubsection.}{0.4em}{}
+\titleformat{\subsubsection}{\small\bfseries\color{midgray}}{\thesubsubsection.}{0.4em}{}
+
+% ─── Boxes ──────────────────────────────────────────────────────────────────
+\newtcolorbox{gembox}[1]{
+  colback=lightgem, colframe=teal, coltitle=white,
+  fonttitle=\bfseries\small, title={💎 #1},
+  arc=4pt, left=6pt, right=6pt, top=5pt, bottom=5pt, breakable
+}
+\newtcolorbox{starbox}[1]{
+  colback=lightstar, colframe=amber, coltitle=white,
+  fonttitle=\bfseries\small, title={★ #1},
+  arc=4pt, left=6pt, right=6pt, top=5pt, bottom=5pt, breakable
+}
+\newtcolorbox{stratbox}[1]{
+  colback=lightblue, colframe=navy, coltitle=white,
+  fonttitle=\bfseries, title={#1},
+  arc=4pt, left=8pt, right=8pt, top=6pt, bottom=6pt, breakable
+}
+\newtcolorbox{tipbox}{
+  colback=lightyellow, colframe=amber,
+  arc=3pt, left=6pt, right=6pt, top=4pt, bottom=4pt, breakable
+}
+
+% ─── Header/Footer ──────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{darkgray}\textit{PhD Guide: Robotics / Autonomous Systems / Safe RL}}
+\fancyhead[R]{\small\color{darkgray}\textit{Полный справочник профессоров}}
+\fancyfoot[C]{\small\color{darkgray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── Helpers ────────────────────────────────────────────────────────────────
+\newcommand{\match}[1]{%
+  \ifnum#1>89 \colorbox{lightgreen}{\textcolor{teal}{\textbf{#1\%}}}%
+  \else\ifnum#1>79 \colorbox{lightyellow}{\textcolor{amber}{\textbf{#1\%}}}%
+  \else\ifnum#1>69 \colorbox{lightorange}{\textcolor{amber}{#1\%}}%
+  \else \colorbox{lightred}{\textcolor{red!70!black}{#1\%}}%
+  \fi\fi\fi}
+
+\newcommand{\profsec}[3]{% {name}{lab}{match}
+  \vspace{4pt}
+  {\bfseries\color{navy}#1}\quad{\small\color{midgray}#2}\hfill\match{#3}\\[-2pt]
+  {\color{steelblue}\rule{\linewidth}{0.3pt}}
+}
+
+\hypersetup{colorlinks=true,linkcolor=steelblue,urlcolor=teal}
+
+% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ════════════════════════════════════════════════════════════════════════════
+
+% ─── Title ──────────────────────────────────────────────────────────────────
+\begin{center}
+{\color{navy}\LARGE\bfseries PhD Guide: Robotics \& Autonomous Systems}\\[6pt]
+{\color{steelblue}\large Полный справочник профессоров и стратегия поступления}\\[4pt]
+{\color{navy}\rule{\linewidth}{2pt}}\\[4pt]
+{\small\color{darkgray}
+Темы интересов: Аэродинамика · Дроны (UAV) · Reinforcement Learning ·
+System Control · Алгоритмы · Robotics \\
+Ориентир: \textbf{Prof.\ Mykel Kochenderfer (Stanford SISL)} · 4-летний горизонт
+}
+\end{center}
+
+\vspace{6pt}
+\tableofcontents
+\newpage
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Обозначения и легенда}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Символ} & \textbf{Значение} & \textbf{Пояснение} \\
+\midrule
+\colorbox{lightgreen}{\textcolor{teal}{\textbf{90–100\%}}} & Исключительное совпадение &
+  Темы лабы = твой список интересов \\
+\colorbox{lightyellow}{\textcolor{amber}{\textbf{80–89\%}}} & Очень хорошее совпадение &
+  Большинство тем совпадает \\
+\colorbox{lightorange}{\textcolor{amber}{70–79\%}} & Хорошее совпадение &
+  Частичное совпадение, стоит подавать \\
+\colorbox{lightred}{\textcolor{red!70!black}{< 70\%}} & Умеренное совпадение &
+  Запасной вариант \\
+\colorbox{lightstar}{\textcolor{amber}{★}} & Рекомендую & Лучшие варианты в своём уровне \\
+\colorbox{lightgem}{\textcolor{teal}{💎}} & Скрытая жемчужина &
+  Сильный проф + менее конкурентный входной барьер \\
+\bottomrule
+\end{tabular}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{УРОВЕНЬ 1 — Топ-5 университеты}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Stanford University}
+
+% ─── Kochenderfer ────────────────────────────────────────────────────────────
+\begin{starbox}{Mykel Kochenderfer — SISL (Stanford Intelligent Systems Lab) \hfill \match{98}}
+\textbf{Темы:} MDP/POMDP, Safe RL, Collision avoidance для дронов и автопилотов, Julia/POMDPs.jl, Decision making under uncertainty, Верификация нейросетей, LLM safety.
+
+\textbf{Почему подходит:}
+ГЛАВНАЯ ЦЕЛЬ. Его темы — это буквально твой список интересов слово в слово. Автор трёх учебников MIT Press, четвёртый на подходе. Проект PID vs RL с POMDP-расширением — прямой разговор на его языке. Kochenderfer — единственный человек, где совпадение тем выходит за пределы 95\%.
+
+\begin{tipbox}
+\textbf{Совет:} Email писать после публикации первого эксперимента или arXiv-препринта. Обязательно упомянуть POMDPs.jl и Julia. Показать знакомство с его книгой «Algorithms for Decision Making».
+\end{tipbox}
+\end{starbox}
+
+\vspace{4pt}
+
+\profsec{Marco Pavone}{ASL — Autonomous Systems Lab}{82}
+\textbf{Темы:} Autonomous aerospace vehicles, Control theory, Reachability, Safety, Motion planning, Optimization. Директор ASL, частично в NVIDIA.
+
+\textbf{Почему:} Хорошая альтернатива если у Kochenderfer нет мест. Работает на autonomous aerospace vehicles и safety-critical control. Публикации с CBF и reachability.
+
+\textbf{Совет:} Следить за его публикациями о reachability и motion planning. Писать про safety-critical control для autonomous systems.
+
+% ─── MIT ─────────────────────────────────────────────────────────────────────
+\subsection{MIT — Massachusetts Institute of Technology}
+
+\begin{starbox}{Jonathan How — ACL (Aerospace Controls Lab) \hfill \match{90}}
+\textbf{Темы:} UAV/дроны (физические), Multi-agent collision avoidance, POMDP-like planning, Neural networks + оптимизаторы, Robust planning, Distributed control.
+
+\textbf{Почему:} Работает ИМЕННО на дронах и multi-vehicle collision avoidance. Нейросети + оптимизаторы на бортовых системах. Очень активная лаба, публикации в ICRA каждый год. Если не Stanford — MIT/How это второй приоритет.
+
+\begin{tipbox}
+\textbf{Совет:} Изучить его публикации 2024–2025 о safe autonomy и trajectory planning для UAV. В email указать конкретную статью.
+\end{tipbox}
+\end{starbox}
+
+\vspace{4pt}
+
+\profsec{Sertac Karaman}{LIDS — Lab for Information \& Decision Systems}{78}
+\textbf{Темы:} UAVs, Stochastic systems, Алгоритмы (RRT*, sampling-based planning), Formal methods, Embedded systems. Директор LIDS.
+
+\textbf{Почему:} Автор знаменитого алгоритма RRT*. Алгоритмическая база + дроны + случайные процессы. Хорошо если интересна математика алгоритмов planning.
+
+\vspace{4pt}
+
+\profsec{Navid Azizan}{LIDS / MechE}{72}
+\textbf{Темы:} Meta-learning, Adaptive control, Дроны, Uncertainty, Mirror descent. Молодой профессор.
+
+\textbf{Почему:} Недавняя статья о control под uncertainty именно для UAV с meta-learning. Молодой проф = больше шансов быть принятой, больше внимания студентам.
+
+% ─── CMU ─────────────────────────────────────────────────────────────────────
+\subsection{Carnegie Mellon University (CMU)}
+
+\begin{starbox}{Guanya Shi — LeCAR (Learning and Control for Agile Robotics) \hfill \match{88}}
+\textbf{Темы:} RL + control theory, Aerial robotics, Safe systems, Agile flight, Sim-to-real transfer.
+
+\textbf{Почему:} PhD Caltech 2022, строит лабораторию с 2023 — много открытых позиций. Буквально: RL + control + aerial robotics + safety. Твой проект PID vs RL — прямое пересечение с его исследовательской программой.
+
+\begin{tipbox}
+\textbf{Совет:} Написать после 3-дневного прототипа. Показать код на GitHub. Молодой проф = больше личного внимания.
+\end{tipbox}
+\end{starbox}
+
+\vspace{4pt}
+
+\profsec{Sebastian Scherer}{AirLab — Aerial Robotics Lab}{75}
+\textbf{Темы:} Autonomous aerial vehicles, Perception, Navigation, Field robotics, Sim-to-real.
+
+\textbf{Почему:} Директор AirLab, фокус на физических дронах. Сильная практическая сторона. Подходит если интересен hardware + software вместе.
+
+% ─── Caltech ─────────────────────────────────────────────────────────────────
+\subsection{Caltech}
+
+\profsec{Aaron Ames}{CAST — Center for AEroSpace Autonomy Research}{80}
+\textbf{Темы:} Safety-critical systems, CBF (Control Barrier Functions), Nonlinear control, Robotics. Bren Professor.
+
+\textbf{Почему:} Создатель CBF — математического фундамента safe RL. Если хочешь глубоко понять safety constraints, это самый правильный человек в мире. Очень теоретически сильная лаба.
+
+\profsec{Soon-Jo Chung}{ARCL — Autonomous Robotics \& Control Lab}{77}
+\textbf{Темы:} Aerospace robotics, Learning-based control, Multi-agent, Space/UAV, Estimation.
+
+\textbf{Почему:} Научный руководитель Guanya Shi (CMU). Дроны + космос + learning control. Выпускники идут в JPL, Google, CMU.
+
+% ─── Berkeley ────────────────────────────────────────────────────────────────
+\subsection{UC Berkeley}
+
+\profsec{Claire Tomlin}{HiPeR — Hybrid and Embedded Systems}{76}
+\textbf{Темы:} Reachability analysis, Safe RL, Hybrid systems, UAV, Hamilton-Jacobi.
+
+\textbf{Почему:} Пионер в reachability analysis для безопасного управления. Лучший выбор по formal safety в Berkeley. Изучить HJ-reachability перед контактом.
+
+\profsec{Sergey Levine}{RAIL — Robotic AI \& Learning Lab}{65}
+\textbf{Темы:} Deep RL, Robot learning, Imitation learning, Offline RL.
+
+\textbf{Почему:} Топ в deep RL для роботов. Фокус на manipulation, меньше на UAV. Хорош как второй советник.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{УРОВЕНЬ 2 — Сильные программы}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Georgia Tech}
+
+\begin{gembox}{Shreyas Kousik — Safe Robotics Lab \hfill \match{85}}
+\textbf{Темы:} Safe RL, Reachability analysis, Provably-safe neural networks, Aerospace applications.
+
+\textbf{Почему:} Молодой (2022) профессор — активно берёт студентов. Специализация: safe RL через reachability + neural network verification. Статьи в ICRA 2025 о safe policy execution для роботов. Прямое совпадение с темой safety для дронов.
+
+\textbf{Совет:} Изучи RAIL (Reachability-Aided Imitation Learning) — его последняя статья. Напиши про интерес к safe RL + UAV.
+\end{gembox}
+
+\profsec{Ye Zhao}{LIDAR Lab}{72}
+\textbf{Темы:} RL + trajectory optimization, STL-MPC, Safe locomotion, Constrained control. Меньше фокус на дронах, больше на шагающих роботах, но методы те же.
+
+% ─── Michigan ────────────────────────────────────────────────────────────────
+\subsection{University of Michigan}
+
+\begin{gembox}{Dimitra Panagou — DASC Lab (Distributed Autonomous Systems \& Control) \hfill \match{92}}
+\textbf{Темы:} Safe multi-agent UAV системы, CBF, Provably-correct гарантии, Multi-vehicle coordination, VTOL, Space robotics.
+
+\textbf{Почему:} Одно из ЛУЧШИХ совпадений вне топ-5. Она буквально занимается safe + resilient multi-agent UAV с математическими гарантиями. Лаба оснащена 30+ физическими дронами (Crazyflie, DJI, Hummingbird и др.). NSF CAREER, AFOSR YIP, NASA Early Faculty. Site Director NSF CAAMS.
+
+\textbf{Совет:} Прочитай её статью про CBF + nonholonomic robots (2025). Напиши про safe multi-agent UAV с provably-correct гарантиями. Michigan = отличный «запасной план №1».
+\end{gembox}
+
+% ─── UPenn ───────────────────────────────────────────────────────────────────
+\subsection{University of Pennsylvania}
+
+\profsec{Vijay Kumar}{GRASP Lab}{88}
+\textbf{Темы:} UAV swarms, Agile flight, Multi-robot coordination, Trajectory planning. TED Talk о квадрокоптерах.
+
+\textbf{Почему:} Один из самых известных людей в мире по дронам. GRASP — один из старейших robotic labs в США.
+
+\textbf{Совет:} GRASP очень конкурентный — нужен сильный проект с дронами и желательно один реальный эксперимент.
+
+\profsec{Pratik Chaudhari}{GRASP / ESE}{68}
+\textbf{Темы:} Deep learning theory, RL optimization, Physics-informed ML. Молодой профессор (2020).
+
+% ─── UIUC ────────────────────────────────────────────────────────────────────
+\subsection{UIUC — University of Illinois Urbana-Champaign}
+
+\begin{starbox}{Naira Hovakimyan — ACRL (Advanced Controls Research Lab) \hfill \match{87}}
+\textbf{Темы:} L1 Adaptive Control, Safe learning, UAV systems, NASA ULI robust autonomy, Nonlinear control.
+
+\textbf{Почему:} Создательница L1 Adaptive Control — одного из мощнейших адаптивных регуляторов. Директор NASA University Leadership Initiative. UAV-работы тестировались на реальных самолётах и F-16. Если тебя цепляет математика управления — это твой человек.
+
+\begin{tipbox}
+\textbf{Совет:} Прочитай про L1 adaptive control перед контактом. Упомяни интерес к safe learning + неопределённость.
+\end{tipbox}
+\end{starbox}
+
+% ─── UT Austin ───────────────────────────────────────────────────────────────
+\subsection{UT Austin}
+
+\profsec{Peter Stone}{LARG — Learning Agents Research Group}{75}
+\textbf{Темы:} RL, Multi-agent systems, Cyber-physical systems. 30+ лет в RL. 2025 ACM/AAAI Allen Newell Award.
+
+\profsec{Joydeep Biswas}{AMRL — Autonomous Mobile Robotics Lab}{65}
+\textbf{Темы:} Autonomous navigation, Robot learning, Long-term autonomy.
+
+% ─── UW ──────────────────────────────────────────────────────────────────────
+\subsection{University of Washington}
+
+\profsec{Byron Boots}{Robot Learning Lab}{78}
+\textbf{Темы:} Robot learning, RL for dynamics, Sim-to-real, Off-road autonomy. Amazon Professor of ML. Бывший руководитель Guanya Shi.
+
+% ─── CU Boulder ──────────────────────────────────────────────────────────────
+\subsection{University of Colorado Boulder}
+
+\profsec{Eric Frew}{RECUV — Research \& Engineering Center for Unmanned Vehicles}{80}
+\textbf{Темы:} UAV systems, Autonomous flight, Planning under uncertainty, NSF CAAMS member.
+
+\textbf{Почему:} Директор RECUV — одного из старейших UAV-centers в США. Работает с planning под uncertainty для дронов. Менее конкурентный при поступлении.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{УРОВЕНЬ 3 — Скрытые жемчужины и широкая сеть}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{UC Berkeley (дополнительные лабы)}
+
+\begin{gembox}{Giuseppe Loianno — ARPL (Agile Robotics \& Perception Lab) \hfill \match{91}}
+\textbf{Темы:} Agile drones, RL sim-to-real, Quadrotor control, Onboard learning, Swarms, RLtools library.
+
+\textbf{Почему:} \textbf{ГОРЯЧИЙ МОМЕНТ — только что (2025) переехал из NYU в Berkeley!} Активно строит новую группу = много открытых мест. Лаборатория ARPL — одна из самых практических по RL для дронов. Соавтор RLtools (первый RL для дронов на микроконтроллере). NSF CAREER + DARPA YFA.
+
+\begin{tipbox}
+\textbf{Совет:} Написать СЕЙЧАС (через 1–2 года) — он только переехал. Показать код с gym-pybullet-drones на GitHub.
+\end{tipbox}
+\end{gembox}
+
+\profsec{Koushil Sreenath}{Hybrid Robotics Lab}{89}
+\textbf{Темы:} Aerial manipulation, CBF + RL для агрессивных манёвров дронов, Agile flight, Dynamic robots. Associate Professor. 16k+ цитирований.
+
+\textbf{Совет:} Изучи его работы по CBF для aerial systems. Упомяни hybrid dynamics и safe flight.
+
+\profsec{Mark Mueller}{High Performance Robotics Lab}{78}
+\textbf{Темы:} Quadrotor control, Wind-resilient flight, Multi-UAV payload transport, Trajectory optimization.
+
+\textbf{Почему:} Специализируется именно на квадрокоптерах. Меньше RL, больше математика управления. Меньшая лаба = больше внимания студентам.
+
+\subsection{UCSD — UC San Diego}
+
+\begin{gembox}{Sylvia Herbert — Safe Robotics Lab @ UCSD \hfill \match{85}}
+\textbf{Темы:} Hamilton-Jacobi reachability analysis, Safe RL, Uncertainty quantification, Autonomous vehicles.
+
+\textbf{Почему:} Один из ведущих экспертов по HJ-reachability — математическому фундаменту safe RL. Работает с Claire Tomlin (Berkeley) и Aaron Ames (Caltech). Молодой профессор (2021), активно берёт студентов. Тематика близка к Kochenderfer: safety + uncertainty.
+
+\textbf{Совет:} Прочитай её статьи по HJ reachability. Напиши про formal safety guarantees + RL.
+\end{gembox}
+
+\profsec{Gaurav Sukhatme}{RESL / CAAMS}{70}
+\textbf{Темы:} Networked robots, Field robotics, Marine UAV, Multi-agent. Директор CAAMS.
+
+\subsection{Texas A\&M University}
+
+\profsec{John Valasek}{Flight Dynamics \& Control Lab}{77}
+\textbf{Темы:} Flight control, UAV systems, Adaptive control, Morphing aircraft, Real flight testing. Часть NSF CAAMS.
+
+\profsec{Swaminathan Gopalswamy}{Unmanned Systems Lab}{65}
+\textbf{Темы:} UAV systems, Autonomy, VTOL, Field testing. Директор Unmanned Systems Lab, сотрудничество с ВВС США.
+
+\subsection{Virginia Tech}
+
+\profsec{Mazen Farhood}{Advanced Control Systems Lab}{74}
+\textbf{Темы:} Robust control, UAV verification, Formal methods, Safety analysis, Certification. Тематика верификации нейросетей совпадает с Kochenderfer.
+
+\profsec{Craig Woolsey}{Nonlinear Systems Lab}{68}
+\textbf{Темы:} Nonlinear control, UAV dynamics, Marine/aerial vehicles, Geometric mechanics.
+
+\subsection{University of Minnesota}
+
+\profsec{Nikolaos Papanikolopoulos}{LASR — Lab for Autonomous Systems}{70}
+\textbf{Темы:} Small UAV, Computer vision, Autonomous navigation, Search and rescue. Работает с дронами с 1990-х.
+
+\begin{gembox}{Peter Seiler — Control Science \& Dynamical Systems \hfill \match{72}}
+\textbf{Темы:} Robust control, Safety certification, Aerospace, LPV systems. Работал с NASA и Boeing.
+
+\textbf{Почему:} Если интересна safety certification для autonomous flight — хороший нишевый выбор.
+\end{gembox}
+
+\subsection{BYU — Brigham Young University}
+
+\begin{gembox}{Randal Beard — MAGICC Lab \hfill \match{82}}
+\textbf{Темы:} UAV formation control, Multi-agent cooperative systems, Planning, NSF CAAMS. 40\,000+ цитирований.
+
+\textbf{Почему:} \textbf{Главная скрытая жемчужина.} BYU — не топ-10, но Beard — один из самых цитируемых людей в мире по UAV cooperative control. Автор классических учебников «Small Unmanned Aircraft» (с McLain). Часть NSF CAAMS (с Panagou, Michigan). Проще поступить, сильный руководитель.
+
+\textbf{Совет:} Прочитай книгу «Small Unmanned Aircraft». Написать про cooperative UAV + safety planning.
+\end{gembox}
+
+\begin{gembox}{Timothy McLain — MAGICC Lab \hfill \match{78}}
+\textbf{Темы:} UAV path planning, Cooperative flight, Real-time control, Hardware.
+
+\textbf{Почему:} Соавтор Beard. Работают вместе в MAGICC Lab. Ко-адвайзор с Beard — можно написать к обоим.
+\end{gembox}
+
+\subsection{Ohio State University}
+
+\profsec{Ran Dai}{Autonomous Control \& Optimization Lab}{72}
+\textbf{Темы:} Autonomous aerospace, Trajectory optimization, Safety constraints, Neural control, UAV.
+
+\subsection{Arizona State University}
+
+\profsec{Heni Ben Amor}{Interactive Robotics Lab}{66}
+\textbf{Темы:} Robot learning, RL from demonstrations, Transfer learning. Новая программа PhD in Robotics @ ASU (2024). Менее конкурентный входной барьер.
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Сводная таблица всех профессоров}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{landscape}
+\small
+\begin{longtable}{p{3.2cm}p{3.5cm}p{2.2cm}p{5.5cm}p{1.2cm}p{1cm}p{1.5cm}}
+\toprule
+\textbf{Университет} & \textbf{Лаборатория} & \textbf{Профессор} &
+\textbf{Ключевые темы} & \textbf{Совп.} & \textbf{★} & \textbf{💎} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Университет} & \textbf{Лаборатория} & \textbf{Профессор} &
+\textbf{Ключевые темы} & \textbf{Совп.} & \textbf{★} & \textbf{💎} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+\rowcolor{lightblue}
+Stanford & SISL & Kochenderfer & MDP/POMDP, Safe RL, UAV, Julia & \match{98} & ★ & \\
+Stanford & ASL & Pavone & Autonomous aerospace, Safety & \match{82} & & \\
+\rowcolor{rowalt}
+MIT & ACL & How & UAV, Multi-agent, POMDP & \match{90} & ★ & \\
+\rowcolor{rowalt}
+MIT & LIDS & Karaman & UAV, Algorithms, RRT* & \match{78} & & \\
+\rowcolor{rowalt}
+MIT & LIDS/MechE & Azizan & Adaptive control, Drones & \match{72} & & \\
+CMU & LeCAR & Guanya Shi & RL+control, Aerial robotics & \match{88} & ★ & \\
+CMU & AirLab & Scherer & UAV, Field robotics & \match{75} & & \\
+\rowcolor{rowalt}
+Caltech & CAST & Aaron Ames & CBF, Safety-critical & \match{80} & & \\
+\rowcolor{rowalt}
+Caltech & ARCL & Soon-Jo Chung & Aerospace robots, Multi-agent & \match{77} & & \\
+UC Berkeley & HiPeR & Claire Tomlin & Reachability, Safe RL & \match{76} & & \\
+UC Berkeley & RAIL & Sergey Levine & Deep RL, Robot learning & \match{65} & & \\
+\rowcolor{rowalt}
+Georgia Tech & Safe Robotics & Shreyas Kousik & Safe RL, Reachability & \match{85} & & 💎 \\
+\rowcolor{rowalt}
+Georgia Tech & LIDAR & Ye Zhao & RL + traj. opt., MPC & \match{72} & & \\
+Michigan & DASC Lab & Dimitra Panagou & Safe UAV swarms, CBF & \match{92} & ★ & 💎 \\
+UPenn & GRASP & Vijay Kumar & UAV swarms, Agile flight & \match{88} & ★ & \\
+\rowcolor{rowalt}
+UPenn & GRASP/ESE & Pratik Chaudhari & RL optimization & \match{68} & & \\
+UIUC & ACRL & Naira Hovakimyan & L1 control, Safe learning & \match{87} & ★ & \\
+UT Austin & LARG & Peter Stone & RL, Multi-agent & \match{75} & & \\
+\rowcolor{rowalt}
+UT Austin & AMRL & Joydeep Biswas & Autonomous navigation & \match{65} & & \\
+UW & Robot Learning & Byron Boots & Robot learning, RL & \match{78} & & \\
+\rowcolor{rowalt}
+CU Boulder & RECUV/CAAMS & Eric Frew & UAV systems, Planning & \match{80} & & \\
+UC Berkeley & Hybrid Robotics & Koushil Sreenath & CBF+RL, Aerial robotics & \match{89} & & 💎 \\
+\rowcolor{lightgem}
+UC Berkeley & ARPL & Giuseppe Loianno & Agile drones, RL sim-to-real & \match{91} & ★ & 💎 \\
+UC Berkeley & HPR Lab & Mark Mueller & Quadrotor control, Wind & \match{78} & & \\
+\rowcolor{rowalt}
+UCSD & Safe Robotics UCSD & Sylvia Herbert & HJ-reachability, Safe RL & \match{85} & ★ & 💎 \\
+\rowcolor{rowalt}
+UCSD & RESL/CAAMS & Gaurav Sukhatme & Field robotics, UAV & \match{70} & & \\
+Texas A\&M & FDCL & John Valasek & Flight control, Adaptive UAV & \match{77} & & \\
+Virginia Tech & ACSL & Mazen Farhood & UAV verification, Robust & \match{74} & & \\
+\rowcolor{rowalt}
+Virginia Tech & Nonlinear Sys. & Craig Woolsey & Nonlinear dynamics, UAV & \match{68} & & \\
+Minnesota & LASR & Papanikolopoulos & Small UAV, Navigation & \match{70} & & \\
+\rowcolor{rowalt}
+Minnesota & Control Sci. & Peter Seiler & Safety certification & \match{72} & & 💎 \\
+\rowcolor{lightgem}
+BYU & MAGICC Lab & Randal Beard & UAV formation, Cooperative & \match{82} & ★ & 💎 \\
+\rowcolor{lightgem}
+BYU & MAGICC Lab & Timothy McLain & Path planning, Real-time & \match{78} & & 💎 \\
+Ohio State & ACOL & Ran Dai & Aerospace, Traj. opt. & \match{72} & & \\
+\rowcolor{rowalt}
+ASU & IRL & Heni Ben Amor & Robot learning, RL & \match{66} & & \\
+\end{longtable}
+\end{landscape}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Стратегия поступления}
+% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Общий принцип}
+
+\begin{stratbox}{Три правила PhD-поиска}
+\begin{enumerate}[leftmargin=1.5em, itemsep=3pt]
+  \item \textbf{Профессор важнее рейтинга университета.} Сильный руководитель в программе \#20 лучше слабого в \#5. Выбирай место где есть твой человек и тематика.
+  \item \textbf{Подавать в 10–14 мест одновременно.} Это стандартная практика. Никто не подаёт только в одно.
+  \item \textbf{PhD финансируется.} В США PhD в STEM практически всегда идёт с финансированием (stipend \$30–40k/год + tuition waiver). Это не аппликация «за свои деньги».
+\end{enumerate}
+\end{stratbox}
+
+\subsection{4-летний roadmap}
+
+\begin{center}
+\begin{tabular}{>{\bfseries}p{2.8cm} p{3.5cm} p{8.5cm}}
+\toprule
+Период & Фокус & Конкретные задачи \\
+\midrule
+Годы 1--2 & Математика и теория &
+  Линейная алгебра, ОДУ, теория вероятностей, MDP/POMDP-формализм, PID, LQR, устойчивость по Ляпунову. Читать: Kochenderfer «Algorithms for Decision Making», Sutton \& Barto RL. \\
+\midrule
+Годы 1--2 & Первый проект &
+  PID vs RL vs Hybrid для квадрокоптера (gym-pybullet-drones + Stable-Baselines3). Добавить safety constraints (CBF) или POMDP-постановку. Выложить на GitHub. \\
+\midrule
+Год 3 & SISL-фактор &
+  Добавить: POMDP (зашумлённые датчики), formal safety (CBF), или multi-agent coordination. Перевести часть кода на Julia + POMDPs.jl. \\
+\midrule
+Год 3--4 & Публикация &
+  Workshop paper или full paper для ICRA, IROS, L4DC, ACC. Даже отказ — это опыт. Минимум — arXiv-препринт. Это главный дифференциатор. \\
+\midrule
+Год 4 & Нетворкинг &
+  Посетить конференцию (ICRA, NeurIPS, CoRL). Найти профессоров из списка, представиться. Email: «Я прочитала статью X, вот что я сделала похожего [GitHub].» \\
+\midrule
+Год 4 (осень) & Подача документов &
+  Декабрь — дедлайны большинства программ. Statement of Purpose: конкретный проект + конкретный профессор + конкретная исследовательская цель. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Рекомендуемый список для подачи (12 университетов)}
+
+\begin{center}
+\begin{tabular}{>{\bfseries}p{2.5cm} p{5.5cm} p{7cm}}
+\toprule
+Категория & Университет / Профессор & Обоснование \\
+\midrule
+\rowcolor{lightblue}
+Мечта (3) & Stanford — Kochenderfer / Pavone &
+  Главная цель. SISL = прямое совпадение. Сложно, но реально с сильным проектом. \\
+\rowcolor{lightblue}
+Мечта (3) & MIT — Jonathan How &
+  UAV + multi-agent collision avoidance. Практически идеальное совпадение тем. \\
+\rowcolor{lightblue}
+Мечта (3) & CMU — Guanya Shi &
+  RL + control + aerial robotics. Молодой проф, активно берёт студентов. \\
+\rowcolor{lightgreen}
+Сильные (4) & Michigan — Dimitra Panagou &
+  Safe multi-agent UAV. 30+ дронов в лабе. Один из лучших outside топ-5. \\
+\rowcolor{lightgreen}
+Сильные (4) & UC Berkeley — Loianno / Sreenath &
+  Loianno только переехал (2025) — много мест. Sreenath: CBF + agile flight. \\
+\rowcolor{lightgreen}
+Сильные (4) & Caltech — Aaron Ames &
+  Если хочешь самую глубокую safety теорию — создатель CBF. \\
+\rowcolor{lightgreen}
+Сильные (4) & UIUC — Naira Hovakimyan &
+  L1 adaptive control + NASA ULI. Лучший выбор при интересе к математике управления. \\
+\rowcolor{lightyellow}
+Реальные (3) & Georgia Tech — Shreyas Kousik &
+  Safe RL + reachability. Молодой проф, меньше конкуренции чем в топ-5. \\
+\rowcolor{lightyellow}
+Реальные (3) & UCSD — Sylvia Herbert &
+  HJ-reachability + safe RL. Молодой проф (2021), активно берёт студентов. \\
+\rowcolor{lightyellow}
+Реальные (3) & UPenn — Vijay Kumar &
+  Легендарная UAV лаба. Нужен реальный эксперимент. \\
+\rowcolor{lightorange}
+Страховки (2) & BYU — Randal Beard &
+  40k+ цит. по UAV cooperative control. Проще поступить, сильный руководитель. \\
+\rowcolor{lightorange}
+Страховки (2) & CU Boulder — Eric Frew &
+  Специализированный UAV центр. CAAMS. Меньше конкуренция. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Как написать email профессору}
+
+\begin{stratbox}{Структура идеального email}
+\begin{description}[leftmargin=2em, style=nextline]
+  \item[\textbf{Тема письма:}] \texttt{PhD inquiry — [Название статьи которую ты прочитала]}\\
+    Конкретная тема сразу говорит: «Я читала твою работу, это не массовая рассылка.»
+  \item[\textbf{Абзац 1:}] Кратко кто ты и откуда. 1–2 предложения. Университет, специальность, год.
+  \item[\textbf{Абзац 2:}] Конкретная статья + вопрос или наблюдение. Покажи что реально читала.\\
+    \textit{Пример:} «В вашей статье RAIL вы показываете, что reachability-based safety layer можно добавить к любой RL-политике. Я задалась вопросом: применимо ли это к POMDP-постановке где наблюдения зашумлены?»
+  \item[\textbf{Абзац 3:}] Твой проект с ссылкой на GitHub. Конкретный результат.\\
+    \textit{Пример:} «Я реализовала сравнение PID vs PPO для квадрокоптера с ветровыми возмущениями. Репозиторий: [ссылка]. Планирую добавить CBF safety layer.»
+  \item[\textbf{Финал:}] «Планируете ли вы брать PhD-студентов в [осень 20XX]?»\\
+    Прямой вопрос уважает время профессора.
+\end{description}
+\end{stratbox}
+
+\vspace{4pt}
+
+\begin{tipbox}
+\textbf{Золотое правило:} Профессора получают десятки «cold emails» в неделю. Тебя выделит: конкретная статья + конкретный вопрос + ссылка на реальный код. Без этих трёх элементов письмо теряется.
+\end{tipbox}
+
+\subsection{Statement of Purpose: структура}
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=4pt]
+  \item \textbf{Хук (1 абзац):} Конкретная исследовательская проблема которую ты хочешь решить. Не «я мечтаю о роботах», а «Collision avoidance для autonomos UAV в условиях неопределённости — нерешённая проблема которую я хочу формализовать как POMDP и решить методами safe RL.»
+  \item \textbf{Твой фон (1--2 абзаца):} Конкретные проекты, курсы, математический бэкграунд. Цифры и результаты важнее названий.
+  \item \textbf{Твой проект (1 абзац):} PID vs RL vs Hybrid + что ты добавила (POMDP? CBF?). Ссылка на GitHub или arXiv.
+  \item \textbf{Почему этот профессор (1 абзац):} Конкретная статья + почему именно она. Не «у вас сильная лаба», а «ваш подход к CBF в работе X именно та математика которую я хочу использовать для задачи Y.»
+  \item \textbf{Исследовательский вопрос (1 абзац):} Что конкретно ты хочешь исследовать в PhD. Не обязательно точно — но конкретно в направлении.
+\end{enumerate}
+
+\vspace{6pt}
+\begin{center}
+{\small\color{darkgray}\itshape
+Документ составлен на основе исследовательского трека: PhD @ Stanford SISL.
+Все данные актуальны на апрель 2026.}
+\end{center}
+
+\end{document}

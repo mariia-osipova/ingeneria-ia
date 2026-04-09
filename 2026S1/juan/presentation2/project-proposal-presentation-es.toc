@@ -1,0 +1,7 @@
+\babel@toc {spanish}{}\relax 
+\beamer@sectionintoc {1}{Motivación}{3}{0}{1}
+\beamer@sectionintoc {2}{Formulación del problema}{6}{0}{2}
+\beamer@sectionintoc {3}{Método}{8}{0}{3}
+\beamer@sectionintoc {4}{Resultados esperados}{13}{0}{4}
+\beamer@sectionintoc {5}{Discusión}{15}{0}{5}
+\beamer@sectionintoc {6}{Referencias}{17}{0}{6}

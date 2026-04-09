@@ -1,0 +1,204 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{a4wide}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{parskip}
+
+\pagestyle{empty}
+\title{Project Proposal: Belief-Aware Drone Navigation Under Partial Observability}
+\author{Mariia Osipova}
+\date{April 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\section*{Abstract}
+
+The question at the heart of this project first crystallized during a talk by Mykel Kochenderfer at UdeSA in June 2025 on sequential decision-making under uncertainty. The central idea - that an agent must act well precisely when it does not know where it is or what will happen next - struck me as the most interesting problem I had encountered in my studies.
+
+My path toward to this idea was gradual. I first explored control theory: the mathematics of making a system do what you want, reliably and provably. As a small exercise I built a PID altitude controller for a simulated quadrotor — the drone lifts off, climbs, and stabilizes at five meters (\texttt{[link]}). The project was simple, but it made the core challenge tangible: even holding a single altitude requires closing the loop between sensing, estimation, and actuation.
+
+
+Once the controller worked, the natural next question was: how can I make
+this drone more autonomous? That question led me in two directions at once. The first was reinforcement learning: instead of
+programming the behavior by hand, let the agent discover it through
+interaction with the environment — taking actions, receiving rewards, and
+gradually learning a policy that maximizes long-term performance. The second
+was partial observability: in any real flight, the drone does not know its
+true state — it only has noisy, delayed, incomplete sensor readings, and must
+decide what to do based on what it \emph{believes} rather than what it
+\emph{knows}. The power of RL is that it can find strategies in environments
+too complex to model by hand; the difficulty is that when states are hidden,
+the agent must learn not only \emph{what to do}, but also \emph{what to believe
+about where it is}. This tension between acting and estimating I think is at the core of what makes RL under partial observability a deep and
+open problem.
+
+The specific trigger for going deeper was learning about autonomous drones, where a small vehicle must navigate an unknown environment with no perfect measurements. The question ``how does it decide?'' turned out to have a complex answer. The vehicle maintains a probability distribution over possible states of the world and chooses actions that are good in expectation over that entire distribution. This framework — the Partially Observable Markov Decision Process (POMDP) — sits precisely at the intersection of what I find most compelling: RL as the mechanism for acquiring behavior, uncertainty as the central constraint, and principled decision-making as the goal.
+
+In a standard RL setup — a fully observed Markov Decision Process — the agent sees the true state at every step, and a memoryless policy is in principle sufficient. But a drone with noisy sensors never sees the true state. It sees an observation that is a corrupted, delayed, and partial view of reality. A naive RL agent that treats these observations as ground truth will learn a fragile policy: one that works under clean conditions but fails when the noise increases. The alternative explored in this project is to give the agent access to a representation of its own uncertainty — a lightweight belief — so that it can learn to act cautiously when uncertain and decisively when confident.
+
+The central question of this project is:
+
+\begin{quote}
+Can a reinforcement-learning agent navigate a quadrotor more effectively under noisy and incomplete sensor data by explicitly maintaining a belief over its own state, compared to an agent that treats raw observations as ground truth?
+\end{quote}
+
+This question matters because real autonomous systems rarely operate under perfect information. A drone that performs well only when every sensor reading is clean is not robust enough for deployment outside the laboratory. I want to understand whether — and under what conditions — explicit uncertainty representation makes reinforcement learning more sample-efficient, more stable, and more transferable to novel environments — and whether the exploration-exploitation tradeoff itself changes when the agent knows how much it does not know.
+
+\newpage
+
+% \section*{Background: Why Reinforcement Learning?}
+
+% A classical controller like PID takes the current error — the gap between where the drone is and where it should be — and outputs a correction. This works well when the state is known and the dynamics are simple. But for a drone navigating through an unknown environment with degraded sensors, the problem is fundamentally different: the agent must \emph{learn} a strategy from experience, because no one can write down the optimal policy in advance.
+
+% Reinforcement learning formalizes this as a Markov Decision Process (MDP). At each time step the agent observes a state $s_t$, takes an action $a_t$, receives a reward $r_t$, and transitions to a new state $s_{t+1}$. The goal is to find a policy $\pi(a \mid s)$ that maximizes the expected cumulative reward. The agent does not know the transition dynamics or the reward function in advance — it discovers them through trial and error.
+
+% The core tension in RL is \textbf{exploration versus exploitation}. The agent must try new actions to discover better strategies (explore), but it must also use what it has already learned to accumulate reward (exploit). In drone navigation this tension is concrete: should the agent follow a known safe path, or try a shortcut that might be faster but might also crash?
+
+% When observations are noisy or incomplete, the problem becomes a POMDP. The agent no longer sees the true state $s_t$; instead it receives an observation $o_t$ that is a noisy, partial view of the world. The optimal strategy now depends not on a single state but on the agent's entire history of observations — or equivalently, on its \textbf{belief}: a probability distribution over possible states given everything it has seen so far.
+
+% Policy gradient methods like Proximal Policy Optimization (PPO) handle this by parameterizing the policy as a neural network and optimizing it directly. PPO is particularly well-suited for continuous control tasks because it updates the policy in small, stable steps — avoiding the catastrophic forgetting that can occur with larger updates. In this project, the key question is what the network receives as input: raw noisy observations, or a belief-augmented representation that encodes both an estimate of the state and a measure of uncertainty.
+
+
+% \section*{Method}
+
+% The project is structured in four phases, each building on the previous one.
+
+% \subsection*{Phase 1: Baseline under ideal conditions}
+
+% I will build a drone navigation setup using \texttt{gym-pybullet-drones} and Stable-Baselines3. Two controllers will be implemented and compared on the same task — flying from the origin to a fixed waypoint:
+
+% \begin{itemize}[leftmargin=1.8em]
+%     \item a classical PID controller that uses the known state directly;
+%     \item a PPO agent that learns the task from scratch through interaction with the environment.
+% \end{itemize}
+
+% This phase establishes whether RL is competitive with hand-tuned control even before uncertainty is introduced. It also provides a clean reward signal to validate the training pipeline. The reward function combines a distance-based shaping term (encouraging progress toward the goal) with a penalty for excessive control effort and a terminal bonus for reaching the waypoint within tolerance.
+
+% \subsection*{Phase 2: Introducing uncertainty}
+
+% I will degrade the observation pipeline with three kinds of noise, each motivated by real sensor failures:
+
+% \begin{itemize}[leftmargin=1.8em]
+%     \item \textbf{Gaussian noise}: additive zero-mean noise on the drone's observed position, simulating IMU drift or GPS jitter;
+%     \item \textbf{Observation dropout}: the sensor occasionally repeats the previous reading instead of returning a fresh one, simulating communication delays or processing lag;
+%     \item \textbf{Wind disturbance}: a time-varying external force applied to the drone, simulating turbulence that the agent cannot directly observe.
+% \end{itemize}
+
+% Both the PID and PPO controllers will be evaluated under increasing levels of each noise type. This produces a \emph{degradation curve} — showing how performance drops as the environment becomes less cooperative. A central RL question here is whether the agent trained under clean conditions has learned a policy that is fragile (overfitting to perfect observations) or partially robust.
+
+% \subsection*{Phase 3: Belief-augmented observations}
+
+% This is the core contribution. I will test whether the RL agent improves when it receives a compact belief representation rather than only raw noisy observations. Concretely, the agent will maintain a sliding window of the last $k$ observations and compute:
+
+% \begin{itemize}[leftmargin=1.8em]
+%     \item a \textbf{running mean} $\hat{\mu}_t$, serving as a filtered state estimate;
+%     \item a \textbf{running standard deviation} $\hat{\sigma}_t$, serving as a measure of the agent's confidence in its own position estimate.
+% \end{itemize}
+
+% This pair $(\hat{\mu}_t, \hat{\sigma}_t)$ is appended to the observation vector, so the policy network receives both \emph{what it thinks the state is} and \emph{how certain it is}. The hypothesis is that an agent with access to its own uncertainty can learn more conservative behavior when confidence is low (for example, slowing down or holding position) and more aggressive behavior when confidence is high.
+
+% From an RL perspective, this changes the effective state space. The belief-augmented agent operates in a richer observation space that partially resolves the partial observability — bringing the problem closer to a fully observed MDP where standard RL methods have stronger convergence guarantees.
+
+% \subsection*{Phase 4: Generalization and adaptation}
+
+% I will train three types of agents and compare their ability to generalize:
+
+% \begin{itemize}[leftmargin=1.8em]
+%     \item a \textbf{specialist} trained only under low noise;
+%     \item a \textbf{specialist} trained only under high noise;
+%     \item a \textbf{generalist} trained on a uniform distribution of noise levels (domain randomization).
+% \end{itemize}
+
+% These agents will be evaluated on held-out noise conditions not seen during training. This phase directly addresses the exploration--exploitation tradeoff at the \emph{training level}: the generalist explores a wider range of conditions during learning, which may cost some performance in any single regime but should yield better transfer. The question is whether the belief-augmented generalist achieves the best of both worlds — robust performance across conditions \emph{and} graceful degradation under extremes.
+
+% \subsection*{Tools}
+
+% \begin{center}
+% \begin{tabularx}{0.95\textwidth}{l l X}
+% \toprule
+% \textbf{Category} & \textbf{Tool} & \textbf{Purpose} \\
+% \midrule
+% Simulation & gym-pybullet-drones & Physics-based quadrotor environment \\
+% RL framework & Stable-Baselines3 & PPO implementation with vectorized environments \\
+% Numerical tools & NumPy, SciPy & Belief computation, statistics, signal processing \\
+% Visualization & Matplotlib & Training curves, trajectory plots, degradation curves \\
+% Documentation & \LaTeX & Research report and future paper writing \\
+% Future extension & Julia / POMDPs.jl & Exact and approximate POMDP solvers (Julia intrigued me) \\
+% \bottomrule
+% \end{tabularx}
+% \end{center}
+
+\section*{Expected Results}
+
+At this stage, the project is a proposal rather than a finished empirical study, so this section describes the outcomes I expect to measure.
+
+\textbf{Baseline comparison.} Under ideal conditions, PPO should match or slightly exceed PID performance after sufficient training, since the learned policy can adapt its gains implicitly. However, PID should be more sample-efficient — it requires no training at all, only tuning.
+
+\textbf{Noise sensitivity.} I expect a degradation curve showing root mean squared position error (RMSE) as a function of noise level. PID should degrade linearly, since it has no mechanism to compensate for sensor error beyond its fixed gains. The plain RL agent may degrade more gracefully if it has implicitly learned some robustness during training, or more sharply if it has overfit to clean observations.
+
+\textbf{Belief augmentation.} This is the central hypothesis. I expect the belief-augmented RL agent to outperform the plain RL agent under moderate-to-high noise levels, because the former has access not only to what it observes, but also to how certain it is about those observations. If the agent learns to condition its behavior on $\hat{\sigma}_t$ — for example, reducing velocity when uncertainty is high — this would be direct evidence that explicit uncertainty representation improves decision-making under partial observability.
+
+\textbf{Generalization.} I expect the generalist agent (trained with domain randomization) to outperform both specialists on unseen noise levels. The belief-augmented generalist should show the strongest transfer, because the $(\hat{\mu}_t, \hat{\sigma}_t)$ signal gives it a noise-level-agnostic representation of its own confidence.
+
+The concrete outputs of the project will include:
+\begin{itemize}[leftmargin=1.8em]
+    \item training curves (reward vs.\ episodes) for all agent variants;
+    \item trajectory plots for PID, plain PPO, and belief-augmented PPO;
+    \item RMSE degradation curves under varying noise levels;
+    \item a comparison of plain RL vs.\ belief-augmented RL across noise regimes;
+    \item a generalization matrix: agent type $\times$ test noise level;
+    \item a written theoretical framing of the task as a POMDP.
+\end{itemize}
+
+\section*{Discussion}
+
+This project is about understanding when and why certain decision-making strategies succeed or fail under uncertainty — and specifically, whether giving a learning agent access to its own uncertainty changes what it learns.
+
+The connection to reinforcement learning theory is direct. In a fully observed MDP, a memoryless policy is sufficient: the current state contains all the information the agent needs. In a POMDP, this is no longer true — the agent needs memory or a belief state to act optimally. By augmenting observations with running statistics, this project implements a lightweight form of belief tracking and tests whether it provides a meaningful advantage in practice. If it does, this supports the theoretical claim that partial observability is not just a theoretical concern but a practical bottleneck for RL in robotics.
+
+The project also connects to the broader question of \emph{what representations matter for learning}. The policy network in PPO is a function approximator — it can only learn patterns that are visible in its input. If the input contains only raw noisy positions, the network must implicitly learn to filter noise. If the input also contains $\hat{\sigma}_t$, the network can directly condition on uncertainty, which may be easier to learn and more transferable across noise regimes.
+
+There are clear limitations. The belief representation used here is only an approximation, based on simple running statistics rather than a full Bayesian state estimator such as a Kalman filter or a particle filter. PPO is only one RL algorithm; model-based methods or recurrent policies (which maintain internal memory) might perform differently. The simulator, while physically grounded, still leaves the sim-to-real gap as an open question.
+
+Even with those limitations, the project is a useful first step. It connects reinforcement learning, control, and decision-making under uncertainty in a concrete setting that is small enough to build and analyze carefully. It can later be extended toward more formal POMDP solvers, richer belief representations (learned rather than hand-designed), recurrent architectures like LSTMs that maintain implicit beliefs, and possibly multi-agent settings. For that reason, I see this project not as an isolated exercise, but as the beginning of a larger research direction.
+
+\newpage
+
+\section*{Sources I found relevant}
+
+\begin{itemize}[leftmargin=1.8em]
+    \item Sutton, R. S., \& Barto, A. G. (2018). \textit{Reinforcement Learning: An Introduction} (2nd ed.). MIT Press. Available at: \url{http://incompleteideas.net/book/the-book.html}
+
+    \item Kochenderfer, M. J., Wheeler, T. A., \& Wray, K. H. (2022). \textit{Algorithms for Decision Making}. MIT Press. Available at: \url{https://algorithmsbook.com}
+
+    \item Kaelbling, L. P., Littman, M. L., \& Cassandra, A. R. (1998). Planning and acting in partially observable stochastic domains. \textit{Artificial Intelligence, 101}(1--2), 99--134.
+
+    \item Silver, D., \& Veness, J. (2010). Monte-Carlo planning in large POMDPs. \textit{Advances in Neural Information Processing Systems}, 23.
+
+    \item Somani, A., Ye, N., Hsu, D., \& Lee, W. S. (2013). DESPOT: Online POMDP Planning with Regularization. \textit{NeurIPS}, 26.
+
+    \item Panerati, J., Zheng, H., Zhou, S., Xu, J., Prorok, A., \& Schoellig, A. P. (2021). Learning to fly --- in seconds. \textit{IEEE Robotics and Automation Letters, 6}(2), 2288--2295.
+
+    \item Schulman, J., Wolski, F., Dhariwal, P., Radford, A., \& Klimov, O. (2017). Proximal Policy Optimization Algorithms. \textit{arXiv:1707.06347}.
+
+    \item Hwangbo, J., Sa, I., Siegwart, R., \& Hutter, M. (2017). Control of a quadrotor with reinforcement learning. \textit{IEEE Robotics and Automation Letters, 2}(4), 2096--2103.
+
+    \item Hoel, C.-J., Wolff, K., \& Laine, L. (2020). Tactical decision-making in autonomous driving by reinforcement learning with uncertainty estimation. \textit{arXiv:2004.10439}.
+
+    \item Tobin, J., Fong, R., Ray, A., Schneider, J., Zaremba, W., \& Abbeel, P. (2017). Domain randomization for transferring deep neural networks from simulation to real world. \textit{IROS 2017}.
+
+    \item Kochenderfer, M. J. (2015). \textit{Decision Making Under Uncertainty: Theory and Application}. MIT Press.
+
+    \item Mern, J., Yildiz, A., Sunberg, Z., Mukerji, T., \& Kochenderfer, M. J. (2021). Bayesian Optimized Monte Carlo Planning. \textit{AAAI 2021}.
+\end{itemize}
+
+\end{document}

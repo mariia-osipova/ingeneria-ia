@@ -1,0 +1,1 @@
+/usr/bin/clang  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names "CMakeFiles/es-par.dir/2026S1/I200/tutorial/clase-1-alumnos/es-par/es-par.c.o" -o es-par

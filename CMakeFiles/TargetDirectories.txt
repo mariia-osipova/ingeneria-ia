@@ -1,0 +1,7 @@
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/practica-17.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/practica-18.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/tp1.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/diagnostico.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/ejercicios.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/edit_cache.dir
+/Users/maria/CLionProjects/ingeneria-ia/CMakeFiles/rebuild_cache.dir

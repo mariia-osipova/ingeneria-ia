@@ -1,0 +1,3 @@
+/Users/maria/CLionProjects/ingeneria-ia/cmake-build-debug/CMakeFiles/ingeneria_ia.dir
+/Users/maria/CLionProjects/ingeneria-ia/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/maria/CLionProjects/ingeneria-ia/cmake-build-debug/CMakeFiles/rebuild_cache.dir

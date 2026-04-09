@@ -1,0 +1,1 @@
+/opt/homebrew/bin/gcc-15  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/tp1.dir/2026S1/I200/tp1/tp1.c.o CMakeFiles/tp1.dir/2026S1/I200/tp1/testing.c.o CMakeFiles/tp1.dir/2026S1/I200/tp1/tests.c.o -o tp1

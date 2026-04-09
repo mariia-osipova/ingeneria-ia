@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{a4wide}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{parskip}
+
+\pagestyle{empty}
+\title{Propuesta de proyecto: Navegación de drones consciente de la creencia bajo observabilidad parcial}
+\author{Mariia Osipova}
+\date{Abril 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\section*{Resumen}
+
+La pregunta en el corazón de este proyecto se cristalizó por primera vez durante una charla de Mykel Kochenderfer
+en UdeSA en junio de 2025 sobre toma de decisiones secuencial bajo incertidumbre. La idea central,
+que un agente debe actuar bien precisamente cuando no sabe dónde está ni qué ocurrirá después.
+
+Mi camino hacia esta idea fue gradual. Primero exploré teoría de control:
+la matemática de hacer que un sistema haga lo que uno quiere, de manera confiable y demostrable.
+Como ejercicio pequeño construí un controlador PID de altitud para un cuadricóptero simulado:
+el dron despega, asciende y se estabiliza a cinco metros (\texttt{[link]}).
+El proyecto era simple, pero volvió tangible el desafío central:
+incluso mantener una sola altitud requiere cerrar el lazo entre sensado, estimación y actuación.
+
+Una vez que el controlador funcionó,
+la siguiente pregunta natural fue: ¿cómo puedo hacer que este dron sea más autónomo?
+Esa pregunta me llevó en dos direcciones a la vez. La primera fue el aprendizaje por refuerzo:
+en lugar de programar el comportamiento a mano, dejar que el agente lo descubra mediante
+interacción con el entorno, tomando acciones, recibiendo recompensas y aprendiendo gradualmente
+una política que maximiza el rendimiento a largo plazo. La segunda fue la observabilidad parcial:
+en cualquier vuelo real, el dron no conoce su estado verdadero, solo dispone de lecturas
+de sensores ruidosas, retardadas e incompletas, y debe decidir qué hacer basándose en lo que cree y no en lo que sabe.
+La fortaleza del RL es que puede encontrar estrategias en entornos demasiado complejos como para modelarlos a mano;
+la dificultad es que, cuando los estados están ocultos, el agente debe aprender no solo qué hacer, sino también qué creer sobre dónde está.
+Creo que esta tensión entre actuar y estimar está en el núcleo de lo que hace del RL bajo observabilidad parcial un problema profundo y abierto.
+
+El disparador específico para profundizar más fue aprender sobre drones autónomos, donde un vehículo pequeño debe navegar
+un entorno desconocido sin mediciones perfectas. La pregunta ``¿cómo decide?'' resultó tener una respuesta compleja.
+El vehículo mantiene una distribución de probabilidad sobre los posibles estados del mundo y elige acciones que son
+buenas en expectativa sobre toda esa distribución. Este marco,
+el Proceso de Decisión de Markov Parcialmente Observable (POMDP),
+se ubica exactamente en la intersección de lo que me resulta más atractivo:
+RL como mecanismo para adquirir comportamiento, incertidumbre como restricción central y toma de
+decisiones principiada como objetivo.
+
+En una formulación estándar de RL, un Proceso de Decisión de Markov completamente observable,
+el agente ve el estado verdadero en cada paso y una política sin memoria es, en principio,
+suficiente. Pero un dron con sensores ruidosos nunca ve el estado verdadero.
+Ve una observación que es una vista corrupta, retrasada y parcial de la realidad.
+Un agente ingenuo de RL que trate esas observaciones como verdad de terreno aprenderá
+una política frágil: una que funciona en condiciones limpias pero falla cuando el ruido aumenta.
+La alternativa explorada en este proyecto es darle al agente acceso a una representación de su propia incertidumbre,
+una creencia liviana, para que pueda aprender a actuar con cautela cuando es incierto y con
+decisión cuando tiene confianza.
+
+La pregunta central de este proyecto es:
+
+\begin{quote}
+¿Puede un agente de aprendizaje por refuerzo navegar un cuadricóptero
+de manera más efectiva bajo datos de sensores ruidosos e incompletos al mantener explícitamente
+una creencia sobre su propio estado, en comparación con un agente que trata las observaciones crudas
+como verdad de terreno?
+\end{quote}
+
+Esta pregunta importa porque los sistemas autónomos reales rara vez operan bajo información perfecta.
+Un dron que se desempeña bien solo cuando cada lectura del sensor es limpia no es lo bastante robusto
+para desplegarse fuera del laboratorio. Quiero entender si, y bajo qué condiciones,
+la representación explícita de la incertidumbre vuelve al aprendizaje por refuerzo más eficiente en muestras,
+más estable y más transferible a entornos novedosos, y si el propio compromiso exploración-explotación
+cambia cuando el agente sabe cuánto es lo que no sabe.
+
+\newpage
+
+\section*{Descripción general del proyecto (?)}
+
+En términos simples, el proyecto consiste en comparar tres maneras de controlar un dron
+simulado cuando los sensores no son perfectos.
+
+Los tres enfoques son:
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{PID}: un controlador clásico escrito a mano. No aprende; solo sigue reglas fijas. Noise = viento.
+    \item \textbf{RL sin información extra}: un agente que aprende a volar recibiendo solo las lecturas ruidosas de los sensores.
+    \item \textbf{RL con ``creencia''}: el mismo tipo de agente, pero que además recibe información sobre cuánto puede confiar en lo que está viendo.
+\end{itemize}
+
+La tarea base es sencilla: el dron tiene que volar desde un punto de origen hasta un destino fijo.
+Una vez que eso funciona, se agrega ruido a los sensores progresivamente y se mide cuál de los tres enfoques resiste mejor.
+
+La pregunta central es si ayuda que el agente sepa cuánto no sabe. Si cuando los sensores
+son poco confiables el dron aprende a moverse con más cautela, eso sería evidencia
+de que darle información sobre su propia incertidumbre hace una diferencia real.
+
+%\newpage
+
+\section*{Resultados esperados}
+
+En esta etapa, el proyecto es una propuesta y no un estudio terminado. Esta sección describe los resultados que espero obtener al implementarlo.
+
+\textbf{Comparación base.} Con sensores perfectos, el controlador aprendido (PPO) debería llegar a volar
+al menos tan bien como el controlador manual (PID) después de suficiente entrenamiento.
+Sin embargo, PID tiene una ventaja clara: no necesita entrenarse, solo ajustarse.
+
+\textbf{Qué pasa cuando los sensores fallan.} A medida que agrego ruido a las
+lecturas del sensor, espero ver cómo el rendimiento de cada enfoque se deteriora.
+El controlador PID debería degradarse de forma gradual. El agente de RL sin información de
+incertidumbre podría fallar de manera más brusca, especialmente si durante el entrenamiento aprendió a
+asumir que los sensores son confiables.
+
+\textbf{La idea central.} Espero que el agente que recibe información sobre su propia incertidumbre
+(el ``agente con creencia'') vuele mejor cuando los sensores son ruidosos.
+Si aprendió a moverse más despacio cuando no sabe bien dónde está, eso sería una señal clara de que darle
+al agente información sobre cuánto confía en sus propios sensores hace una diferencia práctica.
+
+\textbf{Generalización.} Si entrenamos al agente con distintos niveles de ruido en lugar de uno fijo,
+debería adaptarse mejor a condiciones nuevas.
+El agente con creencia debería generalizar aún mejor, porque tiene una forma de representar ``cuánto confío en lo que veo'' que no depende del nivel de ruido específico.
+
+Los resultados concretos del proyecto incluirán:
+\begin{itemize}[leftmargin=1.8em]
+    \item curvas de aprendizaje para cada versión del agente;
+    \item gráficos que muestren las trayectorias de vuelo de cada enfoque;
+    \item una comparación de cómo se degrada cada uno al aumentar el ruido;
+    \item una tabla que muestre qué tan bien generaliza cada agente a condiciones no vistas durante el entrenamiento;
+    \item una descripción escrita de la tarea en términos formales (POMDP).
+\end{itemize}
+
+\section*{Discusión}
+
+El objetivo de este proyecto es entender cuándo y por qué ayuda que un agente sepa cuánto no sabe.
+
+La motivación es intuitiva: si un dron supiera exactamente dónde está en todo momento,
+podría seguir reglas simples. Pero si sus sensores son ruidosos,
+no puede estar seguro de su posición real, y esa incertidumbre debería cambiar cómo actúa. La pregunta es si un agente que aprende por refuerzo puede, de hecho, aprovechar esa información y si hacerlo lo vuelve más robusto.
+
+Hay una distinción importante entre dos situaciones.
+Cuando el agente tiene acceso a toda la información relevante, actuar bien es más sencillo.
+Cuando solo ve una parte de la realidad, necesita rastrear lo que \emph{cree} que es verdad.
+Este proyecto prueba una versión simplificada de ese rastreo y mide si hace alguna diferencia práctica.
+La idea es que si el agente puede ver cuánto confía en sus propios sensores, puede aprender a ser más cuidadoso cuando esa confianza es baja.
+
+Hay limitaciones importantes. La representación de incertidumbre que uso es una aproximación simple,
+no un modelo estadístico completo. El algoritmo de RL elegido (PPO) es uno entre muchos,
+y otros podrían dar resultados distintos. El simulador, aunque realista, no es idéntico a un dron real,
+así que no está garantizado que lo que aprende el agente funcione igual fuera de la simulación.
+
+Aun con esas limitaciones, el proyecto es un punto de partida concreto.
+Es lo suficientemente acotado como para construirlo y analizarlo con cuidado,
+y puede extenderse más adelante hacia métodos más formales, representaciones más ricas o configuraciones más complejas.
+Lo veo como el comienzo de una dirección de investigación, no como un trabajo cerrado.
+
+\newpage
+
+\section*{Fuentes que me parecieron relevantes}
+
+\begin{itemize}[leftmargin=1.8em]
+    \item Sutton, R. S., \& Barto, A. G. (2018). \textit{Reinforcement Learning: An Introduction} (2nd ed.). MIT Press. Disponible en: \url{http://incompleteideas.net/book/the-book.html}
+
+    \item Kochenderfer, M. J., Wheeler, T. A., \& Wray, K. H. (2022). \textit{Algorithms for Decision Making}. MIT Press. Disponible en: \url{https://algorithmsbook.com}
+
+    \item Kaelbling, L. P., Littman, M. L., \& Cassandra, A. R. (1998). Planning and acting in partially observable stochastic domains. \textit{Artificial Intelligence, 101}(1--2), 99--134.
+
+    \item Silver, D., \& Veness, J. (2010). Monte-Carlo planning in large POMDPs. \textit{Advances in Neural Information Processing Systems}, 23.
+
+    \item Somani, A., Ye, N., Hsu, D., \& Lee, W. S. (2013). DESPOT: Online POMDP Planning with Regularization. \textit{NeurIPS}, 26.
+
+    \item Panerati, J., Zheng, H., Zhou, S., Xu, J., Prorok, A., \& Schoellig, A. P. (2021). Learning to fly --- in seconds. \textit{IEEE Robotics and Automation Letters, 6}(2), 2288--2295.
+
+    \item Schulman, J., Wolski, F., Dhariwal, P., Radford, A., \& Klimov, O. (2017). Proximal Policy Optimization Algorithms. \textit{arXiv:1707.06347}.
+
+    \item Hwangbo, J., Sa, I., Siegwart, R., \& Hutter, M. (2017). Control of a quadrotor with reinforcement learning. \textit{IEEE Robotics and Automation Letters, 2}(4), 2096--2103.
+
+    \item Hoel, C.-J., Wolff, K., \& Laine, L. (2020). Tactical decision-making in autonomous driving by reinforcement learning with uncertainty estimation. \textit{arXiv:2004.10439}.
+
+    \item Tobin, J., Fong, R., Ray, A., Schneider, J., Zaremba, W., \& Abbeel, P. (2017). Domain randomization for transferring deep neural networks from simulation to real world. \textit{IROS 2017}.
+
+    \item Kochenderfer, M. J. (2015). \textit{Decision Making Under Uncertainty: Theory and Application}. MIT Press.
+
+    \item Mern, J., Yildiz, A., Sunberg, Z., Mukerji, T., \& Kochenderfer, M. J. (2021). Bayesian Optimized Monte Carlo Planning. \textit{AAAI 2021}.
+\end{itemize}
+
+\end{document}

@@ -101,4 +101,4 @@ PID reaches the target in ~1.67 s on average. RL and Hybrid are untrained at thi
 
 ## Demo
 
-![Screen-Recording-2026-04-07.gif](img/Screen-Recording-2026-04-07.gif)
+<img src="/Users/maria/CLionProjects/ingeneria-ia/2026S1/juan/img/SR.gif" alt="Demo gif" />

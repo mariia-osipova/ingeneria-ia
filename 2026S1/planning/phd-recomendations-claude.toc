@@ -1,0 +1,32 @@
+\xpg@aux {}{russian}
+\contentsline {section}{\numberline {1}Обозначения и легенда}{2}{section.1}%
+\contentsline {section}{\numberline {2}УРОВЕНЬ 1 — Топ-5 университеты}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Stanford University}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}MIT — Massachusetts Institute of Technology}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Carnegie Mellon University (CMU)}{3}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Caltech}{3}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}UC Berkeley}{3}{subsection.2.5}%
+\contentsline {section}{\numberline {3}УРОВЕНЬ 2 — Сильные программы}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Georgia Tech}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}University of Michigan}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}University of Pennsylvania}{4}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}UIUC — University of Illinois Urbana-Champaign}{4}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}UT Austin}{4}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}University of Washington}{5}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}University of Colorado Boulder}{5}{subsection.3.7}%
+\contentsline {section}{\numberline {4}УРОВЕНЬ 3 — Скрытые жемчужины и широкая сеть}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}UC Berkeley (дополнительные лабы)}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}UCSD — UC San Diego}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Texas A\&M University}{6}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Virginia Tech}{6}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}University of Minnesota}{6}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}BYU — Brigham Young University}{6}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Ohio State University}{6}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}Arizona State University}{7}{subsection.4.8}%
+\contentsline {section}{\numberline {5}Сводная таблица всех профессоров}{7}{section.5}%
+\contentsline {section}{\numberline {6}Стратегия поступления}{10}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Общий принцип}{10}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}4-летний roadmap}{10}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Рекомендуемый список для подачи (12 университетов)}{11}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Как написать email профессору}{11}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Statement of Purpose: структура}{11}{subsection.6.5}%
